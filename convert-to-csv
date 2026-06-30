@@ -1,3 +1,8 @@
 #!/bin/sh
+if ! command -v soffice >/dev/null 2>&1; then
+  echo "soffice not found; skipping conversion in CI"
+  exit 0
+fi
+
 # Converts "AC Tasks.ods" to "AC Tasks.csv" using LibreOffice headless mode.
 soffice --headless --convert-to csv "AC Tasks.ods"
