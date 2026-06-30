@@ -1,5 +1,7 @@
 cytoscape.use(cytoscapeDagre);
 
+const dagreLayout = { name: "dagre", rankSep: 80, nodeSep: 200 };
+
 class CytoscapeGraph extends HTMLElement {
   connectedCallback() {
     this.style.display = "block";
@@ -8,7 +10,7 @@ class CytoscapeGraph extends HTMLElement {
     this._cy = cytoscape({
       container: this,
       elements: this._pendingElements || [],
-      layout: { name: "dagre" },
+      layout: dagreLayout,
       style: [
         { selector: "node", style: { label: "data(label)" } },
         { selector: "edge", style: { "target-arrow-shape": "triangle", "curve-style": "bezier" } },
@@ -20,7 +22,7 @@ class CytoscapeGraph extends HTMLElement {
     this._pendingElements = value;
     if (this._cy) {
       this._cy.json({ elements: value });
-      this._cy.layout({ name: "dagre" }).run();
+      this._cy.layout(dagreLayout).run();
     }
   }
 }
