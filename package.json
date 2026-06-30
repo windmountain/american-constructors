@@ -5,6 +5,10 @@
   "scripts": {
     "pregenerate": "./convert-to-csv",
     "generate": "node generate-data.js",
-    "build": "npm run generate && elm make src/Main.elm --output=index.html"
+    "build": "npm run generate && elm make src/Main.elm --output=main.js"
+  },
+  "dependencies": {
+    "cytoscape": "^3.34.0",
+    "cytoscape-dagre": "^4.0.0"
   }
 }

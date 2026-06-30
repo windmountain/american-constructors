@@ -3,7 +3,9 @@ module Main exposing (main)
 import Browser
 import Csv.Decode as Decode exposing (Decoder)
 import Data
-import Html exposing (Html, li, pre, text, ul)
+import Html exposing (Html, node, pre, text)
+import Html.Attributes exposing (property)
+import Json.Encode as Encode
 
 
 type TaskId
@@ -200,7 +202,7 @@ view _ =
     , body =
         [ case itemsResult of
             Ok items ->
-                ul [] (List.map viewItem items)
+                viewGraph items
 
             Err error ->
                 pre [] [ text (Decode.errorToString error) ]
@@ -208,14 +210,66 @@ view _ =
     }
 
 
-viewItem : Item -> Html Msg
-viewItem item =
+viewGraph : List Item -> Html Msg
+viewGraph items =
+    node "cytoscape-graph" [ property "elements" (encodeElements items) ] []
+
+
+encodeElements : List Item -> Encode.Value
+encodeElements items =
+    Encode.list identity (List.concatMap itemToElements items)
+
+
+itemFields : Item -> { id : TaskId, name : String, dependsOn : List TaskId }
+itemFields item =
     case item of
         TaskItem task ->
-            li [] [ text (task.name ++ " (" ++ task.section ++ ")") ]
+            { id = task.id, name = task.name, dependsOn = task.dependsOn }
 
         MilestoneItem milestone ->
-            li [] [ text (milestone.name ++ " (" ++ milestone.section ++ ") [milestone]") ]
+            { id = milestone.id, name = milestone.name, dependsOn = milestone.dependsOn }
+
+
+itemToElements : Item -> List Encode.Value
+itemToElements item =
+    let
+        fields =
+            itemFields item
+
+        nodeElement =
+            Encode.object
+                [ ( "data"
+                  , Encode.object
+                        [ ( "id", encodeTaskId fields.id )
+                        , ( "label", Encode.string fields.name )
+                        ]
+                  )
+                ]
+    in
+    nodeElement :: List.map (edgeElement fields.id) fields.dependsOn
+
+
+edgeElement : TaskId -> TaskId -> Encode.Value
+edgeElement dependent dependency =
+    Encode.object
+        [ ( "data"
+          , Encode.object
+                [ ( "id", Encode.string (taskIdToString dependency ++ "->" ++ taskIdToString dependent) )
+                , ( "source", encodeTaskId dependency )
+                , ( "target", encodeTaskId dependent )
+                ]
+          )
+        ]
+
+
+encodeTaskId : TaskId -> Encode.Value
+encodeTaskId id =
+    Encode.string (taskIdToString id)
+
+
+taskIdToString : TaskId -> String
+taskIdToString (TaskId id) =
+    String.fromInt id
 
 
 main : Program () Model Msg
