@@ -1,0 +1,55 @@
+Data Model (src/Main.elm)
+=========================
+
+Source data is one row per task or milestone, with a dependency list, an
+effort estimate, and a couple of flags (weather-dependent, can expedite).
+
+TaskId
+------
+    type TaskId = TaskId Int
+
+Opaque wrapper around a row's id, so dependency references can't be
+confused with other integers.
+
+Estimate
+--------
+    type Estimate
+        = Point Float
+        | Range Float Float
+
+A row's effort is either a single number or a low/high pair — never both,
+never half a pair. Float so values like 0.5 days are valid.
+
+Task vs. Milestone
+-------------------
+    type alias Task =
+        { id : TaskId
+        , section : String
+        , name : String
+        , dependsOn : List TaskId
+        , estimate : Estimate
+        , weatherDependent : Bool
+        , canExpedite : Bool
+        }
+
+    type alias Milestone =
+        { id : TaskId
+        , section : String
+        , name : String
+        , dependsOn : List TaskId
+        , weatherDependent : Bool
+        , canExpedite : Bool
+        }
+
+    type Item
+        = TaskItem Task
+        | MilestoneItem Milestone
+
+A row with no estimate is not a Task with a zero estimate — it's a
+Milestone, which has no estimate field at all. This mirrors standard
+project-management usage (a milestone is a zero-duration marker) and makes
+"what's this task's estimate?" impossible to even ask about a milestone,
+rather than relying on a sentinel zero value.
+
+Dependencies are a single `dependsOn : List TaskId` on both Task and
+Milestone.

@@ -6991,13 +6991,36 @@ var $author$project$Main$edgeElement = F2(
 							])))
 				]));
 	});
+var $elm$core$String$fromFloat = _String_fromNumber;
+var $elm$core$Basics$round = _Basics_round;
+var $author$project$Main$formatDays = function (days) {
+	return _Utils_eq(
+		days,
+		$elm$core$Basics$round(days)) ? $elm$core$String$fromInt(
+		$elm$core$Basics$round(days)) : $elm$core$String$fromFloat(days);
+};
+var $author$project$Main$estimateText = function (estimate) {
+	if (estimate.$ === 'Point') {
+		var days = estimate.a;
+		return $author$project$Main$formatDays(days) + 'd';
+	} else {
+		var low = estimate.a;
+		var high = estimate.b;
+		return $author$project$Main$formatDays(low) + ('-' + ($author$project$Main$formatDays(high) + 'd'));
+	}
+};
 var $author$project$Main$itemFields = function (item) {
 	if (item.$ === 'TaskItem') {
 		var task = item.a;
-		return {dependsOn: task.dependsOn, id: task.id, name: task.name};
+		return {
+			dependsOn: task.dependsOn,
+			id: task.id,
+			kind: 'task',
+			label: task.name + (' (' + ($author$project$Main$estimateText(task.estimate) + ')'))
+		};
 	} else {
 		var milestone = item.a;
-		return {dependsOn: milestone.dependsOn, id: milestone.id, name: milestone.name};
+		return {dependsOn: milestone.dependsOn, id: milestone.id, kind: 'milestone', label: milestone.name};
 	}
 };
 var $author$project$Main$itemToElements = function (item) {
@@ -7015,7 +7038,10 @@ var $author$project$Main$itemToElements = function (item) {
 							$author$project$Main$encodeTaskId(fields.id)),
 							_Utils_Tuple2(
 							'label',
-							$elm$json$Json$Encode$string(fields.name))
+							$elm$json$Json$Encode$string(fields.label)),
+							_Utils_Tuple2(
+							'kind',
+							$elm$json$Json$Encode$string(fields.kind))
 						])))
 			]));
 	return A2(

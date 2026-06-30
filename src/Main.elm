@@ -220,14 +220,37 @@ encodeElements items =
     Encode.list identity (List.concatMap itemToElements items)
 
 
-itemFields : Item -> { id : TaskId, name : String, dependsOn : List TaskId }
+itemFields : Item -> { id : TaskId, label : String, dependsOn : List TaskId, kind : String }
 itemFields item =
     case item of
         TaskItem task ->
-            { id = task.id, name = task.name, dependsOn = task.dependsOn }
+            { id = task.id
+            , label = task.name ++ " (" ++ estimateText task.estimate ++ ")"
+            , dependsOn = task.dependsOn
+            , kind = "task"
+            }
 
         MilestoneItem milestone ->
-            { id = milestone.id, name = milestone.name, dependsOn = milestone.dependsOn }
+            { id = milestone.id, label = milestone.name, dependsOn = milestone.dependsOn, kind = "milestone" }
+
+
+estimateText : Estimate -> String
+estimateText estimate =
+    case estimate of
+        Point days ->
+            formatDays days ++ "d"
+
+        Range low high ->
+            formatDays low ++ "-" ++ formatDays high ++ "d"
+
+
+formatDays : Float -> String
+formatDays days =
+    if days == toFloat (round days) then
+        String.fromInt (round days)
+
+    else
+        String.fromFloat days
 
 
 itemToElements : Item -> List Encode.Value
@@ -241,7 +264,8 @@ itemToElements item =
                 [ ( "data"
                   , Encode.object
                         [ ( "id", encodeTaskId fields.id )
-                        , ( "label", Encode.string fields.name )
+                        , ( "label", Encode.string fields.label )
+                        , ( "kind", Encode.string fields.kind )
                         ]
                   )
                 ]
