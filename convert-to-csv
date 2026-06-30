@@ -1,0 +1,3 @@
+#!/bin/sh
+# Converts "AC Tasks.ods" to "AC Tasks.csv" using LibreOffice headless mode.
+soffice --headless --convert-to csv "AC Tasks.ods"

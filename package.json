@@ -1,0 +1,10 @@
+{
+  "name": "ac-tasks",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "pregenerate": "./convert-to-csv",
+    "generate": "node generate-data.js",
+    "build": "npm run generate && elm make src/Main.elm --output=index.html"
+  }
+}
