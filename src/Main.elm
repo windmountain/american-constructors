@@ -3,6 +3,7 @@ module Main exposing (main)
 import Browser
 import Csv.Decode as Decode exposing (Decoder)
 import Data
+import Format
 import Html exposing (Html, node, pre, text)
 import Html.Attributes exposing (property)
 import Json.Encode as Encode
@@ -238,19 +239,10 @@ estimateText : Estimate -> String
 estimateText estimate =
     case estimate of
         Point days ->
-            formatDays days ++ "d"
+            Format.formatDays days ++ "d"
 
         Range low high ->
-            formatDays low ++ "-" ++ formatDays high ++ "d"
-
-
-formatDays : Float -> String
-formatDays days =
-    if days == toFloat (round days) then
-        String.fromInt (round days)
-
-    else
-        String.fromFloat days
+            Format.formatDays low ++ "-" ++ Format.formatDays high ++ "d"
 
 
 itemToElements : Item -> List Encode.Value
