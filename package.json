@@ -5,6 +5,7 @@
   "scripts": {
     "pregenerate": "./convert-to-csv",
     "generate": "node generate-data.js",
+    "prebuild": "mkdir -p vendor && cp node_modules/cytoscape/dist/cytoscape.min.js node_modules/cytoscape-dagre/dist/cytoscape-dagre.min.js vendor/",
     "build": "npm run generate && elm make src/Main.elm --output=main.js"
   },
   "dependencies": {
