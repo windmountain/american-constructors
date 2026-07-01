@@ -102,10 +102,11 @@ toItem fields =
 
 dependsOnDecoder : Decoder (List TaskId)
 dependsOnDecoder =
-    Decode.map3 (\a b c -> List.filterMap identity [ a, b, c ])
-        (optionalIntField "Deps on (1)")
-        (optionalIntField "Deps on (2)")
-        (optionalIntField "Deps on (3)")
+    Decode.into (\a b c d -> List.filterMap identity [ a, b, c, d ])
+        |> Decode.pipeline (optionalIntField "Deps on (1)")
+        |> Decode.pipeline (optionalIntField "Deps on (2)")
+        |> Decode.pipeline (optionalIntField "Deps on (3)")
+        |> Decode.pipeline (optionalIntField "Deps on (4)")
         |> Decode.map (List.map TaskId)
 
 
