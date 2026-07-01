@@ -1,8 +1,9 @@
-module Main exposing (Estimate(..), Item(..), Milestone, Tactic(..), Task, TaskId(..), es, ls, main, slack)
+module Main exposing (Estimate(..), Item(..), Milestone, Origin, Tactic(..), Task, TaskId(..), es, ls, main, slack)
 
 import Browser
 import Csv.Decode as Decode exposing (Decoder)
 import Data
+import Date exposing (Date)
 import Dict exposing (Dict)
 import Format
 import Html exposing (Html, div, label, node, option, pre, select, text)
@@ -47,9 +48,22 @@ type alias Milestone =
     }
 
 
+{-| An anchor point with a real calendar date but no dependencies or duration
+of its own, e.g. "Now". Distinct from a Milestone, which still waits on its
+dependencies to complete.
+-}
+type alias Origin =
+    { id : TaskId
+    , section : String
+    , name : String
+    , date : Date
+    }
+
+
 type Item
     = TaskItem Task
     | MilestoneItem Milestone
+    | OriginItem Origin
 
 
 type alias RawFields =
@@ -60,6 +74,7 @@ type alias RawFields =
     , estimate : Maybe Estimate
     , weatherDependent : Bool
     , canExpedite : Bool
+    , date : Maybe Date
     }
 
 
@@ -73,13 +88,22 @@ itemDecoder =
         |> Decode.pipeline estimateDecoder
         |> Decode.pipeline (yesNoDecoder "Weather-dependent")
         |> Decode.pipeline (yesNoDecoder "Can Expedite")
+        |> Decode.pipeline (optionalDateField "Date")
         |> Decode.map toItem
 
 
 toItem : RawFields -> Item
 toItem fields =
-    case fields.estimate of
-        Just estimate ->
+    case ( fields.estimate, fields.dependsOn, fields.date ) of
+        ( Nothing, [], Just date ) ->
+            OriginItem
+                { id = fields.id
+                , section = fields.section
+                , name = fields.name
+                , date = date
+                }
+
+        ( Just estimate, _, _ ) ->
             TaskItem
                 { id = fields.id
                 , section = fields.section
@@ -90,7 +114,7 @@ toItem fields =
                 , canExpedite = fields.canExpedite
                 }
 
-        Nothing ->
+        ( Nothing, _, _ ) ->
             MilestoneItem
                 { id = fields.id
                 , section = fields.section
@@ -128,6 +152,39 @@ optionalIntField name =
                         Nothing ->
                             Decode.fail ("Could not parse \"" ++ value ++ "\" as an int in field " ++ name)
             )
+
+
+optionalDateField : String -> Decoder (Maybe Date)
+optionalDateField name =
+    Decode.field name Decode.string
+        |> Decode.map String.trim
+        |> Decode.andThen
+            (\value ->
+                if value == "" then
+                    Decode.succeed Nothing
+
+                else
+                    case parseDate value of
+                        Ok date ->
+                            Decode.succeed (Just date)
+
+                        Err message ->
+                            Decode.fail (message ++ " in field " ++ name)
+            )
+
+
+parseDate : String -> Result String Date
+parseDate value =
+    case String.split "/" value |> List.map String.toInt of
+        [ Just month, Just day, Just year ] ->
+            if month >= 1 && month <= 12 then
+                Ok (Date.fromCalendarDate year (Date.numberToMonth month) day)
+
+            else
+                Err ("Could not parse \"" ++ value ++ "\" as a date: month must be between 1 and 12")
+
+        _ ->
+            Err ("Could not parse \"" ++ value ++ "\" as a date, expected MM/DD/YYYY")
 
 
 optionalFloatField : String -> Decoder (Maybe Float)
@@ -268,17 +325,33 @@ itemFields schedule item =
     case item of
         TaskItem task ->
             { id = task.id
-            , label = String.join "\n" [ "[" ++ task.section ++ "]", task.name ++ " (" ++ estimateText task.estimate ++ ")", scheduleText schedule task.id ]
+            , label = itemLabel schedule task.id [ "[" ++ task.section ++ "]", task.name ++ " (" ++ estimateText task.estimate ++ ")" ]
             , dependsOn = task.dependsOn
             , kind = "task"
             }
 
         MilestoneItem milestone ->
             { id = milestone.id
-            , label = String.join "\n" [ "[" ++ milestone.section ++ "]", milestone.name, scheduleText schedule milestone.id ]
+            , label = itemLabel schedule milestone.id [ "[" ++ milestone.section ++ "]", milestone.name ]
             , dependsOn = milestone.dependsOn
             , kind = "milestone"
             }
+
+        OriginItem origin ->
+            { id = origin.id
+            , label = itemLabel schedule origin.id [ "[" ++ origin.section ++ "]", origin.name ++ " (" ++ formatDate origin.date ++ ")" ]
+            , dependsOn = []
+            , kind = "origin"
+            }
+
+
+itemLabel : Schedule -> TaskId -> List String -> String
+itemLabel schedule taskId headerLines =
+    let
+        datesLine =
+            scheduleDatesText schedule taskId |> Maybe.map List.singleton |> Maybe.withDefault []
+    in
+    String.join "\n" (headerLines ++ [ scheduleText schedule taskId ] ++ datesLine)
 
 
 scheduleText : Schedule -> TaskId -> String
@@ -292,6 +365,32 @@ scheduleText schedule taskId =
         ++ "  Slack "
         ++ Format.formatDays (scheduleSlack schedule taskId)
         ++ "d"
+
+
+{-| The real calendar dates ES and LS land on, anchored to the project's
+Origin item (e.g. "Now"). Absent if the data has no Origin to anchor to.
+-}
+scheduleDatesText : Schedule -> TaskId -> Maybe String
+scheduleDatesText schedule taskId =
+    Maybe.map2
+        (\esDate lsDate -> "ES date " ++ formatDate esDate ++ "  LS date " ++ formatDate lsDate)
+        (scheduleEsDate schedule taskId)
+        (scheduleLsDate schedule taskId)
+
+
+scheduleEsDate : Schedule -> TaskId -> Maybe Date
+scheduleEsDate schedule taskId =
+    schedule.originDate |> Maybe.map (\originDate -> Date.add Date.Days (round (scheduleEs schedule taskId)) originDate)
+
+
+scheduleLsDate : Schedule -> TaskId -> Maybe Date
+scheduleLsDate schedule taskId =
+    schedule.originDate |> Maybe.map (\originDate -> Date.add Date.Days (round (scheduleLs schedule taskId)) originDate)
+
+
+formatDate : Date -> String
+formatDate =
+    Date.format "MMM d, y"
 
 
 estimateText : Estimate -> String
@@ -312,6 +411,7 @@ lookup.
 type alias Schedule =
     { es : Dict Int Float
     , ls : Dict Int Float
+    , originDate : Maybe Date
     }
 
 
@@ -349,6 +449,9 @@ buildSchedule tactic items =
                     estimateDuration tactic task.estimate
 
                 Just (MilestoneItem _) ->
+                    0
+
+                Just (OriginItem _) ->
                     0
 
                 Nothing ->
@@ -413,8 +516,22 @@ buildSchedule tactic items =
                 )
                 Dict.empty
                 (List.reverse topoOrder)
+
+        originDate : Maybe Date
+        originDate =
+            items
+                |> List.filterMap
+                    (\item ->
+                        case item of
+                            OriginItem origin ->
+                                Just origin.date
+
+                            _ ->
+                                Nothing
+                    )
+                |> List.head
     in
-    { es = esDict, ls = lsDict }
+    { es = esDict, ls = lsDict, originDate = originDate }
 
 
 {-| Kahn's algorithm: repeatedly peel off items with no unprocessed
@@ -528,6 +645,9 @@ itemId item =
         MilestoneItem milestone ->
             milestone.id
 
+        OriginItem origin ->
+            origin.id
+
 
 itemDependsOn : Item -> List TaskId
 itemDependsOn item =
@@ -537,6 +657,9 @@ itemDependsOn item =
 
         MilestoneItem milestone ->
             milestone.dependsOn
+
+        OriginItem _ ->
+            []
 
 
 itemToElements : Schedule -> Item -> List Encode.Value
