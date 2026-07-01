@@ -7104,7 +7104,7 @@ var $author$project$Format$formatDays = function (days) {
 };
 var $author$project$Main$esText = F2(
 	function (items, taskId) {
-		return ' — ES ' + ($author$project$Format$formatDays(
+		return 'ES ' + ($author$project$Format$formatDays(
 			A2($author$project$Main$es, items, taskId)) + 'd');
 	});
 var $author$project$Main$estimateText = function (estimate) {
@@ -7125,7 +7125,15 @@ var $author$project$Main$itemFields = F2(
 				dependsOn: task.dependsOn,
 				id: task.id,
 				kind: 'task',
-				label: '[' + (task.section + ('] ' + (task.name + (' (' + ($author$project$Main$estimateText(task.estimate) + (')' + A2($author$project$Main$esText, items, task.id)))))))
+				label: A2(
+					$elm$core$String$join,
+					'\n',
+					_List_fromArray(
+						[
+							'[' + (task.section + ']'),
+							task.name + (' (' + ($author$project$Main$estimateText(task.estimate) + ')')),
+							A2($author$project$Main$esText, items, task.id)
+						]))
 			};
 		} else {
 			var milestone = item.a;
@@ -7133,7 +7141,15 @@ var $author$project$Main$itemFields = F2(
 				dependsOn: milestone.dependsOn,
 				id: milestone.id,
 				kind: 'milestone',
-				label: '[' + (milestone.section + ('] ' + (milestone.name + A2($author$project$Main$esText, items, milestone.id))))
+				label: A2(
+					$elm$core$String$join,
+					'\n',
+					_List_fromArray(
+						[
+							'[' + (milestone.section + ']'),
+							milestone.name,
+							A2($author$project$Main$esText, items, milestone.id)
+						]))
 			};
 		}
 	});

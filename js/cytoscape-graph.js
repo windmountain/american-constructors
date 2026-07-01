@@ -12,8 +12,29 @@ class CytoscapeGraph extends HTMLElement {
       elements: this._pendingElements || [],
       layout: dagreLayout,
       style: [
-        { selector: "node", style: { label: "data(label)" } },
-        { selector: "node[kind = 'task']", style: { "background-color": "#3b82f6" } },
+        {
+          selector: "node",
+          style: {
+            label: "data(label)",
+            shape: "round-rectangle",
+            "text-wrap": "wrap",
+            "text-max-width": "160px",
+            "text-valign": "center",
+            "text-halign": "center",
+            width: "label",
+            height: "label",
+            padding: "12px",
+            "background-color": "#e5e7eb",
+            "border-width": 1,
+            "border-color": "#9ca3af",
+            "font-size": 12,
+            color: "#111827",
+          },
+        },
+        {
+          selector: "node[kind = 'task']",
+          style: { "background-color": "#3b82f6", color: "#ffffff", "border-color": "#1d4ed8" },
+        },
         { selector: "edge", style: { "target-arrow-shape": "triangle", "curve-style": "bezier" } },
       ],
     });
