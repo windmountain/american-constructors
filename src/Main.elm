@@ -226,14 +226,14 @@ itemFields items item =
     case item of
         TaskItem task ->
             { id = task.id
-            , label = "[" ++ task.section ++ "] " ++ task.name ++ " (" ++ estimateText task.estimate ++ ")" ++ esText items task.id
+            , label = String.join "\n" [ "[" ++ task.section ++ "]", task.name ++ " (" ++ estimateText task.estimate ++ ")", esText items task.id ]
             , dependsOn = task.dependsOn
             , kind = "task"
             }
 
         MilestoneItem milestone ->
             { id = milestone.id
-            , label = "[" ++ milestone.section ++ "] " ++ milestone.name ++ esText items milestone.id
+            , label = String.join "\n" [ "[" ++ milestone.section ++ "]", milestone.name, esText items milestone.id ]
             , dependsOn = milestone.dependsOn
             , kind = "milestone"
             }
@@ -241,7 +241,7 @@ itemFields items item =
 
 esText : List Item -> TaskId -> String
 esText items taskId =
-    " — ES " ++ Format.formatDays (es items taskId) ++ "d"
+    "ES " ++ Format.formatDays (es items taskId) ++ "d"
 
 
 estimateText : Estimate -> String
