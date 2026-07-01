@@ -5167,11 +5167,12 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$document = _Browser_document;
+var $author$project$Main$Midpoint = {$: 'Midpoint'};
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
-		{},
+		{tactic: $author$project$Main$Midpoint},
 		$elm$core$Platform$Cmd$none);
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
@@ -5180,9 +5181,15 @@ var $author$project$Main$subscriptions = function (_v0) {
 	return $elm$core$Platform$Sub$none;
 };
 var $author$project$Main$update = F2(
-	function (_v0, model) {
-		return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+	function (msg, model) {
+		var tactic = msg.a;
+		return _Utils_Tuple2(
+			_Utils_update(
+				model,
+				{tactic: tactic}),
+			$elm$core$Platform$Cmd$none);
 	});
+var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$core$List$any = F2(
 	function (isOkay, list) {
 		any:
@@ -6939,14 +6946,158 @@ var $author$project$Main$itemDecoder = A2(
 								$BrianHicks$elm_csv$Csv$Decode$into($author$project$Main$RawFields)))))))));
 var $author$project$Main$itemsResult = A3($BrianHicks$elm_csv$Csv$Decode$decodeCsv, $BrianHicks$elm_csv$Csv$Decode$FieldNamesFromFirstRow, $author$project$Main$itemDecoder, $author$project$Data$csvData);
 var $elm$html$Html$pre = _VirtualDom_node('pre');
+var $author$project$Main$Optimistic = {$: 'Optimistic'};
+var $author$project$Main$Pessimistic = {$: 'Pessimistic'};
+var $author$project$Main$SetTactic = function (a) {
+	return {$: 'SetTactic', a: a};
+};
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
+var $elm$html$Html$Attributes$for = $elm$html$Html$Attributes$stringProperty('htmlFor');
+var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
+var $elm$html$Html$label = _VirtualDom_node('label');
+var $elm$html$Html$Events$alwaysStop = function (x) {
+	return _Utils_Tuple2(x, true);
+};
+var $elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
+	return {$: 'MayStopPropagation', a: a};
+};
+var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var $elm$html$Html$Events$stopPropagationOn = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
+	});
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
+	});
+var $elm$json$Json$Decode$string = _Json_decodeString;
+var $elm$html$Html$Events$targetValue = A2(
+	$elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'value']),
+	$elm$json$Json$Decode$string);
+var $elm$html$Html$Events$onInput = function (tagger) {
+	return A2(
+		$elm$html$Html$Events$stopPropagationOn,
+		'input',
+		A2(
+			$elm$json$Json$Decode$map,
+			$elm$html$Html$Events$alwaysStop,
+			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
+};
+var $elm$html$Html$option = _VirtualDom_node('option');
+var $elm$html$Html$select = _VirtualDom_node('select');
+var $elm$json$Json$Encode$bool = _Json_wrap;
+var $elm$html$Html$Attributes$boolProperty = F2(
+	function (key, bool) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$bool(bool));
+	});
+var $elm$html$Html$Attributes$selected = $elm$html$Html$Attributes$boolProperty('selected');
+var $author$project$Main$tacticFromString = function (value_) {
+	switch (value_) {
+		case 'optimistic':
+			return $elm$core$Maybe$Just($author$project$Main$Optimistic);
+		case 'pessimistic':
+			return $elm$core$Maybe$Just($author$project$Main$Pessimistic);
+		case 'midpoint':
+			return $elm$core$Maybe$Just($author$project$Main$Midpoint);
+		default:
+			return $elm$core$Maybe$Nothing;
+	}
+};
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
+var $author$project$Main$tacticSelect = function (current) {
+	return A2(
+		$elm$html$Html$div,
+		_List_Nil,
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$label,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$for('tactic-select')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('ranged estimate selection: ')
+					])),
+				A2(
+				$elm$html$Html$select,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$id('tactic-select'),
+						$elm$html$Html$Events$onInput(
+						A2(
+							$elm$core$Basics$composeR,
+							$author$project$Main$tacticFromString,
+							A2(
+								$elm$core$Basics$composeR,
+								$elm$core$Maybe$withDefault(current),
+								$author$project$Main$SetTactic)))
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$option,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$value('optimistic'),
+								$elm$html$Html$Attributes$selected(
+								_Utils_eq(current, $author$project$Main$Optimistic))
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Optimistic')
+							])),
+						A2(
+						$elm$html$Html$option,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$value('pessimistic'),
+								$elm$html$Html$Attributes$selected(
+								_Utils_eq(current, $author$project$Main$Pessimistic))
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Pessimistic')
+							])),
+						A2(
+						$elm$html$Html$option,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$value('midpoint'),
+								$elm$html$Html$Attributes$selected(
+								_Utils_eq(current, $author$project$Main$Midpoint))
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Midpoint')
+							]))
+					]))
+			]));
+};
 var $elm$core$List$concatMap = F2(
 	function (f, list) {
 		return $elm$core$List$concat(
 			A2($elm$core$List$map, f, list));
 	});
-var $elm$json$Json$Encode$string = _Json_wrap;
 var $author$project$Main$taskIdToString = function (_v0) {
 	var id = _v0.a;
 	return $elm$core$String$fromInt(id);
@@ -6991,6 +7142,24 @@ var $author$project$Main$edgeElement = F2(
 							])))
 				]));
 	});
+var $author$project$Main$estimateDuration = F2(
+	function (tactic, estimate) {
+		if (estimate.$ === 'Point') {
+			var days = estimate.a;
+			return days;
+		} else {
+			var low = estimate.a;
+			var high = estimate.b;
+			switch (tactic.$) {
+				case 'Optimistic':
+					return low;
+				case 'Pessimistic':
+					return high;
+				default:
+					return (low + high) / 2;
+			}
+		}
+	});
 var $elm$core$List$filter = F2(
 	function (isGood, list) {
 		return A3(
@@ -7023,20 +7192,13 @@ var $author$project$Main$findItem = F2(
 				},
 				items));
 	});
-var $author$project$Main$duration = F2(
-	function (items, taskId) {
+var $author$project$Main$duration = F3(
+	function (tactic, items, taskId) {
 		var _v0 = A2($author$project$Main$findItem, items, taskId);
 		if (_v0.$ === 'Just') {
 			if (_v0.a.$ === 'TaskItem') {
 				var task = _v0.a.a;
-				var _v1 = task.estimate;
-				if (_v1.$ === 'Point') {
-					var days = _v1.a;
-					return days;
-				} else {
-					var high = _v1.b;
-					return high;
-				}
+				return A2($author$project$Main$estimateDuration, tactic, task.estimate);
 			} else {
 				return 0;
 			}
@@ -7073,8 +7235,8 @@ var $elm$core$List$maximum = function (list) {
 		return $elm$core$Maybe$Nothing;
 	}
 };
-var $author$project$Main$es = F2(
-	function (items, taskId) {
+var $author$project$Main$es = F3(
+	function (tactic, items, taskId) {
 		return A2(
 			$elm$core$Maybe$withDefault,
 			0,
@@ -7088,7 +7250,7 @@ var $author$project$Main$es = F2(
 							A2(
 								$elm$core$List$map,
 								function (depId) {
-									return A2($author$project$Main$es, items, depId) + A2($author$project$Main$duration, items, depId);
+									return A3($author$project$Main$es, tactic, items, depId) + A3($author$project$Main$duration, tactic, items, depId);
 								},
 								$author$project$Main$itemDependsOn(item))));
 				},
@@ -7102,10 +7264,10 @@ var $author$project$Format$formatDays = function (days) {
 		$elm$core$Basics$round(days)) ? $elm$core$String$fromInt(
 		$elm$core$Basics$round(days)) : $elm$core$String$fromFloat(days);
 };
-var $author$project$Main$esText = F2(
-	function (items, taskId) {
+var $author$project$Main$esText = F3(
+	function (tactic, items, taskId) {
 		return 'ES ' + ($author$project$Format$formatDays(
-			A2($author$project$Main$es, items, taskId)) + 'd');
+			A3($author$project$Main$es, tactic, items, taskId)) + 'd');
 	});
 var $author$project$Main$estimateText = function (estimate) {
 	if (estimate.$ === 'Point') {
@@ -7117,8 +7279,8 @@ var $author$project$Main$estimateText = function (estimate) {
 		return $author$project$Format$formatDays(low) + ('-' + ($author$project$Format$formatDays(high) + 'd'));
 	}
 };
-var $author$project$Main$itemFields = F2(
-	function (items, item) {
+var $author$project$Main$itemFields = F3(
+	function (tactic, items, item) {
 		if (item.$ === 'TaskItem') {
 			var task = item.a;
 			return {
@@ -7132,7 +7294,7 @@ var $author$project$Main$itemFields = F2(
 						[
 							'[' + (task.section + ']'),
 							task.name + (' (' + ($author$project$Main$estimateText(task.estimate) + ')')),
-							A2($author$project$Main$esText, items, task.id)
+							A3($author$project$Main$esText, tactic, items, task.id)
 						]))
 			};
 		} else {
@@ -7148,14 +7310,14 @@ var $author$project$Main$itemFields = F2(
 						[
 							'[' + (milestone.section + ']'),
 							milestone.name,
-							A2($author$project$Main$esText, items, milestone.id)
+							A3($author$project$Main$esText, tactic, items, milestone.id)
 						]))
 			};
 		}
 	});
-var $author$project$Main$itemToElements = F2(
-	function (items, item) {
-		var fields = A2($author$project$Main$itemFields, items, item);
+var $author$project$Main$itemToElements = F3(
+	function (tactic, items, item) {
+		var fields = A3($author$project$Main$itemFields, tactic, items, item);
 		var nodeElement = $elm$json$Json$Encode$object(
 			_List_fromArray(
 				[
@@ -7192,15 +7354,16 @@ var $elm$json$Json$Encode$list = F2(
 				_Json_emptyArray(_Utils_Tuple0),
 				entries));
 	});
-var $author$project$Main$encodeElements = function (items) {
-	return A2(
-		$elm$json$Json$Encode$list,
-		$elm$core$Basics$identity,
-		A2(
-			$elm$core$List$concatMap,
-			$author$project$Main$itemToElements(items),
-			items));
-};
+var $author$project$Main$encodeElements = F2(
+	function (tactic, items) {
+		return A2(
+			$elm$json$Json$Encode$list,
+			$elm$core$Basics$identity,
+			A2(
+				$elm$core$List$concatMap,
+				A2($author$project$Main$itemToElements, tactic, items),
+				items));
+	});
 var $elm$virtual_dom$VirtualDom$node = function (tag) {
 	return _VirtualDom_node(
 		_VirtualDom_noScript(tag));
@@ -7214,40 +7377,48 @@ var $elm$virtual_dom$VirtualDom$property = F2(
 			_VirtualDom_noJavaScriptOrHtmlJson(value));
 	});
 var $elm$html$Html$Attributes$property = $elm$virtual_dom$VirtualDom$property;
-var $author$project$Main$viewGraph = function (items) {
-	return A3(
-		$elm$html$Html$node,
-		'cytoscape-graph',
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$Attributes$property,
-				'elements',
-				$author$project$Main$encodeElements(items))
-			]),
-		_List_Nil);
-};
-var $author$project$Main$view = function (_v0) {
+var $author$project$Main$viewGraph = F2(
+	function (tactic, items) {
+		return A3(
+			$elm$html$Html$node,
+			'cytoscape-graph',
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$Attributes$property,
+					'elements',
+					A2($author$project$Main$encodeElements, tactic, items))
+				]),
+			_List_Nil);
+	});
+var $author$project$Main$view = function (model) {
 	return {
 		body: _List_fromArray(
 			[
-				function () {
-				var _v1 = $author$project$Main$itemsResult;
-				if (_v1.$ === 'Ok') {
-					var items = _v1.a;
-					return $author$project$Main$viewGraph(items);
-				} else {
-					var error = _v1.a;
-					return A2(
-						$elm$html$Html$pre,
-						_List_Nil,
-						_List_fromArray(
-							[
-								$elm$html$Html$text(
-								$BrianHicks$elm_csv$Csv$Decode$errorToString(error))
-							]));
-				}
-			}()
+				A2(
+				$elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$author$project$Main$tacticSelect(model.tactic),
+						function () {
+						var _v0 = $author$project$Main$itemsResult;
+						if (_v0.$ === 'Ok') {
+							var items = _v0.a;
+							return A2($author$project$Main$viewGraph, model.tactic, items);
+						} else {
+							var error = _v0.a;
+							return A2(
+								$elm$html$Html$pre,
+								_List_Nil,
+								_List_fromArray(
+									[
+										$elm$html$Html$text(
+										$BrianHicks$elm_csv$Csv$Decode$errorToString(error))
+									]));
+						}
+					}()
+					]))
 			]),
 		title: 'AC Tasks'
 	};

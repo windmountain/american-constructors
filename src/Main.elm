@@ -1,16 +1,23 @@
-module Main exposing (Estimate(..), Item(..), Milestone, Task, TaskId(..), es, main)
+module Main exposing (Estimate(..), Item(..), Milestone, Tactic(..), Task, TaskId(..), es, main)
 
 import Browser
 import Csv.Decode as Decode exposing (Decoder)
 import Data
 import Format
-import Html exposing (Html, node, pre, text)
-import Html.Attributes exposing (property)
+import Html exposing (Html, div, label, node, option, pre, select, text)
+import Html.Attributes exposing (for, id, property, selected, value)
+import Html.Events exposing (onInput)
 import Json.Encode as Encode
 
 
 type TaskId
     = TaskId Int
+
+
+type Tactic
+    = Optimistic
+    | Pessimistic
+    | Midpoint
 
 
 type Estimate
@@ -175,21 +182,23 @@ itemsResult =
 
 
 type alias Model =
-    {}
+    { tactic : Tactic }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( {}, Cmd.none )
+    ( { tactic = Midpoint }, Cmd.none )
 
 
 type Msg
-    = NoOp
+    = SetTactic Tactic
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update _ model =
-    ( model, Cmd.none )
+update msg model =
+    case msg of
+        SetTactic tactic ->
+            ( { model | tactic = tactic }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -198,50 +207,81 @@ subscriptions _ =
 
 
 view : Model -> Browser.Document Msg
-view _ =
+view model =
     { title = "AC Tasks"
     , body =
-        [ case itemsResult of
-            Ok items ->
-                viewGraph items
+        [ div []
+            [ tacticSelect model.tactic
+            , case itemsResult of
+                Ok items ->
+                    viewGraph model.tactic items
 
-            Err error ->
-                pre [] [ text (Decode.errorToString error) ]
+                Err error ->
+                    pre [] [ text (Decode.errorToString error) ]
+            ]
         ]
     }
 
 
-viewGraph : List Item -> Html Msg
-viewGraph items =
-    node "cytoscape-graph" [ property "elements" (encodeElements items) ] []
+tacticSelect : Tactic -> Html Msg
+tacticSelect current =
+    div []
+        [ label [ for "tactic-select" ] [ text "ranged estimate selection: " ]
+        , select [ id "tactic-select", onInput (tacticFromString >> Maybe.withDefault current >> SetTactic) ]
+            [ option [ value "optimistic", selected (current == Optimistic) ] [ text "Optimistic" ]
+            , option [ value "pessimistic", selected (current == Pessimistic) ] [ text "Pessimistic" ]
+            , option [ value "midpoint", selected (current == Midpoint) ] [ text "Midpoint" ]
+            ]
+        ]
 
 
-encodeElements : List Item -> Encode.Value
-encodeElements items =
-    Encode.list identity (List.concatMap (itemToElements items) items)
+tacticFromString : String -> Maybe Tactic
+tacticFromString value_ =
+    case value_ of
+        "optimistic" ->
+            Just Optimistic
+
+        "pessimistic" ->
+            Just Pessimistic
+
+        "midpoint" ->
+            Just Midpoint
+
+        _ ->
+            Nothing
 
 
-itemFields : List Item -> Item -> { id : TaskId, label : String, dependsOn : List TaskId, kind : String }
-itemFields items item =
+viewGraph : Tactic -> List Item -> Html Msg
+viewGraph tactic items =
+    node "cytoscape-graph" [ property "elements" (encodeElements tactic items) ] []
+
+
+encodeElements : Tactic -> List Item -> Encode.Value
+encodeElements tactic items =
+    Encode.list identity (List.concatMap (itemToElements tactic items) items)
+
+
+itemFields : Tactic -> List Item -> Item -> { id : TaskId, label : String, dependsOn : List TaskId, kind : String }
+itemFields tactic items item =
     case item of
         TaskItem task ->
             { id = task.id
-            , label = String.join "\n" [ "[" ++ task.section ++ "]", task.name ++ " (" ++ estimateText task.estimate ++ ")", esText items task.id ]
+            , label = String.join "\n" [ "[" ++ task.section ++ "]", task.name ++ " (" ++ estimateText task.estimate ++ ")", esText tactic items task.id ]
             , dependsOn = task.dependsOn
             , kind = "task"
             }
 
         MilestoneItem milestone ->
             { id = milestone.id
-            , label = String.join "\n" [ "[" ++ milestone.section ++ "]", milestone.name, esText items milestone.id ]
+            , label = String.join "\n" [ "[" ++ milestone.section ++ "]", milestone.name, esText tactic items milestone.id ]
             , dependsOn = milestone.dependsOn
             , kind = "milestone"
             }
 
 
-esText : List Item -> TaskId -> String
-esText items taskId =
-    "ES " ++ Format.formatDays (es items taskId) ++ "d"
+esText : Tactic -> List Item -> TaskId -> String
+esText tactic items taskId =
+    "ES " ++ Format.formatDays (es tactic items taskId) ++ "d"
 
 
 estimateText : Estimate -> String
@@ -254,35 +294,48 @@ estimateText estimate =
             Format.formatDays low ++ "-" ++ Format.formatDays high ++ "d"
 
 
-es : List Item -> TaskId -> Float
-es items taskId =
+es : Tactic -> List Item -> TaskId -> Float
+es tactic items taskId =
     findItem items taskId
         |> Maybe.map
             (\item ->
                 itemDependsOn item
-                    |> List.map (\depId -> es items depId + duration items depId)
+                    |> List.map (\depId -> es tactic items depId + duration tactic items depId)
                     |> List.maximum
                     |> Maybe.withDefault 0
             )
         |> Maybe.withDefault 0
 
 
-duration : List Item -> TaskId -> Float
-duration items taskId =
+duration : Tactic -> List Item -> TaskId -> Float
+duration tactic items taskId =
     case findItem items taskId of
         Just (TaskItem task) ->
-            case task.estimate of
-                Point days ->
-                    days
-
-                Range _ high ->
-                    high
+            estimateDuration tactic task.estimate
 
         Just (MilestoneItem _) ->
             0
 
         Nothing ->
             0
+
+
+estimateDuration : Tactic -> Estimate -> Float
+estimateDuration tactic estimate =
+    case estimate of
+        Point days ->
+            days
+
+        Range low high ->
+            case tactic of
+                Optimistic ->
+                    low
+
+                Pessimistic ->
+                    high
+
+                Midpoint ->
+                    (low + high) / 2
 
 
 findItem : List Item -> TaskId -> Maybe Item
@@ -312,11 +365,11 @@ itemDependsOn item =
             milestone.dependsOn
 
 
-itemToElements : List Item -> Item -> List Encode.Value
-itemToElements items item =
+itemToElements : Tactic -> List Item -> Item -> List Encode.Value
+itemToElements tactic items item =
     let
         fields =
-            itemFields items item
+            itemFields tactic items item
 
         nodeElement =
             Encode.object
