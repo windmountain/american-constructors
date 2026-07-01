@@ -1,4 +1,4 @@
-module Main exposing (main)
+module Main exposing (Estimate(..), Item(..), Milestone, Task, TaskId(..), es, main)
 
 import Browser
 import Csv.Decode as Decode exposing (Decoder)
@@ -218,21 +218,30 @@ viewGraph items =
 
 encodeElements : List Item -> Encode.Value
 encodeElements items =
-    Encode.list identity (List.concatMap itemToElements items)
+    Encode.list identity (List.concatMap (itemToElements items) items)
 
 
-itemFields : Item -> { id : TaskId, label : String, dependsOn : List TaskId, kind : String }
-itemFields item =
+itemFields : List Item -> Item -> { id : TaskId, label : String, dependsOn : List TaskId, kind : String }
+itemFields items item =
     case item of
         TaskItem task ->
             { id = task.id
-            , label = task.name ++ " (" ++ estimateText task.estimate ++ ")"
+            , label = "[" ++ task.section ++ "] " ++ task.name ++ " (" ++ estimateText task.estimate ++ ")" ++ esText items task.id
             , dependsOn = task.dependsOn
             , kind = "task"
             }
 
         MilestoneItem milestone ->
-            { id = milestone.id, label = milestone.name, dependsOn = milestone.dependsOn, kind = "milestone" }
+            { id = milestone.id
+            , label = "[" ++ milestone.section ++ "] " ++ milestone.name ++ esText items milestone.id
+            , dependsOn = milestone.dependsOn
+            , kind = "milestone"
+            }
+
+
+esText : List Item -> TaskId -> String
+esText items taskId =
+    " — ES " ++ Format.formatDays (es items taskId) ++ "d"
 
 
 estimateText : Estimate -> String
@@ -245,11 +254,69 @@ estimateText estimate =
             Format.formatDays low ++ "-" ++ Format.formatDays high ++ "d"
 
 
-itemToElements : Item -> List Encode.Value
-itemToElements item =
+es : List Item -> TaskId -> Float
+es items taskId =
+    findItem items taskId
+        |> Maybe.map
+            (\item ->
+                itemDependsOn item
+                    |> List.map (\depId -> es items depId + duration items depId)
+                    |> List.maximum
+                    |> Maybe.withDefault 0
+            )
+        |> Maybe.withDefault 0
+
+
+duration : List Item -> TaskId -> Float
+duration items taskId =
+    case findItem items taskId of
+        Just (TaskItem task) ->
+            case task.estimate of
+                Point days ->
+                    days
+
+                Range _ high ->
+                    high
+
+        Just (MilestoneItem _) ->
+            0
+
+        Nothing ->
+            0
+
+
+findItem : List Item -> TaskId -> Maybe Item
+findItem items taskId =
+    items
+        |> List.filter (\item -> itemId item == taskId)
+        |> List.head
+
+
+itemId : Item -> TaskId
+itemId item =
+    case item of
+        TaskItem task ->
+            task.id
+
+        MilestoneItem milestone ->
+            milestone.id
+
+
+itemDependsOn : Item -> List TaskId
+itemDependsOn item =
+    case item of
+        TaskItem task ->
+            task.dependsOn
+
+        MilestoneItem milestone ->
+            milestone.dependsOn
+
+
+itemToElements : List Item -> Item -> List Encode.Value
+itemToElements items item =
     let
         fields =
-            itemFields item
+            itemFields items item
 
         nodeElement =
             Encode.object

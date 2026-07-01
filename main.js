@@ -5545,7 +5545,7 @@ var $BrianHicks$elm_csv$Csv$Decode$errorToString = function (error) {
 	}
 };
 var $BrianHicks$elm_csv$Csv$Decode$FieldNamesFromFirstRow = {$: 'FieldNamesFromFirstRow'};
-var $author$project$Data$csvData = 'Id,Section,Name,Deps on (1),Deps on (2),Deps on (3),Estimate,Low Estimate,High Estimate,Weather-dependent,Can Expedite,Date\n1,terrace,window surrounds,,,,8,,,,,\n2,terrace,waterproofing,1,,,7,,,,,\n3,terrace,insulation,2,,,3,,,,,\n4,terrace,deck concrete,3,,,,5,10,yes,,\n5,terrace,stairs concrete,4,,,10,,,,yes,\n6,terrace,aluminum rails,4,,,5,,,,,\n7,terrace,masonry,6,5,,10,,,,,\n8,b/c/k,drywall,,,,,21,23,,,\n9,b/c/k,hard tile,8,,,10,,,,,\n10,b/c/k,stone columns,8,,,5,,,,,\n11,b/c/k,millwork,8,,,,15,21,,yes,\n12,b/c/k,casework,11,,,5,,,,,\n13,b/c/k,flooring,12,,,10,,,,,\n14,b/c/k,glass installation,10,9,,3,,,,,\n15,b/c/k,painting,14,,,10,,,,,\n16,b/c/k,doors and hardware,15,13,,,5,8,,,\n17,b/c/k,MEP,15,13,,10,,,,,\n18,sanctuary,drywall,,,,16,,,,,\n19,sanctuary,core drill for rails,,,,2,,,,,\n20,sanctuary,install rails,19,,,5,,,,,\n21,sanctuary,install carpeting at seats,19,,,15,,,,,\n22,sanctuary,carpeting at rails,20,,,5,,,,,\n23,sanctuary,"wood paneling, trim and stage",21,,,25,,,,,\n24,sanctuary,painting,27,,,20,,,,,\n25,sanctuary,concrete floor staining,27,,,5,,,,,\n26,sanctuary,installation of seats,18,,,20,,,,,\n27,sanctuary,wood stage steps,19,,,5,,,,,\n28,sanctuary,"install carpet (steps, flats, aisles)",27,,,5,,,,,\n29,sanctuary,install doors and hardware,24,23,,,5,8,,,\n30,lobby,millwork for reception,,,,3,,,,,\n31,lobby,millwork for walls and rails,,,,10,,,,,\n32,lobby,hard ceiling,,,,15,,,,,\n33,lobby,install drywall,,,,15,,,,,\n34,lobby,painting,33,32,31,5,,,,,\n35,lobby,concrete for carpet areas,30,,,,5,8,,,\n36,lobby,hard tile,33,,,5,,,,,\n37,lobby,wood flooring install,35,,,,20,28,,"yes, formalize acclimatization precisely",\n38,lobby,"other floors, carpeting",37,,,5,,,,,\n39,lobby,public restrooms,32,33,,9,,,,,\n40,lobby,glass and chandeliers,32,33,,3,,,,,\n41,lobby,ceiling tiles,34,,,5,,,,,\n42,lobby,doors and hardware,41,39,,10,,,,,\n43,lobby,MEP,41,39,,10,,,,,\n44,overall,Now,,,,,,,,,09/24/2009\n45,overall,Nominal finish date,57,,,,,,,,12/14/2009\n46,overall,Architect’s punch list tasks,45,,,,5,10,,,\n47,overall,Inform architect of close out responsibilities,,,,,,,,,\n48,overall,Items completed by architecture firm,47,,,,14,28,,,\n49,overall,fire marshal’s inspection,46,48,,,,,,,\n50,overall,sign general guarantee and warranty,46,,,,0.5,1,,,\n51,overall,sign final release of lien,46,,,,,,,,\n52,overall,ACL relinquished of responsibilities,50,,,365,,,,,\n53,overall,cleanup and ACL internal punch list,49,,,4,,,,,\n54,overall,lobby done,43,42,38,,,,,,\n55,overall,sanctuary done,28,29,26,,,,,,\n56,overall,terrace done,7,,,,,,,,\n57,overall,sanctuary and terrace done,56,55,,,,,,,\n58,overall,b/c/k done,16,17,,,,,,,\n59,overall,all sections done,58,57,54,,,,,,\n';
+var $author$project$Data$csvData = 'Id,Section,Name,Deps on (1),Deps on (2),Deps on (3),Estimate,Low Estimate,High Estimate,Weather-dependent,Can Expedite,Date\n1,terrace,window surrounds,,,,8,,,,,\n2,terrace,waterproofing,1,,,7,,,,,\n3,terrace,insulation,2,,,3,,,,,\n4,terrace,deck concrete,3,,,,5,10,yes,,\n5,terrace,stairs concrete,4,,,10,,,,yes,\n6,terrace,aluminum rails,4,,,5,,,,,\n7,terrace,masonry,6,5,,10,,,,,\n8,b/c/k,drywall,,,,,21,23,,,\n9,b/c/k,hard tile,8,,,10,,,,,\n10,b/c/k,stone columns,8,,,5,,,,,\n11,b/c/k,millwork,8,,,,15,21,,yes,\n12,b/c/k,casework,11,,,5,,,,,\n13,b/c/k,flooring,12,,,10,,,,,\n14,b/c/k,glass installation,10,9,,3,,,,,\n15,b/c/k,painting,14,,,10,,,,,\n16,b/c/k,doors and hardware,15,13,,,5,8,,,\n17,b/c/k,MEP,15,13,,10,,,,,\n18,sanctuary,drywall,,,,16,,,,,\n19,sanctuary,core drill for rails,,,,2,,,,,\n20,sanctuary,install rails,19,,,5,,,,,\n21,sanctuary,install carpeting at seats,19,,,15,,,,,\n22,sanctuary,carpeting at rails,20,,,5,,,,,\n23,sanctuary,"wood paneling, trim and stage",21,,,25,,,,,\n24,sanctuary,painting,27,,,20,,,,,\n25,sanctuary,concrete floor staining,27,,,5,,,,,\n26,sanctuary,installation of seats,18,,,20,,,,,\n27,sanctuary,wood stage steps,19,,,5,,,,,\n28,sanctuary,"install carpet (steps, flats, aisles)",27,,,5,,,,,\n29,sanctuary,install doors and hardware,24,23,,,5,8,,,\n30,lobby,millwork for reception,,,,3,,,,,\n31,lobby,millwork for walls and rails,,,,10,,,,,\n32,lobby,hard ceiling,,,,15,,,,,\n33,lobby,install drywall,,,,15,,,,,\n34,lobby,painting,33,32,31,5,,,,,\n35,lobby,concrete for carpet areas,30,,,,5,8,,,\n36,lobby,hard tile,33,,,5,,,,,\n37,lobby,wood flooring install,35,,,,20,28,,"yes, formalize acclimatization precisely",\n38,lobby,"other floors, carpeting",37,,,5,,,,,\n39,lobby,public restrooms,32,33,,9,,,,,\n40,lobby,glass and chandeliers,32,33,,3,,,,,\n41,lobby,ceiling tiles,34,,,5,,,,,\n42,lobby,doors and hardware,41,39,,10,,,,,\n43,lobby,MEP,41,39,,10,,,,,\n44,overall,Now,,,,,,,,,09/24/2009\n45,overall,Nominal finish date,59,,,,,,,,12/14/2009\n46,overall,Architect’s punch list tasks,45,,,,5,10,,,\n47,overall,Inform architect of close out responsibilities,,,,,,,,,\n48,overall,Items completed by architecture firm,47,,,,14,28,,,\n49,overall,fire marshal’s inspection,46,48,,,,,,,\n50,overall,sign general guarantee and warranty,46,,,,0.5,1,,,\n51,overall,sign final release of lien,46,,,,,,,,\n52,overall,ACL relinquished of responsibilities,50,,,365,,,,,\n53,overall,cleanup and ACL internal punch list,49,,,4,,,,,\n54,overall,lobby done,43,42,38,,,,,,\n55,overall,sanctuary done,28,29,26,,,,,,\n56,overall,terrace done,7,,,,,,,,\n57,overall,sanctuary and terrace done,56,55,,,,,,,\n58,overall,b/c/k done,16,17,,,,,,,\n59,overall,all sections done,58,57,54,,,,,,\n';
 var $BrianHicks$elm_csv$Csv$Decode$ParsingError = function (a) {
 	return {$: 'ParsingError', a: a};
 };
@@ -6991,67 +6991,182 @@ var $author$project$Main$edgeElement = F2(
 							])))
 				]));
 	});
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var $author$project$Main$itemId = function (item) {
+	if (item.$ === 'TaskItem') {
+		var task = item.a;
+		return task.id;
+	} else {
+		var milestone = item.a;
+		return milestone.id;
+	}
+};
+var $author$project$Main$findItem = F2(
+	function (items, taskId) {
+		return $elm$core$List$head(
+			A2(
+				$elm$core$List$filter,
+				function (item) {
+					return _Utils_eq(
+						$author$project$Main$itemId(item),
+						taskId);
+				},
+				items));
+	});
+var $author$project$Main$duration = F2(
+	function (items, taskId) {
+		var _v0 = A2($author$project$Main$findItem, items, taskId);
+		if (_v0.$ === 'Just') {
+			if (_v0.a.$ === 'TaskItem') {
+				var task = _v0.a.a;
+				var _v1 = task.estimate;
+				if (_v1.$ === 'Point') {
+					var days = _v1.a;
+					return days;
+				} else {
+					var high = _v1.b;
+					return high;
+				}
+			} else {
+				return 0;
+			}
+		} else {
+			return 0;
+		}
+	});
+var $author$project$Main$itemDependsOn = function (item) {
+	if (item.$ === 'TaskItem') {
+		var task = item.a;
+		return task.dependsOn;
+	} else {
+		var milestone = item.a;
+		return milestone.dependsOn;
+	}
+};
+var $elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return $elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $elm$core$List$maximum = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(
+			A3($elm$core$List$foldl, $elm$core$Basics$max, x, xs));
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $author$project$Main$es = F2(
+	function (items, taskId) {
+		return A2(
+			$elm$core$Maybe$withDefault,
+			0,
+			A2(
+				$elm$core$Maybe$map,
+				function (item) {
+					return A2(
+						$elm$core$Maybe$withDefault,
+						0,
+						$elm$core$List$maximum(
+							A2(
+								$elm$core$List$map,
+								function (depId) {
+									return A2($author$project$Main$es, items, depId) + A2($author$project$Main$duration, items, depId);
+								},
+								$author$project$Main$itemDependsOn(item))));
+				},
+				A2($author$project$Main$findItem, items, taskId)));
+	});
 var $elm$core$String$fromFloat = _String_fromNumber;
 var $elm$core$Basics$round = _Basics_round;
-var $author$project$Main$formatDays = function (days) {
+var $author$project$Format$formatDays = function (days) {
 	return _Utils_eq(
 		days,
 		$elm$core$Basics$round(days)) ? $elm$core$String$fromInt(
 		$elm$core$Basics$round(days)) : $elm$core$String$fromFloat(days);
 };
+var $author$project$Main$esText = F2(
+	function (items, taskId) {
+		return ' — ES ' + ($author$project$Format$formatDays(
+			A2($author$project$Main$es, items, taskId)) + 'd');
+	});
 var $author$project$Main$estimateText = function (estimate) {
 	if (estimate.$ === 'Point') {
 		var days = estimate.a;
-		return $author$project$Main$formatDays(days) + 'd';
+		return $author$project$Format$formatDays(days) + 'd';
 	} else {
 		var low = estimate.a;
 		var high = estimate.b;
-		return $author$project$Main$formatDays(low) + ('-' + ($author$project$Main$formatDays(high) + 'd'));
+		return $author$project$Format$formatDays(low) + ('-' + ($author$project$Format$formatDays(high) + 'd'));
 	}
 };
-var $author$project$Main$itemFields = function (item) {
-	if (item.$ === 'TaskItem') {
-		var task = item.a;
-		return {
-			dependsOn: task.dependsOn,
-			id: task.id,
-			kind: 'task',
-			label: task.name + (' (' + ($author$project$Main$estimateText(task.estimate) + ')'))
-		};
-	} else {
-		var milestone = item.a;
-		return {dependsOn: milestone.dependsOn, id: milestone.id, kind: 'milestone', label: milestone.name};
-	}
-};
-var $author$project$Main$itemToElements = function (item) {
-	var fields = $author$project$Main$itemFields(item);
-	var nodeElement = $elm$json$Json$Encode$object(
-		_List_fromArray(
-			[
-				_Utils_Tuple2(
-				'data',
-				$elm$json$Json$Encode$object(
-					_List_fromArray(
-						[
-							_Utils_Tuple2(
-							'id',
-							$author$project$Main$encodeTaskId(fields.id)),
-							_Utils_Tuple2(
-							'label',
-							$elm$json$Json$Encode$string(fields.label)),
-							_Utils_Tuple2(
-							'kind',
-							$elm$json$Json$Encode$string(fields.kind))
-						])))
-			]));
-	return A2(
-		$elm$core$List$cons,
-		nodeElement,
-		A2(
-			$elm$core$List$map,
-			$author$project$Main$edgeElement(fields.id),
-			fields.dependsOn));
-};
+var $author$project$Main$itemFields = F2(
+	function (items, item) {
+		if (item.$ === 'TaskItem') {
+			var task = item.a;
+			return {
+				dependsOn: task.dependsOn,
+				id: task.id,
+				kind: 'task',
+				label: '[' + (task.section + ('] ' + (task.name + (' (' + ($author$project$Main$estimateText(task.estimate) + (')' + A2($author$project$Main$esText, items, task.id)))))))
+			};
+		} else {
+			var milestone = item.a;
+			return {
+				dependsOn: milestone.dependsOn,
+				id: milestone.id,
+				kind: 'milestone',
+				label: '[' + (milestone.section + ('] ' + (milestone.name + A2($author$project$Main$esText, items, milestone.id))))
+			};
+		}
+	});
+var $author$project$Main$itemToElements = F2(
+	function (items, item) {
+		var fields = A2($author$project$Main$itemFields, items, item);
+		var nodeElement = $elm$json$Json$Encode$object(
+			_List_fromArray(
+				[
+					_Utils_Tuple2(
+					'data',
+					$elm$json$Json$Encode$object(
+						_List_fromArray(
+							[
+								_Utils_Tuple2(
+								'id',
+								$author$project$Main$encodeTaskId(fields.id)),
+								_Utils_Tuple2(
+								'label',
+								$elm$json$Json$Encode$string(fields.label)),
+								_Utils_Tuple2(
+								'kind',
+								$elm$json$Json$Encode$string(fields.kind))
+							])))
+				]));
+		return A2(
+			$elm$core$List$cons,
+			nodeElement,
+			A2(
+				$elm$core$List$map,
+				$author$project$Main$edgeElement(fields.id),
+				fields.dependsOn));
+	});
 var $elm$json$Json$Encode$list = F2(
 	function (func, entries) {
 		return _Json_wrap(
@@ -7065,7 +7180,10 @@ var $author$project$Main$encodeElements = function (items) {
 	return A2(
 		$elm$json$Json$Encode$list,
 		$elm$core$Basics$identity,
-		A2($elm$core$List$concatMap, $author$project$Main$itemToElements, items));
+		A2(
+			$elm$core$List$concatMap,
+			$author$project$Main$itemToElements(items),
+			items));
 };
 var $elm$virtual_dom$VirtualDom$node = function (tag) {
 	return _VirtualDom_node(
