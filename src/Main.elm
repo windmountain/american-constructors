@@ -1,8 +1,9 @@
-module Main exposing (Estimate(..), Item(..), Milestone, Tactic(..), Task, TaskId(..), es, main)
+module Main exposing (Estimate(..), Item(..), Milestone, Tactic(..), Task, TaskId(..), es, ls, main, slack)
 
 import Browser
 import Csv.Decode as Decode exposing (Decoder)
 import Data
+import Dict exposing (Dict)
 import Format
 import Html exposing (Html, div, label, node, option, pre, select, text)
 import Html.Attributes exposing (for, id, property, selected, value)
@@ -254,35 +255,43 @@ tacticFromString value_ =
 
 viewGraph : Tactic -> List Item -> Html Msg
 viewGraph tactic items =
-    node "cytoscape-graph" [ property "elements" (encodeElements tactic items) ] []
+    node "cytoscape-graph" [ property "elements" (encodeElements (buildSchedule tactic items) items) ] []
 
 
-encodeElements : Tactic -> List Item -> Encode.Value
-encodeElements tactic items =
-    Encode.list identity (List.concatMap (itemToElements tactic items) items)
+encodeElements : Schedule -> List Item -> Encode.Value
+encodeElements schedule items =
+    Encode.list identity (List.concatMap (itemToElements schedule) items)
 
 
-itemFields : Tactic -> List Item -> Item -> { id : TaskId, label : String, dependsOn : List TaskId, kind : String }
-itemFields tactic items item =
+itemFields : Schedule -> Item -> { id : TaskId, label : String, dependsOn : List TaskId, kind : String }
+itemFields schedule item =
     case item of
         TaskItem task ->
             { id = task.id
-            , label = String.join "\n" [ "[" ++ task.section ++ "]", task.name ++ " (" ++ estimateText task.estimate ++ ")", esText tactic items task.id ]
+            , label = String.join "\n" [ "[" ++ task.section ++ "]", task.name ++ " (" ++ estimateText task.estimate ++ ")", scheduleText schedule task.id ]
             , dependsOn = task.dependsOn
             , kind = "task"
             }
 
         MilestoneItem milestone ->
             { id = milestone.id
-            , label = String.join "\n" [ "[" ++ milestone.section ++ "]", milestone.name, esText tactic items milestone.id ]
+            , label = String.join "\n" [ "[" ++ milestone.section ++ "]", milestone.name, scheduleText schedule milestone.id ]
             , dependsOn = milestone.dependsOn
             , kind = "milestone"
             }
 
 
-esText : Tactic -> List Item -> TaskId -> String
-esText tactic items taskId =
-    "ES " ++ Format.formatDays (es tactic items taskId) ++ "d"
+scheduleText : Schedule -> TaskId -> String
+scheduleText schedule taskId =
+    "ES "
+        ++ Format.formatDays (scheduleEs schedule taskId)
+        ++ "d"
+        ++ "  LS "
+        ++ Format.formatDays (scheduleLs schedule taskId)
+        ++ "d"
+        ++ "  Slack "
+        ++ Format.formatDays (scheduleSlack schedule taskId)
+        ++ "d"
 
 
 estimateText : Estimate -> String
@@ -295,30 +304,196 @@ estimateText estimate =
             Format.formatDays low ++ "-" ++ Format.formatDays high ++ "d"
 
 
+{-| Earliest/latest start times for every item, computed once per (tactic, items)
+via a single forward and backward pass over a topologically sorted dependency
+graph, rather than by re-walking the dependency tree from scratch for every
+lookup.
+-}
+type alias Schedule =
+    { es : Dict Int Float
+    , ls : Dict Int Float
+    }
+
+
+buildSchedule : Tactic -> List Item -> Schedule
+buildSchedule tactic items =
+    let
+        itemsById : Dict Int Item
+        itemsById =
+            items
+                |> List.map (\item -> ( taskIdToInt (itemId item), item ))
+                |> Dict.fromList
+
+        dependentsOf : Dict Int (List Int)
+        dependentsOf =
+            items
+                |> List.concatMap
+                    (\item ->
+                        itemDependsOn item
+                            |> List.map (\dep -> ( taskIdToInt dep, taskIdToInt (itemId item) ))
+                    )
+                |> List.foldl
+                    (\( depId, dependentId ) acc ->
+                        Dict.update depId (\existing -> Just (dependentId :: Maybe.withDefault [] existing)) acc
+                    )
+                    Dict.empty
+
+        topoOrder : List Int
+        topoOrder =
+            topoSort itemsById dependentsOf
+
+        durationOf : Int -> Float
+        durationOf id =
+            case Dict.get id itemsById of
+                Just (TaskItem task) ->
+                    estimateDuration tactic task.estimate
+
+                Just (MilestoneItem _) ->
+                    0
+
+                Nothing ->
+                    0
+
+        esDict : Dict Int Float
+        esDict =
+            List.foldl
+                (\id acc ->
+                    let
+                        deps =
+                            Dict.get id itemsById
+                                |> Maybe.map itemDependsOn
+                                |> Maybe.withDefault []
+
+                        esValue =
+                            deps
+                                |> List.map
+                                    (\depId ->
+                                        let
+                                            d =
+                                                taskIdToInt depId
+                                        in
+                                        (Dict.get d acc |> Maybe.withDefault 0) + durationOf d
+                                    )
+                                |> List.maximum
+                                |> Maybe.withDefault 0
+                    in
+                    Dict.insert id esValue acc
+                )
+                Dict.empty
+                topoOrder
+
+        finish : Float
+        finish =
+            itemsById
+                |> Dict.keys
+                |> List.map (\id -> (Dict.get id esDict |> Maybe.withDefault 0) + durationOf id)
+                |> List.maximum
+                |> Maybe.withDefault 0
+
+        lsDict : Dict Int Float
+        lsDict =
+            List.foldl
+                (\id acc ->
+                    let
+                        dependents =
+                            Dict.get id dependentsOf |> Maybe.withDefault []
+
+                        lf =
+                            case dependents of
+                                [] ->
+                                    finish
+
+                                _ ->
+                                    dependents
+                                        |> List.map (\d -> Dict.get d acc |> Maybe.withDefault finish)
+                                        |> List.minimum
+                                        |> Maybe.withDefault finish
+                    in
+                    Dict.insert id (lf - durationOf id) acc
+                )
+                Dict.empty
+                (List.reverse topoOrder)
+    in
+    { es = esDict, ls = lsDict }
+
+
+{-| Kahn's algorithm: repeatedly peel off items with no unprocessed
+dependencies so each item is visited exactly once.
+-}
+topoSort : Dict Int Item -> Dict Int (List Int) -> List Int
+topoSort itemsById dependentsOf =
+    let
+        inDegree0 : Dict Int Int
+        inDegree0 =
+            itemsById |> Dict.map (\_ item -> List.length (itemDependsOn item))
+
+        initialQueue : List Int
+        initialQueue =
+            inDegree0 |> Dict.filter (\_ deg -> deg == 0) |> Dict.keys
+    in
+    topoSortHelp dependentsOf inDegree0 initialQueue []
+
+
+topoSortHelp : Dict Int (List Int) -> Dict Int Int -> List Int -> List Int -> List Int
+topoSortHelp dependentsOf inDegree queue order =
+    case queue of
+        [] ->
+            List.reverse order
+
+        id :: rest ->
+            let
+                dependents =
+                    Dict.get id dependentsOf |> Maybe.withDefault []
+
+                ( newInDegree, newlyReady ) =
+                    List.foldl
+                        (\dep ( degAcc, readyAcc ) ->
+                            let
+                                updated =
+                                    (Dict.get dep degAcc |> Maybe.withDefault 1) - 1
+                            in
+                            ( Dict.insert dep updated degAcc
+                            , if updated == 0 then
+                                dep :: readyAcc
+
+                              else
+                                readyAcc
+                            )
+                        )
+                        ( inDegree, [] )
+                        dependents
+            in
+            topoSortHelp dependentsOf newInDegree (rest ++ newlyReady) (id :: order)
+
+
+scheduleEs : Schedule -> TaskId -> Float
+scheduleEs schedule taskId =
+    Dict.get (taskIdToInt taskId) schedule.es |> Maybe.withDefault 0
+
+
+scheduleLs : Schedule -> TaskId -> Float
+scheduleLs schedule taskId =
+    Dict.get (taskIdToInt taskId) schedule.ls |> Maybe.withDefault 0
+
+
+scheduleSlack : Schedule -> TaskId -> Float
+scheduleSlack schedule taskId =
+    scheduleLs schedule taskId - scheduleEs schedule taskId
+
+
 es : Tactic -> List Item -> TaskId -> Float
 es tactic items taskId =
-    findItem items taskId
-        |> Maybe.map
-            (\item ->
-                itemDependsOn item
-                    |> List.map (\depId -> es tactic items depId + duration tactic items depId)
-                    |> List.maximum
-                    |> Maybe.withDefault 0
-            )
-        |> Maybe.withDefault 0
+    scheduleEs (buildSchedule tactic items) taskId
 
 
-duration : Tactic -> List Item -> TaskId -> Float
-duration tactic items taskId =
-    case findItem items taskId of
-        Just (TaskItem task) ->
-            estimateDuration tactic task.estimate
+ls : Tactic -> List Item -> TaskId -> Float
+ls tactic items taskId =
+    scheduleLs (buildSchedule tactic items) taskId
 
-        Just (MilestoneItem _) ->
-            0
 
-        Nothing ->
-            0
+slack : Tactic -> List Item -> TaskId -> Float
+slack tactic items taskId =
+    scheduleSlack (buildSchedule tactic items) taskId
 
 
 estimateDuration : Tactic -> Estimate -> Float
@@ -339,11 +514,9 @@ estimateDuration tactic estimate =
                     (low + high) / 2
 
 
-findItem : List Item -> TaskId -> Maybe Item
-findItem items taskId =
-    items
-        |> List.filter (\item -> itemId item == taskId)
-        |> List.head
+taskIdToInt : TaskId -> Int
+taskIdToInt (TaskId id) =
+    id
 
 
 itemId : Item -> TaskId
@@ -366,11 +539,11 @@ itemDependsOn item =
             milestone.dependsOn
 
 
-itemToElements : Tactic -> List Item -> Item -> List Encode.Value
-itemToElements tactic items item =
+itemToElements : Schedule -> Item -> List Encode.Value
+itemToElements schedule item =
     let
         fields =
-            itemFields tactic items item
+            itemFields schedule item
 
         nodeElement =
             Encode.object
@@ -379,6 +552,7 @@ itemToElements tactic items item =
                         [ ( "id", encodeTaskId fields.id )
                         , ( "label", Encode.string fields.label )
                         , ( "kind", Encode.string fields.kind )
+                        , ( "slack", Encode.float (scheduleSlack schedule fields.id) )
                         ]
                   )
                 ]
