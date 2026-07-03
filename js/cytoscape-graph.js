@@ -2,6 +2,18 @@ cytoscape.use(cytoscapeDagre);
 
 const dagreLayout = { name: "dagre", rankSep: 80, nodeSep: 200 };
 
+// A cheap fingerprint of which nodes/edges are present, independent of their
+// data values, so callers can tell "same elements, data changed" apart from
+// "elements were added/removed" without a full set comparison. Ids never
+// contain a space (they're spreadsheet codes like "T1" or edge ids like
+// "T1->T2"), so joining on one is a safe way to make the list comparable.
+function elementIdSignature(elements) {
+  return elements
+    .map((el) => el.data.id)
+    .sort()
+    .join(" ");
+}
+
 function escapeAttr(value) {
   return String(value ?? "").replace(/[&"<>]/g, (c) => ({ "&": "&amp;", '"': "&quot;", "<": "&lt;", ">": "&gt;" }[c]));
 }
@@ -26,9 +38,11 @@ class CytoscapeGraph extends HTMLElement {
     this.style.display = "block";
     this.style.width = "100%";
     this.style.height = "100vh";
+    const initialElements = this._pendingElements || [];
+    this._elementIds = elementIdSignature(initialElements);
     this._cy = cytoscape({
       container: this,
-      elements: this._pendingElements || [],
+      elements: initialElements,
       layout: dagreLayout,
       style: [
         {
@@ -85,8 +99,21 @@ class CytoscapeGraph extends HTMLElement {
 
   set elements(value) {
     this._pendingElements = value;
-    if (this._cy) {
-      this._cy.json({ elements: value });
+    if (!this._cy) {
+      return;
+    }
+
+    const nextIds = elementIdSignature(value);
+    const structureChanged = nextIds !== this._elementIds;
+    this._elementIds = nextIds;
+
+    // cy.json() diffs by id: it merges data onto existing elements in place
+    // (no effect on position/pan/zoom) and only adds/removes elements whose
+    // ids are new/missing. Re-running the layout is only needed when the
+    // graph's shape actually changed, e.g. not on a tactic switch, which
+    // only updates data (es/ls/slack/label) on the same set of nodes/edges.
+    this._cy.json({ elements: value });
+    if (structureChanged) {
       this._cy.layout(dagreLayout).run();
     }
   }
