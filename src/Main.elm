@@ -1,14 +1,13 @@
-module Main exposing (Estimate(..), Item(..), Milestone, Origin, Tactic(..), Task, TaskId(..), es, ls, main, slack)
+module Main exposing (Estimate(..), Item(..), Milestone, Tactic(..), Task, TaskId(..), es, ls, main, slack)
 
 import Browser
 import Csv.Decode as Decode exposing (Decoder)
 import Data
-import Date exposing (Date)
 import Dict exposing (Dict)
 import Format
-import Html exposing (Html, a, div, label, node, option, pre, select, text)
+import Html exposing (Html, a, button, div, label, node, option, pre, select, text)
 import Html.Attributes exposing (download, for, href, id, property, selected, style, value)
-import Html.Events exposing (onInput)
+import Html.Events exposing (onClick, onInput)
 import Json.Encode as Encode
 
 
@@ -58,27 +57,9 @@ type alias Milestone =
     }
 
 
-{-| An anchor point with a real calendar date but no dependencies or duration
-of its own, e.g. "Now". Distinct from a Milestone, which still waits on its
-dependencies to complete.
--}
-type alias Origin =
-    { id : TaskId
-    , section : String
-    , name : String
-    , date : Date
-    , spreadsheetEs : Float
-    , spreadsheetEf : Float
-    , spreadsheetLf : Float
-    , spreadsheetLs : Float
-    , spreadsheetSlack : Float
-    }
-
-
 type Item
     = TaskItem Task
     | MilestoneItem Milestone
-    | OriginItem Origin
 
 
 type alias RawFields =
@@ -89,7 +70,6 @@ type alias RawFields =
     , estimate : Maybe Estimate
     , weatherDependent : Bool
     , canExpedite : Bool
-    , date : Maybe Date
     , spreadsheetEs : Float
     , spreadsheetEf : Float
     , spreadsheetLf : Float
@@ -108,7 +88,6 @@ itemDecoder =
         |> Decode.pipeline estimateDecoder
         |> Decode.pipeline (yesNoDecoder "Weather-dependent")
         |> Decode.pipeline (yesNoDecoder "Can Expedite")
-        |> Decode.pipeline (optionalDateField "Date")
         |> Decode.pipeline (requiredFloatField "ES")
         |> Decode.pipeline (requiredFloatField "EF")
         |> Decode.pipeline (requiredFloatField "LF")
@@ -119,21 +98,8 @@ itemDecoder =
 
 toItem : RawFields -> Item
 toItem fields =
-    case ( fields.estimate, fields.dependsOn, fields.date ) of
-        ( Nothing, [], Just date ) ->
-            OriginItem
-                { id = fields.id
-                , section = fields.section
-                , name = fields.name
-                , date = date
-                , spreadsheetEs = fields.spreadsheetEs
-                , spreadsheetEf = fields.spreadsheetEf
-                , spreadsheetLf = fields.spreadsheetLf
-                , spreadsheetLs = fields.spreadsheetLs
-                , spreadsheetSlack = fields.spreadsheetSlack
-                }
-
-        ( Just estimate, _, _ ) ->
+    case fields.estimate of
+        Just estimate ->
             TaskItem
                 { id = fields.id
                 , section = fields.section
@@ -149,7 +115,7 @@ toItem fields =
                 , spreadsheetSlack = fields.spreadsheetSlack
                 }
 
-        ( Nothing, _, _ ) ->
+        Nothing ->
             MilestoneItem
                 { id = fields.id
                 , section = fields.section
@@ -187,39 +153,6 @@ optionalStringField name =
                 else
                     Decode.succeed (Just value)
             )
-
-
-optionalDateField : String -> Decoder (Maybe Date)
-optionalDateField name =
-    Decode.field name Decode.string
-        |> Decode.map String.trim
-        |> Decode.andThen
-            (\value ->
-                if value == "" then
-                    Decode.succeed Nothing
-
-                else
-                    case parseDate value of
-                        Ok date ->
-                            Decode.succeed (Just date)
-
-                        Err message ->
-                            Decode.fail (message ++ " in field " ++ name)
-            )
-
-
-parseDate : String -> Result String Date
-parseDate value =
-    case String.split "/" value |> List.map String.toInt of
-        [ Just month, Just day, Just year ] ->
-            if month >= 1 && month <= 12 then
-                Ok (Date.fromCalendarDate year (Date.numberToMonth month) day)
-
-            else
-                Err ("Could not parse \"" ++ value ++ "\" as a date: month must be between 1 and 12")
-
-        _ ->
-            Err ("Could not parse \"" ++ value ++ "\" as a date, expected MM/DD/YYYY")
 
 
 optionalFloatField : String -> Decoder (Maybe Float)
@@ -291,16 +224,19 @@ itemsResult =
 
 
 type alias Model =
-    { tactic : Tactic }
+    { tactic : Tactic
+    , showSpreadsheet : Bool
+    }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { tactic = Midpoint }, Cmd.none )
+    ( { tactic = Midpoint, showSpreadsheet = False }, Cmd.none )
 
 
 type Msg
     = SetTactic Tactic
+    | ToggleShowSpreadsheet
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -308,6 +244,9 @@ update msg model =
     case msg of
         SetTactic tactic ->
             ( { model | tactic = tactic }, Cmd.none )
+
+        ToggleShowSpreadsheet ->
+            ( { model | showSpreadsheet = not model.showSpreadsheet }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -323,12 +262,13 @@ view model =
             [ tacticSelect model.tactic
             , case itemsResult of
                 Ok items ->
-                    viewGraph model.tactic items
+                    viewGraph model.tactic model.showSpreadsheet items
 
                 Err error ->
                     pre [] [ text (Decode.errorToString error) ]
             ]
         , viewDownloads
+        , viewSpreadsheetToggle model.showSpreadsheet
         ]
     }
 
@@ -367,6 +307,26 @@ downloadLink file label_ =
     a [ href file, download "" ] [ text label_ ]
 
 
+viewSpreadsheetToggle : Bool -> Html Msg
+viewSpreadsheetToggle showSpreadsheet =
+    div
+        [ style "position" "fixed"
+        , style "bottom" "16px"
+        , style "left" "16px"
+        , style "z-index" "20"
+        ]
+        [ button [ onClick ToggleShowSpreadsheet ]
+            [ text
+                (if showSpreadsheet then
+                    "Hide spreadsheet calculations"
+
+                 else
+                    "Show spreadsheet calculations"
+                )
+            ]
+        ]
+
+
 tacticSelect : Tactic -> Html Msg
 tacticSelect current =
     div []
@@ -395,18 +355,18 @@ tacticFromString value_ =
             Nothing
 
 
-viewGraph : Tactic -> List Item -> Html Msg
-viewGraph tactic items =
-    node "cytoscape-graph" [ property "elements" (encodeElements (buildSchedule tactic items) items) ] []
+viewGraph : Tactic -> Bool -> List Item -> Html Msg
+viewGraph tactic showSpreadsheet items =
+    node "cytoscape-graph" [ property "elements" (encodeElements (buildSchedule tactic items) showSpreadsheet items) ] []
 
 
-encodeElements : Schedule -> List Item -> Encode.Value
-encodeElements schedule items =
-    Encode.list identity (List.concatMap (itemToElements schedule) items)
+encodeElements : Schedule -> Bool -> List Item -> Encode.Value
+encodeElements schedule showSpreadsheet items =
+    Encode.list identity (List.concatMap (itemToElements schedule showSpreadsheet) items)
 
 
-itemFields : Schedule -> Item -> { id : TaskId, label : String, dependsOn : List TaskId, kind : String, card : List ( String, Encode.Value ) }
-itemFields schedule item =
+itemFields : Schedule -> Bool -> Item -> { id : TaskId, label : String, dependsOn : List TaskId, kind : String, card : List ( String, Encode.Value ) }
+itemFields schedule showSpreadsheet item =
     case item of
         TaskItem task ->
             { id = task.id
@@ -419,8 +379,9 @@ itemFields schedule item =
                 , ( "estimate", Encode.string (estimateText task.estimate) )
                 , ( "es", Encode.string (Format.formatDays (scheduleEs schedule task.id) ++ "d") )
                 , ( "ls", Encode.string (Format.formatDays (scheduleLs schedule task.id) ++ "d") )
-                , ( "esDate", Encode.string (scheduleEsDate schedule task.id |> Maybe.map formatDate |> Maybe.withDefault "") )
-                , ( "lsDate", Encode.string (scheduleLsDate schedule task.id |> Maybe.map formatDate |> Maybe.withDefault "") )
+                , ( "sEs", Encode.string (Format.formatDays task.spreadsheetEs ++ "d") )
+                , ( "sLs", Encode.string (Format.formatDays task.spreadsheetLs ++ "d") )
+                , ( "showSpreadsheet", Encode.bool showSpreadsheet )
                 ]
             }
 
@@ -432,22 +393,10 @@ itemFields schedule item =
             , card = []
             }
 
-        OriginItem origin ->
-            { id = origin.id
-            , label = itemLabel schedule origin.id [ "[" ++ origin.section ++ "]", origin.name ++ " (" ++ formatDate origin.date ++ ")" ]
-            , dependsOn = []
-            , kind = "origin"
-            , card = []
-            }
-
 
 itemLabel : Schedule -> TaskId -> List String -> String
 itemLabel schedule taskId headerLines =
-    let
-        datesLine =
-            scheduleDatesText schedule taskId |> Maybe.map List.singleton |> Maybe.withDefault []
-    in
-    String.join "\n" (headerLines ++ [ scheduleText schedule taskId ] ++ datesLine)
+    String.join "\n" (headerLines ++ [ scheduleText schedule taskId ])
 
 
 scheduleText : Schedule -> TaskId -> String
@@ -461,32 +410,6 @@ scheduleText schedule taskId =
         ++ "  Slack "
         ++ Format.formatDays (scheduleSlack schedule taskId)
         ++ "d"
-
-
-{-| The real calendar dates ES and LS land on, anchored to the project's
-Origin item (e.g. "Now"). Absent if the data has no Origin to anchor to.
--}
-scheduleDatesText : Schedule -> TaskId -> Maybe String
-scheduleDatesText schedule taskId =
-    Maybe.map2
-        (\esDate lsDate -> "ES date " ++ formatDate esDate ++ "  LS date " ++ formatDate lsDate)
-        (scheduleEsDate schedule taskId)
-        (scheduleLsDate schedule taskId)
-
-
-scheduleEsDate : Schedule -> TaskId -> Maybe Date
-scheduleEsDate schedule taskId =
-    schedule.originDate |> Maybe.map (\originDate -> Date.add Date.Days (round (scheduleEs schedule taskId)) originDate)
-
-
-scheduleLsDate : Schedule -> TaskId -> Maybe Date
-scheduleLsDate schedule taskId =
-    schedule.originDate |> Maybe.map (\originDate -> Date.add Date.Days (round (scheduleLs schedule taskId)) originDate)
-
-
-formatDate : Date -> String
-formatDate =
-    Date.format "MMM d, y"
 
 
 estimateText : Estimate -> String
@@ -507,7 +430,6 @@ lookup.
 type alias Schedule =
     { es : Dict String Float
     , ls : Dict String Float
-    , originDate : Maybe Date
     }
 
 
@@ -545,9 +467,6 @@ buildSchedule tactic items =
                     estimateDuration tactic task.estimate
 
                 Just (MilestoneItem _) ->
-                    0
-
-                Just (OriginItem _) ->
                     0
 
                 Nothing ->
@@ -612,22 +531,8 @@ buildSchedule tactic items =
                 )
                 Dict.empty
                 (List.reverse topoOrder)
-
-        originDate : Maybe Date
-        originDate =
-            items
-                |> List.filterMap
-                    (\item ->
-                        case item of
-                            OriginItem origin ->
-                                Just origin.date
-
-                            _ ->
-                                Nothing
-                    )
-                |> List.head
     in
-    { es = esDict, ls = lsDict, originDate = originDate }
+    { es = esDict, ls = lsDict }
 
 
 {-| Kahn's algorithm: repeatedly peel off items with no unprocessed
@@ -736,9 +641,6 @@ itemId item =
         MilestoneItem milestone ->
             milestone.id
 
-        OriginItem origin ->
-            origin.id
-
 
 itemDependsOn : Item -> List TaskId
 itemDependsOn item =
@@ -749,15 +651,12 @@ itemDependsOn item =
         MilestoneItem milestone ->
             milestone.dependsOn
 
-        OriginItem _ ->
-            []
 
-
-itemToElements : Schedule -> Item -> List Encode.Value
-itemToElements schedule item =
+itemToElements : Schedule -> Bool -> Item -> List Encode.Value
+itemToElements schedule showSpreadsheet item =
     let
         fields =
-            itemFields schedule item
+            itemFields schedule showSpreadsheet item
 
         nodeElement =
             Encode.object

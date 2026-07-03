@@ -26,8 +26,9 @@ function taskCardTpl(data) {
     ` data-estimate="${escapeAttr(data.estimate)}"` +
     ` data-es="${escapeAttr(data.es)}"` +
     ` data-ls="${escapeAttr(data.ls)}"` +
-    ` data-es-date="${escapeAttr(data.esDate)}"` +
-    ` data-ls-date="${escapeAttr(data.lsDate)}"` +
+    ` data-s-es="${escapeAttr(data.sEs)}"` +
+    ` data-s-ls="${escapeAttr(data.sLs)}"` +
+    ` data-show-spreadsheet="${escapeAttr(data.showSpreadsheet)}"` +
     ` data-slack="${escapeAttr(data.slack)}"` +
     `></task-card>`
   );
@@ -44,6 +45,8 @@ class CytoscapeGraph extends HTMLElement {
       container: this,
       elements: initialElements,
       layout: dagreLayout,
+      minZoom: 0.2,
+      maxZoom: 2,
       style: [
         {
           selector: "node",

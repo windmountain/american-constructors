@@ -32,7 +32,7 @@ class TaskCard extends HTMLElement {
         opacity: 0.85;
       }
       .name { font-weight: 600; margin: 2px 0; }
-      .estimate, .schedule, .dates { font-size: 11px; opacity: 0.9; }
+      .estimate, .schedule, .spreadsheet-schedule { font-size: 11px; opacity: 0.9; }
     `;
 
     const card = document.createElement("div");
@@ -56,11 +56,11 @@ class TaskCard extends HTMLElement {
 
     card.append(section, name, estimate, schedule);
 
-    if (d.esDate && d.lsDate) {
-      const dates = document.createElement("div");
-      dates.className = "dates";
-      dates.textContent = `${d.esDate} → ${d.lsDate}`;
-      card.append(dates);
+    if (d.showSpreadsheet === "true") {
+      const spreadsheetSchedule = document.createElement("div");
+      spreadsheetSchedule.className = "spreadsheet-schedule";
+      spreadsheetSchedule.textContent = `s_ES ${d.sEs}  ·  s_LS ${d.sLs}`;
+      card.append(spreadsheetSchedule);
     }
 
     root.append(style, card);
