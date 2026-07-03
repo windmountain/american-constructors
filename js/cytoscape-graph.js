@@ -77,7 +77,7 @@ class CytoscapeGraph extends HTMLElement {
         },
         {
           selector: "node[slack <= 0.001][kind != 'task']",
-          style: { "border-width": 4, "border-color": "#eab308" },
+          style: { "border-width": 4, "border-color": "#dc2626" },
         },
         { selector: "edge", style: { "target-arrow-shape": "triangle", "curve-style": "bezier" } },
       ],

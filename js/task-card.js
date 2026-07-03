@@ -24,7 +24,7 @@ class TaskCard extends HTMLElement {
         border: 1px solid #1d4ed8;
         font: 12px/1.35 -apple-system, BlinkMacSystemFont, sans-serif;
       }
-      .card.critical { border: 4px solid #eab308; }
+      .card.critical { border: 4px solid #dc2626; }
       .section {
         text-transform: uppercase;
         letter-spacing: 0.04em;
