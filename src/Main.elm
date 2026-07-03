@@ -35,6 +35,11 @@ type alias Task =
     , estimate : Estimate
     , weatherDependent : Bool
     , canExpedite : Bool
+    , spreadsheetEs : Float
+    , spreadsheetEf : Float
+    , spreadsheetLf : Float
+    , spreadsheetLs : Float
+    , spreadsheetSlack : Float
     }
 
 
@@ -45,6 +50,11 @@ type alias Milestone =
     , dependsOn : List TaskId
     , weatherDependent : Bool
     , canExpedite : Bool
+    , spreadsheetEs : Float
+    , spreadsheetEf : Float
+    , spreadsheetLf : Float
+    , spreadsheetLs : Float
+    , spreadsheetSlack : Float
     }
 
 
@@ -57,6 +67,11 @@ type alias Origin =
     , section : String
     , name : String
     , date : Date
+    , spreadsheetEs : Float
+    , spreadsheetEf : Float
+    , spreadsheetLf : Float
+    , spreadsheetLs : Float
+    , spreadsheetSlack : Float
     }
 
 
@@ -75,6 +90,11 @@ type alias RawFields =
     , weatherDependent : Bool
     , canExpedite : Bool
     , date : Maybe Date
+    , spreadsheetEs : Float
+    , spreadsheetEf : Float
+    , spreadsheetLf : Float
+    , spreadsheetLs : Float
+    , spreadsheetSlack : Float
     }
 
 
@@ -89,6 +109,11 @@ itemDecoder =
         |> Decode.pipeline (yesNoDecoder "Weather-dependent")
         |> Decode.pipeline (yesNoDecoder "Can Expedite")
         |> Decode.pipeline (optionalDateField "Date")
+        |> Decode.pipeline (requiredFloatField "ES")
+        |> Decode.pipeline (requiredFloatField "EF")
+        |> Decode.pipeline (requiredFloatField "LF")
+        |> Decode.pipeline (requiredFloatField "LS")
+        |> Decode.pipeline (requiredFloatField "Slack")
         |> Decode.map toItem
 
 
@@ -101,6 +126,11 @@ toItem fields =
                 , section = fields.section
                 , name = fields.name
                 , date = date
+                , spreadsheetEs = fields.spreadsheetEs
+                , spreadsheetEf = fields.spreadsheetEf
+                , spreadsheetLf = fields.spreadsheetLf
+                , spreadsheetLs = fields.spreadsheetLs
+                , spreadsheetSlack = fields.spreadsheetSlack
                 }
 
         ( Just estimate, _, _ ) ->
@@ -112,6 +142,11 @@ toItem fields =
                 , estimate = estimate
                 , weatherDependent = fields.weatherDependent
                 , canExpedite = fields.canExpedite
+                , spreadsheetEs = fields.spreadsheetEs
+                , spreadsheetEf = fields.spreadsheetEf
+                , spreadsheetLf = fields.spreadsheetLf
+                , spreadsheetLs = fields.spreadsheetLs
+                , spreadsheetSlack = fields.spreadsheetSlack
                 }
 
         ( Nothing, _, _ ) ->
@@ -122,6 +157,11 @@ toItem fields =
                 , dependsOn = fields.dependsOn
                 , weatherDependent = fields.weatherDependent
                 , canExpedite = fields.canExpedite
+                , spreadsheetEs = fields.spreadsheetEs
+                , spreadsheetEf = fields.spreadsheetEf
+                , spreadsheetLf = fields.spreadsheetLf
+                , spreadsheetLs = fields.spreadsheetLs
+                , spreadsheetSlack = fields.spreadsheetSlack
                 }
 
 
@@ -198,6 +238,21 @@ optionalFloatField name =
 
                         Nothing ->
                             Decode.fail ("Could not parse \"" ++ value ++ "\" as a number in field " ++ name)
+            )
+
+
+requiredFloatField : String -> Decoder Float
+requiredFloatField name =
+    Decode.field name Decode.string
+        |> Decode.map String.trim
+        |> Decode.andThen
+            (\value ->
+                case String.toFloat value of
+                    Just n ->
+                        Decode.succeed n
+
+                    Nothing ->
+                        Decode.fail ("Could not parse \"" ++ value ++ "\" as a number in field " ++ name)
             )
 
 

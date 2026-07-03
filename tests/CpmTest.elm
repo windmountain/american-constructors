@@ -19,6 +19,11 @@ items =
         , dependsOn = []
         , weatherDependent = False
         , canExpedite = False
+        , spreadsheetEs = 0
+        , spreadsheetEf = 0
+        , spreadsheetLf = 0
+        , spreadsheetLs = 0
+        , spreadsheetSlack = 0
         }
     , TaskItem
         { id = TaskId "2"
@@ -28,6 +33,11 @@ items =
         , estimate = Point 5
         , weatherDependent = False
         , canExpedite = False
+        , spreadsheetEs = 0
+        , spreadsheetEf = 0
+        , spreadsheetLf = 0
+        , spreadsheetLs = 0
+        , spreadsheetSlack = 0
         }
     , TaskItem
         { id = TaskId "3"
@@ -37,6 +47,11 @@ items =
         , estimate = Point 8
         , weatherDependent = False
         , canExpedite = False
+        , spreadsheetEs = 0
+        , spreadsheetEf = 0
+        , spreadsheetLf = 0
+        , spreadsheetLs = 0
+        , spreadsheetSlack = 0
         }
     , TaskItem
         { id = TaskId "4"
@@ -46,6 +61,11 @@ items =
         , estimate = Point 2
         , weatherDependent = False
         , canExpedite = False
+        , spreadsheetEs = 0
+        , spreadsheetEf = 0
+        , spreadsheetLf = 0
+        , spreadsheetLs = 0
+        , spreadsheetSlack = 0
         }
     , TaskItem
         { id = TaskId "5"
@@ -55,6 +75,11 @@ items =
         , estimate = Range 4 10
         , weatherDependent = False
         , canExpedite = False
+        , spreadsheetEs = 0
+        , spreadsheetEf = 0
+        , spreadsheetLf = 0
+        , spreadsheetLs = 0
+        , spreadsheetSlack = 0
         }
     ]
 
@@ -87,4 +112,9 @@ dependentOn5 =
         , estimate = Point 0
         , weatherDependent = False
         , canExpedite = False
+        , spreadsheetEs = 0
+        , spreadsheetEf = 0
+        , spreadsheetLf = 0
+        , spreadsheetLs = 0
+        , spreadsheetSlack = 0
         }
