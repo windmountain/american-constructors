@@ -7244,6 +7244,25 @@ var $author$project$Main$itemId = function (item) {
 		return milestone.id;
 	}
 };
+var $elm$core$Dict$map = F2(
+	function (func, dict) {
+		if (dict.$ === 'RBEmpty_elm_builtin') {
+			return $elm$core$Dict$RBEmpty_elm_builtin;
+		} else {
+			var color = dict.a;
+			var key = dict.b;
+			var value = dict.c;
+			var left = dict.d;
+			var right = dict.e;
+			return A5(
+				$elm$core$Dict$RBNode_elm_builtin,
+				color,
+				key,
+				A2(func, key, value),
+				A2($elm$core$Dict$map, func, left),
+				A2($elm$core$Dict$map, func, right));
+		}
+	});
 var $elm$core$Maybe$map = F2(
 	function (f, maybe) {
 		if (maybe.$ === 'Just') {
@@ -7317,25 +7336,6 @@ var $elm$core$Dict$filter = F2(
 				}),
 			$elm$core$Dict$empty,
 			dict);
-	});
-var $elm$core$Dict$map = F2(
-	function (func, dict) {
-		if (dict.$ === 'RBEmpty_elm_builtin') {
-			return $elm$core$Dict$RBEmpty_elm_builtin;
-		} else {
-			var color = dict.a;
-			var key = dict.b;
-			var value = dict.c;
-			var left = dict.d;
-			var right = dict.e;
-			return A5(
-				$elm$core$Dict$RBNode_elm_builtin,
-				color,
-				key,
-				A2(func, key, value),
-				A2($elm$core$Dict$map, func, left),
-				A2($elm$core$Dict$map, func, right));
-		}
 	});
 var $author$project$Main$topoSortHelp = F4(
 	function (dependentsOf, inDegree, queue, order) {
@@ -7861,6 +7861,13 @@ var $author$project$Main$buildSchedule = F2(
 				}),
 			$elm$core$Dict$empty,
 			topoOrder);
+		var efDict = A2(
+			$elm$core$Dict$map,
+			F2(
+				function (id, esValue) {
+					return esValue + durationOf(id);
+				}),
+			esDict);
 		var finish = A2(
 			$elm$core$Maybe$withDefault,
 			0,
@@ -7882,7 +7889,7 @@ var $author$project$Main$buildSchedule = F2(
 						$elm$core$Maybe$withDefault,
 						_List_Nil,
 						A2($elm$core$Dict$get, id, dependentsOf));
-					var lf = function () {
+					var latestFinish = function () {
 						if (!dependents.b) {
 							return finish;
 						} else {
@@ -7904,12 +7911,19 @@ var $author$project$Main$buildSchedule = F2(
 					return A3(
 						$elm$core$Dict$insert,
 						id,
-						lf - durationOf(id),
+						latestFinish - durationOf(id),
 						acc);
 				}),
 			$elm$core$Dict$empty,
 			$elm$core$List$reverse(topoOrder));
-		return {es: esDict, ls: lsDict};
+		var lfDict = A2(
+			$elm$core$Dict$map,
+			F2(
+				function (id, lsValue) {
+					return lsValue + durationOf(id);
+				}),
+			lsDict);
+		return {ef: efDict, es: esDict, lf: lfDict, ls: lsDict};
 	});
 var $author$project$Main$encodeTaskId = function (id) {
 	return $elm$json$Json$Encode$string(
@@ -7970,6 +7984,16 @@ var $author$project$Main$estimateText = function (estimate) {
 		return $author$project$Format$formatDays(low) + ('-' + ($author$project$Format$formatDays(high) + 'd'));
 	}
 };
+var $author$project$Main$scheduleEf = F2(
+	function (schedule, taskId) {
+		return A2(
+			$elm$core$Maybe$withDefault,
+			0,
+			A2(
+				$elm$core$Dict$get,
+				$author$project$Main$taskIdToString(taskId),
+				schedule.ef));
+	});
 var $author$project$Main$scheduleEs = F2(
 	function (schedule, taskId) {
 		return A2(
@@ -7979,6 +8003,16 @@ var $author$project$Main$scheduleEs = F2(
 				$elm$core$Dict$get,
 				$author$project$Main$taskIdToString(taskId),
 				schedule.es));
+	});
+var $author$project$Main$scheduleLf = F2(
+	function (schedule, taskId) {
+		return A2(
+			$elm$core$Maybe$withDefault,
+			0,
+			A2(
+				$elm$core$Dict$get,
+				$author$project$Main$taskIdToString(taskId),
+				schedule.lf));
 	});
 var $author$project$Main$scheduleLs = F2(
 	function (schedule, taskId) {
@@ -7997,9 +8031,11 @@ var $author$project$Main$scheduleSlack = F2(
 var $author$project$Main$scheduleText = F2(
 	function (schedule, taskId) {
 		return 'ES ' + ($author$project$Format$formatDays(
-			A2($author$project$Main$scheduleEs, schedule, taskId)) + ('d' + ('  LS ' + ($author$project$Format$formatDays(
+			A2($author$project$Main$scheduleEs, schedule, taskId)) + ('d' + ('  EF ' + ($author$project$Format$formatDays(
+			A2($author$project$Main$scheduleEf, schedule, taskId)) + ('d' + ('  LF ' + ($author$project$Format$formatDays(
+			A2($author$project$Main$scheduleLf, schedule, taskId)) + ('d' + ('  LS ' + ($author$project$Format$formatDays(
 			A2($author$project$Main$scheduleLs, schedule, taskId)) + ('d' + ('  Slack ' + ($author$project$Format$formatDays(
-			A2($author$project$Main$scheduleSlack, schedule, taskId)) + 'd')))))));
+			A2($author$project$Main$scheduleSlack, schedule, taskId)) + 'd')))))))))))));
 	});
 var $author$project$Main$itemLabel = F3(
 	function (schedule, taskId, headerLines) {
@@ -8036,6 +8072,16 @@ var $author$project$Main$itemFields = F3(
 							$author$project$Format$formatDays(
 								A2($author$project$Main$scheduleEs, schedule, task.id)) + 'd')),
 						_Utils_Tuple2(
+						'ef',
+						$elm$json$Json$Encode$string(
+							$author$project$Format$formatDays(
+								A2($author$project$Main$scheduleEf, schedule, task.id)) + 'd')),
+						_Utils_Tuple2(
+						'lf',
+						$elm$json$Json$Encode$string(
+							$author$project$Format$formatDays(
+								A2($author$project$Main$scheduleLf, schedule, task.id)) + 'd')),
+						_Utils_Tuple2(
 						'ls',
 						$elm$json$Json$Encode$string(
 							$author$project$Format$formatDays(
@@ -8044,6 +8090,14 @@ var $author$project$Main$itemFields = F3(
 						'sEs',
 						$elm$json$Json$Encode$string(
 							$author$project$Format$formatDays(task.spreadsheetEs) + 'd')),
+						_Utils_Tuple2(
+						'sEf',
+						$elm$json$Json$Encode$string(
+							$author$project$Format$formatDays(task.spreadsheetEf) + 'd')),
+						_Utils_Tuple2(
+						'sLf',
+						$elm$json$Json$Encode$string(
+							$author$project$Format$formatDays(task.spreadsheetLf) + 'd')),
 						_Utils_Tuple2(
 						'sLs',
 						$elm$json$Json$Encode$string(
@@ -8211,6 +8265,7 @@ var $author$project$Main$viewSpreadsheetToggle = function (showSpreadsheet) {
 			]));
 };
 var $author$project$Main$view = function (model) {
+	var showSpreadsheet = model.showSpreadsheet && _Utils_eq(model.tactic, $author$project$Main$Midpoint);
 	return {
 		body: _List_fromArray(
 			[
@@ -8224,7 +8279,7 @@ var $author$project$Main$view = function (model) {
 						var _v0 = $author$project$Main$itemsResult;
 						if (_v0.$ === 'Ok') {
 							var items = _v0.a;
-							return A3($author$project$Main$viewGraph, model.tactic, model.showSpreadsheet, items);
+							return A3($author$project$Main$viewGraph, model.tactic, showSpreadsheet, items);
 						} else {
 							var error = _v0.a;
 							return A2(
@@ -8239,7 +8294,7 @@ var $author$project$Main$view = function (model) {
 					}()
 					])),
 				$author$project$Main$viewDownloads,
-				$author$project$Main$viewSpreadsheetToggle(model.showSpreadsheet)
+				_Utils_eq(model.tactic, $author$project$Main$Midpoint) ? $author$project$Main$viewSpreadsheetToggle(model.showSpreadsheet) : $elm$html$Html$text('')
 			]),
 		title: 'AC Tasks'
 	};

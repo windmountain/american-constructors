@@ -1,4 +1,4 @@
-module Main exposing (Estimate(..), Item(..), Milestone, Tactic(..), Task, TaskId(..), es, ls, main, slack)
+module Main exposing (Estimate(..), Item(..), Milestone, Tactic(..), Task, TaskId(..), ef, es, lf, ls, main, slack)
 
 import Browser
 import Csv.Decode as Decode exposing (Decoder)
@@ -256,19 +256,32 @@ subscriptions _ =
 
 view : Model -> Browser.Document Msg
 view model =
+    let
+        {- The spreadsheet's ES/EF/LF/LS/Slack columns are fixed values computed
+           under the midpoint tactic, so comparing against them only makes sense
+           when midpoint is selected.
+        -}
+        showSpreadsheet : Bool
+        showSpreadsheet =
+            model.showSpreadsheet && model.tactic == Midpoint
+    in
     { title = "AC Tasks"
     , body =
         [ div []
             [ tacticSelect model.tactic
             , case itemsResult of
                 Ok items ->
-                    viewGraph model.tactic model.showSpreadsheet items
+                    viewGraph model.tactic showSpreadsheet items
 
                 Err error ->
                     pre [] [ text (Decode.errorToString error) ]
             ]
         , viewDownloads
-        , viewSpreadsheetToggle model.showSpreadsheet
+        , if model.tactic == Midpoint then
+            viewSpreadsheetToggle model.showSpreadsheet
+
+          else
+            text ""
         ]
     }
 
@@ -378,8 +391,12 @@ itemFields schedule showSpreadsheet item =
                 , ( "section", Encode.string task.section )
                 , ( "estimate", Encode.string (estimateText task.estimate) )
                 , ( "es", Encode.string (Format.formatDays (scheduleEs schedule task.id) ++ "d") )
+                , ( "ef", Encode.string (Format.formatDays (scheduleEf schedule task.id) ++ "d") )
+                , ( "lf", Encode.string (Format.formatDays (scheduleLf schedule task.id) ++ "d") )
                 , ( "ls", Encode.string (Format.formatDays (scheduleLs schedule task.id) ++ "d") )
                 , ( "sEs", Encode.string (Format.formatDays task.spreadsheetEs ++ "d") )
+                , ( "sEf", Encode.string (Format.formatDays task.spreadsheetEf ++ "d") )
+                , ( "sLf", Encode.string (Format.formatDays task.spreadsheetLf ++ "d") )
                 , ( "sLs", Encode.string (Format.formatDays task.spreadsheetLs ++ "d") )
                 , ( "showSpreadsheet", Encode.bool showSpreadsheet )
                 ]
@@ -403,6 +420,12 @@ scheduleText : Schedule -> TaskId -> String
 scheduleText schedule taskId =
     "ES "
         ++ Format.formatDays (scheduleEs schedule taskId)
+        ++ "d"
+        ++ "  EF "
+        ++ Format.formatDays (scheduleEf schedule taskId)
+        ++ "d"
+        ++ "  LF "
+        ++ Format.formatDays (scheduleLf schedule taskId)
         ++ "d"
         ++ "  LS "
         ++ Format.formatDays (scheduleLs schedule taskId)
@@ -429,7 +452,9 @@ lookup.
 -}
 type alias Schedule =
     { es : Dict String Float
+    , ef : Dict String Float
     , ls : Dict String Float
+    , lf : Dict String Float
     }
 
 
@@ -500,6 +525,10 @@ buildSchedule tactic items =
                 Dict.empty
                 topoOrder
 
+        efDict : Dict String Float
+        efDict =
+            esDict |> Dict.map (\id esValue -> esValue + durationOf id)
+
         finish : Float
         finish =
             itemsById
@@ -516,7 +545,7 @@ buildSchedule tactic items =
                         dependents =
                             Dict.get id dependentsOf |> Maybe.withDefault []
 
-                        lf =
+                        latestFinish =
                             case dependents of
                                 [] ->
                                     finish
@@ -527,12 +556,16 @@ buildSchedule tactic items =
                                         |> List.minimum
                                         |> Maybe.withDefault finish
                     in
-                    Dict.insert id (lf - durationOf id) acc
+                    Dict.insert id (latestFinish - durationOf id) acc
                 )
                 Dict.empty
                 (List.reverse topoOrder)
+
+        lfDict : Dict String Float
+        lfDict =
+            lsDict |> Dict.map (\id lsValue -> lsValue + durationOf id)
     in
-    { es = esDict, ls = lsDict }
+    { es = esDict, ef = efDict, ls = lsDict, lf = lfDict }
 
 
 {-| Kahn's algorithm: repeatedly peel off items with no unprocessed
@@ -589,9 +622,19 @@ scheduleEs schedule taskId =
     Dict.get (taskIdToString taskId) schedule.es |> Maybe.withDefault 0
 
 
+scheduleEf : Schedule -> TaskId -> Float
+scheduleEf schedule taskId =
+    Dict.get (taskIdToString taskId) schedule.ef |> Maybe.withDefault 0
+
+
 scheduleLs : Schedule -> TaskId -> Float
 scheduleLs schedule taskId =
     Dict.get (taskIdToString taskId) schedule.ls |> Maybe.withDefault 0
+
+
+scheduleLf : Schedule -> TaskId -> Float
+scheduleLf schedule taskId =
+    Dict.get (taskIdToString taskId) schedule.lf |> Maybe.withDefault 0
 
 
 scheduleSlack : Schedule -> TaskId -> Float
@@ -604,9 +647,19 @@ es tactic items taskId =
     scheduleEs (buildSchedule tactic items) taskId
 
 
+ef : Tactic -> List Item -> TaskId -> Float
+ef tactic items taskId =
+    scheduleEf (buildSchedule tactic items) taskId
+
+
 ls : Tactic -> List Item -> TaskId -> Float
 ls tactic items taskId =
     scheduleLs (buildSchedule tactic items) taskId
+
+
+lf : Tactic -> List Item -> TaskId -> Float
+lf tactic items taskId =
+    scheduleLf (buildSchedule tactic items) taskId
 
 
 slack : Tactic -> List Item -> TaskId -> Float

@@ -1,7 +1,7 @@
 module CpmTest exposing (suite)
 
 import Expect
-import Main exposing (Estimate(..), Item(..), Tactic(..), TaskId(..), es)
+import Main exposing (Estimate(..), Item(..), Tactic(..), TaskId(..), ef, es, lf, ls, slack)
 import Test exposing (Test, describe, test)
 
 
@@ -86,19 +86,43 @@ items =
 
 suite : Test
 suite =
-    describe "es"
-        [ test "a node with no dependencies can start immediately" <|
-            \_ -> es Pessimistic items (TaskId "1") |> Expect.equal 0
-        , test "a node waits for its single dependency to finish" <|
-            \_ -> es Pessimistic items (TaskId "2") |> Expect.equal 0
-        , test "a node with multiple dependencies waits for the longest one" <|
-            \_ -> es Pessimistic items (TaskId "4") |> Expect.equal 8
-        , test "optimistic tactic uses the low end of a dependency's range estimate" <|
-            \_ -> es Optimistic (items ++ [ dependentOn5 ]) (TaskId "6") |> Expect.equal 4
-        , test "pessimistic tactic uses the high end of a dependency's range estimate" <|
-            \_ -> es Pessimistic (items ++ [ dependentOn5 ]) (TaskId "6") |> Expect.equal 10
-        , test "midpoint tactic uses the midpoint of a dependency's range estimate" <|
-            \_ -> es Midpoint (items ++ [ dependentOn5 ]) (TaskId "6") |> Expect.equal 7
+    describe "cpm"
+        [ describe "es"
+            [ test "a node with no dependencies can start immediately" <|
+                \_ -> es Pessimistic items (TaskId "1") |> Expect.equal 0
+            , test "a node waits for its single dependency to finish" <|
+                \_ -> es Pessimistic items (TaskId "2") |> Expect.equal 0
+            , test "a node with multiple dependencies waits for the longest one" <|
+                \_ -> es Pessimistic items (TaskId "4") |> Expect.equal 8
+            , test "optimistic tactic uses the low end of a dependency's range estimate" <|
+                \_ -> es Optimistic (items ++ [ dependentOn5 ]) (TaskId "6") |> Expect.equal 4
+            , test "pessimistic tactic uses the high end of a dependency's range estimate" <|
+                \_ -> es Pessimistic (items ++ [ dependentOn5 ]) (TaskId "6") |> Expect.equal 10
+            , test "midpoint tactic uses the midpoint of a dependency's range estimate" <|
+                \_ -> es Midpoint (items ++ [ dependentOn5 ]) (TaskId "6") |> Expect.equal 7
+            ]
+        , describe "ef"
+            [ test "a task's EF is its ES plus its own duration" <|
+                \_ -> ef Pessimistic items (TaskId "2") |> Expect.equal 5
+            , test "a join task's EF adds its duration to the longest dependency's EF" <|
+                \_ -> ef Pessimistic items (TaskId "4") |> Expect.equal 10
+            ]
+        , describe "lf"
+            [ test "a task with no dependents finishes as late as the project finish" <|
+                \_ -> lf Pessimistic items (TaskId "4") |> Expect.equal 10
+            , test "a task's LF is the earliest LS among its dependents" <|
+                \_ -> lf Pessimistic items (TaskId "2") |> Expect.equal 8
+            ]
+        , describe "ls"
+            [ test "a task's LS is its LF minus its own duration" <|
+                \_ -> ls Pessimistic items (TaskId "2") |> Expect.equal 3
+            ]
+        , describe "slack"
+            [ test "a critical path task has zero slack" <|
+                \_ -> slack Pessimistic items (TaskId "3") |> Expect.equal 0
+            , test "a task off the critical path has positive slack" <|
+                \_ -> slack Pessimistic items (TaskId "2") |> Expect.equal 3
+            ]
         ]
 
 

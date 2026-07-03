@@ -52,14 +52,14 @@ class TaskCard extends HTMLElement {
 
     const schedule = document.createElement("div");
     schedule.className = "schedule";
-    schedule.textContent = `ES ${d.es}  ·  LS ${d.ls}`;
+    schedule.textContent = `ES ${d.es}  ·  EF ${d.ef}  ·  LF ${d.lf}  ·  LS ${d.ls}`;
 
     card.append(section, name, estimate, schedule);
 
     if (d.showSpreadsheet === "true") {
       const spreadsheetSchedule = document.createElement("div");
       spreadsheetSchedule.className = "spreadsheet-schedule";
-      spreadsheetSchedule.textContent = `s_ES ${d.sEs}  ·  s_LS ${d.sLs}`;
+      spreadsheetSchedule.textContent = `s_ES ${d.sEs}  ·  s_EF ${d.sEf}  ·  s_LF ${d.sLf}  ·  s_LS ${d.sLs}`;
       card.append(spreadsheetSchedule);
     }
 

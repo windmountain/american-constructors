@@ -25,8 +25,12 @@ function taskCardTpl(data) {
     ` data-section="${escapeAttr(data.section)}"` +
     ` data-estimate="${escapeAttr(data.estimate)}"` +
     ` data-es="${escapeAttr(data.es)}"` +
+    ` data-ef="${escapeAttr(data.ef)}"` +
+    ` data-lf="${escapeAttr(data.lf)}"` +
     ` data-ls="${escapeAttr(data.ls)}"` +
     ` data-s-es="${escapeAttr(data.sEs)}"` +
+    ` data-s-ef="${escapeAttr(data.sEf)}"` +
+    ` data-s-lf="${escapeAttr(data.sLf)}"` +
     ` data-s-ls="${escapeAttr(data.sLs)}"` +
     ` data-show-spreadsheet="${escapeAttr(data.showSpreadsheet)}"` +
     ` data-slack="${escapeAttr(data.slack)}"` +
