@@ -6,8 +6,8 @@ import Data
 import Date exposing (Date)
 import Dict exposing (Dict)
 import Format
-import Html exposing (Html, div, label, node, option, pre, select, text)
-import Html.Attributes exposing (for, id, property, selected, value)
+import Html exposing (Html, a, div, label, node, option, pre, select, text)
+import Html.Attributes exposing (download, for, href, id, property, selected, style, value)
 import Html.Events exposing (onInput)
 import Json.Encode as Encode
 
@@ -273,8 +273,43 @@ view model =
                 Err error ->
                     pre [] [ text (Decode.errorToString error) ]
             ]
+        , viewDownloads
         ]
     }
+
+
+{-| Links to the underlying spreadsheet in its various forms. These are
+static files sitting alongside index.html (checked into the repo, kept in
+sync with the ODS by the pregenerate build step), not anything Elm
+generates, so plain download links are all that's needed.
+-}
+viewDownloads : Html msg
+viewDownloads =
+    div
+        [ style "position" "fixed"
+        , style "bottom" "16px"
+        , style "right" "16px"
+        , style "display" "flex"
+        , style "gap" "8px"
+        , style "align-items" "center"
+        , style "background" "rgba(255, 255, 255, 0.9)"
+        , style "border" "1px solid #9ca3af"
+        , style "border-radius" "6px"
+        , style "padding" "8px 12px"
+        , style "font-size" "12px"
+        , style "font-family" "-apple-system, BlinkMacSystemFont, sans-serif"
+        , style "z-index" "20"
+        ]
+        [ text "Download:"
+        , downloadLink "AC%20Tasks.xlsx" "XLSX"
+        , downloadLink "AC%20Tasks.csv" "CSV"
+        , downloadLink "AC%20Tasks.ods" "ODS"
+        ]
+
+
+downloadLink : String -> String -> Html msg
+downloadLink file label_ =
+    a [ href file, download "" ] [ text label_ ]
 
 
 tacticSelect : Tactic -> Html Msg

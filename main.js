@@ -7434,6 +7434,57 @@ var $author$project$Main$tacticSelect = function (current) {
 					]))
 			]));
 };
+var $elm$html$Html$a = _VirtualDom_node('a');
+var $elm$html$Html$Attributes$download = function (fileName) {
+	return A2($elm$html$Html$Attributes$stringProperty, 'download', fileName);
+};
+var $elm$html$Html$Attributes$href = function (url) {
+	return A2(
+		$elm$html$Html$Attributes$stringProperty,
+		'href',
+		_VirtualDom_noJavaScriptUri(url));
+};
+var $author$project$Main$downloadLink = F2(
+	function (file, label_) {
+		return A2(
+			$elm$html$Html$a,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$href(file),
+					$elm$html$Html$Attributes$download('')
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text(label_)
+				]));
+	});
+var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
+var $author$project$Main$viewDownloads = A2(
+	$elm$html$Html$div,
+	_List_fromArray(
+		[
+			A2($elm$html$Html$Attributes$style, 'position', 'fixed'),
+			A2($elm$html$Html$Attributes$style, 'bottom', '16px'),
+			A2($elm$html$Html$Attributes$style, 'right', '16px'),
+			A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+			A2($elm$html$Html$Attributes$style, 'gap', '8px'),
+			A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
+			A2($elm$html$Html$Attributes$style, 'background', 'rgba(255, 255, 255, 0.9)'),
+			A2($elm$html$Html$Attributes$style, 'border', '1px solid #9ca3af'),
+			A2($elm$html$Html$Attributes$style, 'border-radius', '6px'),
+			A2($elm$html$Html$Attributes$style, 'padding', '8px 12px'),
+			A2($elm$html$Html$Attributes$style, 'font-size', '12px'),
+			A2($elm$html$Html$Attributes$style, 'font-family', '-apple-system, BlinkMacSystemFont, sans-serif'),
+			A2($elm$html$Html$Attributes$style, 'z-index', '20')
+		]),
+	_List_fromArray(
+		[
+			$elm$html$Html$text('Download:'),
+			A2($author$project$Main$downloadLink, 'AC%20Tasks.xlsx', 'XLSX'),
+			A2($author$project$Main$downloadLink, 'AC%20Tasks.csv', 'CSV'),
+			A2($author$project$Main$downloadLink, 'AC%20Tasks.ods', 'ODS')
+		]));
 var $elm$core$List$concatMap = F2(
 	function (f, list) {
 		return $elm$core$List$concat(
@@ -9693,7 +9744,8 @@ var $author$project$Main$view = function (model) {
 									]));
 						}
 					}()
-					]))
+					])),
+				$author$project$Main$viewDownloads
 			]),
 		title: 'AC Tasks'
 	};
