@@ -5168,11 +5168,12 @@ var $elm$core$Task$perform = F2(
 	});
 var $elm$browser$Browser$document = _Browser_document;
 var $author$project$Main$Midpoint = {$: 'Midpoint'};
+var $author$project$Main$NetworkView = {$: 'NetworkView'};
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
-		{showSpreadsheet: false, tactic: $author$project$Main$Midpoint},
+		{showSpreadsheet: false, tactic: $author$project$Main$Midpoint, viewMode: $author$project$Main$NetworkView},
 		$elm$core$Platform$Cmd$none);
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
@@ -5183,22 +5184,29 @@ var $author$project$Main$subscriptions = function (_v0) {
 var $elm$core$Basics$not = _Basics_not;
 var $author$project$Main$update = F2(
 	function (msg, model) {
-		if (msg.$ === 'SetTactic') {
-			var tactic = msg.a;
-			return _Utils_Tuple2(
-				_Utils_update(
-					model,
-					{tactic: tactic}),
-				$elm$core$Platform$Cmd$none);
-		} else {
-			return _Utils_Tuple2(
-				_Utils_update(
-					model,
-					{showSpreadsheet: !model.showSpreadsheet}),
-				$elm$core$Platform$Cmd$none);
+		switch (msg.$) {
+			case 'SetTactic':
+				var tactic = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{tactic: tactic}),
+					$elm$core$Platform$Cmd$none);
+			case 'ToggleShowSpreadsheet':
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{showSpreadsheet: !model.showSpreadsheet}),
+					$elm$core$Platform$Cmd$none);
+			default:
+				var viewMode = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{viewMode: viewMode}),
+					$elm$core$Platform$Cmd$none);
 		}
 	});
-var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$core$List$any = F2(
 	function (isOkay, list) {
 		any:
@@ -6993,6 +7001,11 @@ var $author$project$Main$itemDecoder = A2(
 													$BrianHicks$elm_csv$Csv$Decode$into($author$project$Main$RawFields))))))))))))));
 var $author$project$Main$itemsResult = A3($BrianHicks$elm_csv$Csv$Decode$decodeCsv, $BrianHicks$elm_csv$Csv$Decode$FieldNamesFromFirstRow, $author$project$Main$itemDecoder, $author$project$Data$csvData);
 var $elm$html$Html$pre = _VirtualDom_node('pre');
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $elm$html$Html$div = _VirtualDom_node('div');
+var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
 var $author$project$Main$Optimistic = {$: 'Optimistic'};
 var $author$project$Main$Pessimistic = {$: 'Pessimistic'};
 var $author$project$Main$SetTactic = function (a) {
@@ -7066,8 +7079,6 @@ var $author$project$Main$tacticFromString = function (value_) {
 			return $elm$core$Maybe$Nothing;
 	}
 };
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $author$project$Main$tacticSelect = function (current) {
 	return A2(
@@ -7140,6 +7151,93 @@ var $author$project$Main$tacticSelect = function (current) {
 					]))
 			]));
 };
+var $author$project$Main$CalendarView = {$: 'CalendarView'};
+var $author$project$Main$SetViewMode = function (a) {
+	return {$: 'SetViewMode', a: a};
+};
+var $elm$html$Html$Attributes$checked = $elm$html$Html$Attributes$boolProperty('checked');
+var $elm$html$Html$input = _VirtualDom_node('input');
+var $elm$html$Html$Attributes$name = $elm$html$Html$Attributes$stringProperty('name');
+var $elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var $elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var $elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'click',
+		$elm$json$Json$Decode$succeed(msg));
+};
+var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
+var $author$project$Main$viewModeRadio = F3(
+	function (label_, value_, current) {
+		return A2(
+			$elm$html$Html$label,
+			_List_fromArray(
+				[
+					A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+					A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
+					A2($elm$html$Html$Attributes$style, 'gap', '4px'),
+					A2($elm$html$Html$Attributes$style, 'cursor', 'pointer')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$input,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$type_('radio'),
+							$elm$html$Html$Attributes$name('view-mode'),
+							$elm$html$Html$Attributes$checked(
+							_Utils_eq(value_, current)),
+							$elm$html$Html$Events$onClick(
+							$author$project$Main$SetViewMode(value_))
+						]),
+					_List_Nil),
+					$elm$html$Html$text(label_)
+				]));
+	});
+var $author$project$Main$viewModeToggle = function (current) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+				A2($elm$html$Html$Attributes$style, 'gap', '16px'),
+				A2($elm$html$Html$Attributes$style, 'justify-self', 'center')
+			]),
+		_List_fromArray(
+			[
+				A3($author$project$Main$viewModeRadio, 'Network', $author$project$Main$NetworkView, current),
+				A3($author$project$Main$viewModeRadio, 'Calendar', $author$project$Main$CalendarView, current)
+			]));
+};
+var $author$project$Main$toolbar = F2(
+	function (tactic, viewMode) {
+		return A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					A2($elm$html$Html$Attributes$style, 'display', 'grid'),
+					A2($elm$html$Html$Attributes$style, 'grid-template-columns', '1fr auto 1fr'),
+					A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
+					A2($elm$html$Html$Attributes$style, 'padding', '12px 16px'),
+					A2($elm$html$Html$Attributes$style, 'font-family', '-apple-system, BlinkMacSystemFont, sans-serif'),
+					A2($elm$html$Html$Attributes$style, 'font-size', '12px')
+				]),
+			_List_fromArray(
+				[
+					$author$project$Main$tacticSelect(tactic),
+					$author$project$Main$viewModeToggle(viewMode),
+					A2($elm$html$Html$div, _List_Nil, _List_Nil)
+				]));
+	});
 var $elm$html$Html$a = _VirtualDom_node('a');
 var $elm$html$Html$Attributes$download = function (fileName) {
 	return A2($elm$html$Html$Attributes$stringProperty, 'download', fileName);
@@ -7164,8 +7262,6 @@ var $author$project$Main$downloadLink = F2(
 					$elm$html$Html$text(label_)
 				]));
 	});
-var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
-var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
 var $author$project$Main$viewDownloads = A2(
 	$elm$html$Html$div,
 	_List_fromArray(
@@ -7190,6 +7286,21 @@ var $author$project$Main$viewDownloads = A2(
 			A2($author$project$Main$downloadLink, 'AC%20Tasks.xlsx', 'XLSX'),
 			A2($author$project$Main$downloadLink, 'AC%20Tasks.csv', 'CSV'),
 			A2($author$project$Main$downloadLink, 'AC%20Tasks.ods', 'ODS')
+		]));
+var $author$project$Main$viewCalendarPlaceholder = A2(
+	$elm$html$Html$div,
+	_List_fromArray(
+		[
+			A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+			A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
+			A2($elm$html$Html$Attributes$style, 'justify-content', 'center'),
+			A2($elm$html$Html$Attributes$style, 'height', '80vh'),
+			A2($elm$html$Html$Attributes$style, 'color', '#6b7280'),
+			A2($elm$html$Html$Attributes$style, 'font-family', '-apple-system, BlinkMacSystemFont, sans-serif')
+		]),
+	_List_fromArray(
+		[
+			$elm$html$Html$text('Calendar view coming soon')
 		]));
 var $elm$core$List$concatMap = F2(
 	function (f, list) {
@@ -8221,24 +8332,16 @@ var $author$project$Main$viewGraph = F3(
 				]),
 			_List_Nil);
 	});
+var $author$project$Main$viewMain = F4(
+	function (viewMode, tactic, showSpreadsheet, items) {
+		if (viewMode.$ === 'NetworkView') {
+			return A3($author$project$Main$viewGraph, tactic, showSpreadsheet, items);
+		} else {
+			return $author$project$Main$viewCalendarPlaceholder;
+		}
+	});
 var $author$project$Main$ToggleShowSpreadsheet = {$: 'ToggleShowSpreadsheet'};
 var $elm$html$Html$button = _VirtualDom_node('button');
-var $elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 'Normal', a: a};
-};
-var $elm$html$Html$Events$on = F2(
-	function (event, decoder) {
-		return A2(
-			$elm$virtual_dom$VirtualDom$on,
-			event,
-			$elm$virtual_dom$VirtualDom$Normal(decoder));
-	});
-var $elm$html$Html$Events$onClick = function (msg) {
-	return A2(
-		$elm$html$Html$Events$on,
-		'click',
-		$elm$json$Json$Decode$succeed(msg));
-};
 var $author$project$Main$viewSpreadsheetToggle = function (showSpreadsheet) {
 	return A2(
 		$elm$html$Html$div,
@@ -8269,30 +8372,24 @@ var $author$project$Main$view = function (model) {
 	return {
 		body: _List_fromArray(
 			[
-				A2(
-				$elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$author$project$Main$tacticSelect(model.tactic),
-						function () {
-						var _v0 = $author$project$Main$itemsResult;
-						if (_v0.$ === 'Ok') {
-							var items = _v0.a;
-							return A3($author$project$Main$viewGraph, model.tactic, showSpreadsheet, items);
-						} else {
-							var error = _v0.a;
-							return A2(
-								$elm$html$Html$pre,
-								_List_Nil,
-								_List_fromArray(
-									[
-										$elm$html$Html$text(
-										$BrianHicks$elm_csv$Csv$Decode$errorToString(error))
-									]));
-						}
-					}()
-					])),
+				A2($author$project$Main$toolbar, model.tactic, model.viewMode),
+				function () {
+				var _v0 = $author$project$Main$itemsResult;
+				if (_v0.$ === 'Ok') {
+					var items = _v0.a;
+					return A4($author$project$Main$viewMain, model.viewMode, model.tactic, showSpreadsheet, items);
+				} else {
+					var error = _v0.a;
+					return A2(
+						$elm$html$Html$pre,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text(
+								$BrianHicks$elm_csv$Csv$Decode$errorToString(error))
+							]));
+				}
+			}(),
 				$author$project$Main$viewDownloads,
 				_Utils_eq(model.tactic, $author$project$Main$Midpoint) ? $author$project$Main$viewSpreadsheetToggle(model.showSpreadsheet) : $elm$html$Html$text('')
 			]),

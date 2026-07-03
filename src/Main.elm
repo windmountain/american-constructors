@@ -5,8 +5,8 @@ import Csv.Decode as Decode exposing (Decoder)
 import Data
 import Dict exposing (Dict)
 import Format
-import Html exposing (Html, a, button, div, label, node, option, pre, select, text)
-import Html.Attributes exposing (download, for, href, id, property, selected, style, value)
+import Html exposing (Html, a, button, div, input, label, node, option, pre, select, text)
+import Html.Attributes exposing (checked, download, for, href, id, name, property, selected, style, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Json.Encode as Encode
 
@@ -19,6 +19,11 @@ type Tactic
     = Optimistic
     | Pessimistic
     | Midpoint
+
+
+type ViewMode
+    = NetworkView
+    | CalendarView
 
 
 type Estimate
@@ -226,17 +231,19 @@ itemsResult =
 type alias Model =
     { tactic : Tactic
     , showSpreadsheet : Bool
+    , viewMode : ViewMode
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { tactic = Midpoint, showSpreadsheet = False }, Cmd.none )
+    ( { tactic = Midpoint, showSpreadsheet = False, viewMode = NetworkView }, Cmd.none )
 
 
 type Msg
     = SetTactic Tactic
     | ToggleShowSpreadsheet
+    | SetViewMode ViewMode
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -247,6 +254,9 @@ update msg model =
 
         ToggleShowSpreadsheet ->
             ( { model | showSpreadsheet = not model.showSpreadsheet }, Cmd.none )
+
+        SetViewMode viewMode ->
+            ( { model | viewMode = viewMode }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -267,15 +277,13 @@ view model =
     in
     { title = "AC Tasks"
     , body =
-        [ div []
-            [ tacticSelect model.tactic
-            , case itemsResult of
-                Ok items ->
-                    viewGraph model.tactic showSpreadsheet items
+        [ toolbar model.tactic model.viewMode
+        , case itemsResult of
+            Ok items ->
+                viewMain model.viewMode model.tactic showSpreadsheet items
 
-                Err error ->
-                    pre [] [ text (Decode.errorToString error) ]
-            ]
+            Err error ->
+                pre [] [ text (Decode.errorToString error) ]
         , viewDownloads
         , if model.tactic == Midpoint then
             viewSpreadsheetToggle model.showSpreadsheet
@@ -284,6 +292,32 @@ view model =
             text ""
         ]
     }
+
+
+viewMain : ViewMode -> Tactic -> Bool -> List Item -> Html Msg
+viewMain viewMode tactic showSpreadsheet items =
+    case viewMode of
+        NetworkView ->
+            viewGraph tactic showSpreadsheet items
+
+        CalendarView ->
+            viewCalendarPlaceholder
+
+
+{-| Standing in for a future calendar view (FeatureIdeas.md item 7); for now
+this just proves the view toggle switches content.
+-}
+viewCalendarPlaceholder : Html msg
+viewCalendarPlaceholder =
+    div
+        [ style "display" "flex"
+        , style "align-items" "center"
+        , style "justify-content" "center"
+        , style "height" "80vh"
+        , style "color" "#6b7280"
+        , style "font-family" "-apple-system, BlinkMacSystemFont, sans-serif"
+        ]
+        [ text "Calendar view coming soon" ]
 
 
 {-| Links to the underlying spreadsheet in its various forms. These are
@@ -340,6 +374,26 @@ viewSpreadsheetToggle showSpreadsheet =
         ]
 
 
+{-| Left: tactic select. Center: network/calendar view toggle. The trailing
+empty div balances the leading tactic select in the 1fr/auto/1fr grid so the
+center column stays centered regardless of how wide the other two are.
+-}
+toolbar : Tactic -> ViewMode -> Html Msg
+toolbar tactic viewMode =
+    div
+        [ style "display" "grid"
+        , style "grid-template-columns" "1fr auto 1fr"
+        , style "align-items" "center"
+        , style "padding" "12px 16px"
+        , style "font-family" "-apple-system, BlinkMacSystemFont, sans-serif"
+        , style "font-size" "12px"
+        ]
+        [ tacticSelect tactic
+        , viewModeToggle viewMode
+        , div [] []
+        ]
+
+
 tacticSelect : Tactic -> Html Msg
 tacticSelect current =
     div []
@@ -349,6 +403,37 @@ tacticSelect current =
             , option [ value "pessimistic", selected (current == Pessimistic) ] [ text "Pessimistic" ]
             , option [ value "midpoint", selected (current == Midpoint) ] [ text "Midpoint" ]
             ]
+        ]
+
+
+viewModeToggle : ViewMode -> Html Msg
+viewModeToggle current =
+    div
+        [ style "display" "flex"
+        , style "gap" "16px"
+        , style "justify-self" "center"
+        ]
+        [ viewModeRadio "Network" NetworkView current
+        , viewModeRadio "Calendar" CalendarView current
+        ]
+
+
+viewModeRadio : String -> ViewMode -> ViewMode -> Html Msg
+viewModeRadio label_ value_ current =
+    label
+        [ style "display" "flex"
+        , style "align-items" "center"
+        , style "gap" "4px"
+        , style "cursor" "pointer"
+        ]
+        [ input
+            [ type_ "radio"
+            , name "view-mode"
+            , checked (value_ == current)
+            , onClick (SetViewMode value_)
+            ]
+            []
+        , text label_
         ]
 
 
