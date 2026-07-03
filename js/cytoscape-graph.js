@@ -2,6 +2,25 @@ cytoscape.use(cytoscapeDagre);
 
 const dagreLayout = { name: "dagre", rankSep: 80, nodeSep: 200 };
 
+function escapeAttr(value) {
+  return String(value ?? "").replace(/[&"<>]/g, (c) => ({ "&": "&amp;", '"': "&quot;", "<": "&lt;", ">": "&gt;" }[c]));
+}
+
+function taskCardTpl(data) {
+  return (
+    `<task-card` +
+    ` data-name="${escapeAttr(data.name)}"` +
+    ` data-section="${escapeAttr(data.section)}"` +
+    ` data-estimate="${escapeAttr(data.estimate)}"` +
+    ` data-es="${escapeAttr(data.es)}"` +
+    ` data-ls="${escapeAttr(data.ls)}"` +
+    ` data-es-date="${escapeAttr(data.esDate)}"` +
+    ` data-ls-date="${escapeAttr(data.lsDate)}"` +
+    ` data-slack="${escapeAttr(data.slack)}"` +
+    `></task-card>`
+  );
+}
+
 class CytoscapeGraph extends HTMLElement {
   connectedCallback() {
     this.style.display = "block";
@@ -33,15 +52,35 @@ class CytoscapeGraph extends HTMLElement {
         },
         {
           selector: "node[kind = 'task']",
-          style: { "background-color": "#3b82f6", color: "#ffffff", "border-color": "#1d4ed8" },
+          style: {
+            label: "",
+            width: 180,
+            height: 70,
+            shape: "rectangle",
+            "background-opacity": 0,
+            "border-width": 0,
+          },
         },
         {
-          selector: "node[slack <= 0.001]",
+          selector: "node[slack <= 0.001][kind != 'task']",
           style: { "border-width": 4, "border-color": "#eab308" },
         },
         { selector: "edge", style: { "target-arrow-shape": "triangle", "curve-style": "bezier" } },
       ],
     });
+    this._cy.nodeHtmlLabel(
+      [
+        {
+          query: "node[kind = 'task']",
+          halign: "center",
+          valign: "center",
+          halignBox: "center",
+          valignBox: "center",
+          tpl: taskCardTpl,
+        },
+      ],
+      { enablePointerEvents: true },
+    );
   }
 
   set elements(value) {

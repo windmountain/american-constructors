@@ -9518,6 +9518,49 @@ var $author$project$Main$itemFields = F2(
 			case 'TaskItem':
 				var task = item.a;
 				return {
+					card: _List_fromArray(
+						[
+							_Utils_Tuple2(
+							'name',
+							$elm$json$Json$Encode$string(task.name)),
+							_Utils_Tuple2(
+							'section',
+							$elm$json$Json$Encode$string(task.section)),
+							_Utils_Tuple2(
+							'estimate',
+							$elm$json$Json$Encode$string(
+								$author$project$Main$estimateText(task.estimate))),
+							_Utils_Tuple2(
+							'es',
+							$elm$json$Json$Encode$string(
+								$author$project$Format$formatDays(
+									A2($author$project$Main$scheduleEs, schedule, task.id)) + 'd')),
+							_Utils_Tuple2(
+							'ls',
+							$elm$json$Json$Encode$string(
+								$author$project$Format$formatDays(
+									A2($author$project$Main$scheduleLs, schedule, task.id)) + 'd')),
+							_Utils_Tuple2(
+							'esDate',
+							$elm$json$Json$Encode$string(
+								A2(
+									$elm$core$Maybe$withDefault,
+									'',
+									A2(
+										$elm$core$Maybe$map,
+										$author$project$Main$formatDate,
+										A2($author$project$Main$scheduleEsDate, schedule, task.id))))),
+							_Utils_Tuple2(
+							'lsDate',
+							$elm$json$Json$Encode$string(
+								A2(
+									$elm$core$Maybe$withDefault,
+									'',
+									A2(
+										$elm$core$Maybe$map,
+										$author$project$Main$formatDate,
+										A2($author$project$Main$scheduleLsDate, schedule, task.id)))))
+						]),
 					dependsOn: task.dependsOn,
 					id: task.id,
 					kind: 'task',
@@ -9534,6 +9577,7 @@ var $author$project$Main$itemFields = F2(
 			case 'MilestoneItem':
 				var milestone = item.a;
 				return {
+					card: _List_Nil,
 					dependsOn: milestone.dependsOn,
 					id: milestone.id,
 					kind: 'milestone',
@@ -9547,6 +9591,7 @@ var $author$project$Main$itemFields = F2(
 			default:
 				var origin = item.a;
 				return {
+					card: _List_Nil,
 					dependsOn: _List_Nil,
 					id: origin.id,
 					kind: 'origin',
@@ -9571,22 +9616,24 @@ var $author$project$Main$itemToElements = F2(
 					_Utils_Tuple2(
 					'data',
 					$elm$json$Json$Encode$object(
-						_List_fromArray(
-							[
-								_Utils_Tuple2(
-								'id',
-								$author$project$Main$encodeTaskId(fields.id)),
-								_Utils_Tuple2(
-								'label',
-								$elm$json$Json$Encode$string(fields.label)),
-								_Utils_Tuple2(
-								'kind',
-								$elm$json$Json$Encode$string(fields.kind)),
-								_Utils_Tuple2(
-								'slack',
-								$elm$json$Json$Encode$float(
-									A2($author$project$Main$scheduleSlack, schedule, fields.id)))
-							])))
+						_Utils_ap(
+							_List_fromArray(
+								[
+									_Utils_Tuple2(
+									'id',
+									$author$project$Main$encodeTaskId(fields.id)),
+									_Utils_Tuple2(
+									'label',
+									$elm$json$Json$Encode$string(fields.label)),
+									_Utils_Tuple2(
+									'kind',
+									$elm$json$Json$Encode$string(fields.kind)),
+									_Utils_Tuple2(
+									'slack',
+									$elm$json$Json$Encode$float(
+										A2($author$project$Main$scheduleSlack, schedule, fields.id)))
+								]),
+							fields.card)))
 				]));
 		return A2(
 			$elm$core$List$cons,

@@ -320,7 +320,7 @@ encodeElements schedule items =
     Encode.list identity (List.concatMap (itemToElements schedule) items)
 
 
-itemFields : Schedule -> Item -> { id : TaskId, label : String, dependsOn : List TaskId, kind : String }
+itemFields : Schedule -> Item -> { id : TaskId, label : String, dependsOn : List TaskId, kind : String, card : List ( String, Encode.Value ) }
 itemFields schedule item =
     case item of
         TaskItem task ->
@@ -328,6 +328,15 @@ itemFields schedule item =
             , label = itemLabel schedule task.id [ "[" ++ task.section ++ "]", task.name ++ " (" ++ estimateText task.estimate ++ ")" ]
             , dependsOn = task.dependsOn
             , kind = "task"
+            , card =
+                [ ( "name", Encode.string task.name )
+                , ( "section", Encode.string task.section )
+                , ( "estimate", Encode.string (estimateText task.estimate) )
+                , ( "es", Encode.string (Format.formatDays (scheduleEs schedule task.id) ++ "d") )
+                , ( "ls", Encode.string (Format.formatDays (scheduleLs schedule task.id) ++ "d") )
+                , ( "esDate", Encode.string (scheduleEsDate schedule task.id |> Maybe.map formatDate |> Maybe.withDefault "") )
+                , ( "lsDate", Encode.string (scheduleLsDate schedule task.id |> Maybe.map formatDate |> Maybe.withDefault "") )
+                ]
             }
 
         MilestoneItem milestone ->
@@ -335,6 +344,7 @@ itemFields schedule item =
             , label = itemLabel schedule milestone.id [ "[" ++ milestone.section ++ "]", milestone.name ]
             , dependsOn = milestone.dependsOn
             , kind = "milestone"
+            , card = []
             }
 
         OriginItem origin ->
@@ -342,6 +352,7 @@ itemFields schedule item =
             , label = itemLabel schedule origin.id [ "[" ++ origin.section ++ "]", origin.name ++ " (" ++ formatDate origin.date ++ ")" ]
             , dependsOn = []
             , kind = "origin"
+            , card = []
             }
 
 
@@ -672,11 +683,13 @@ itemToElements schedule item =
             Encode.object
                 [ ( "data"
                   , Encode.object
-                        [ ( "id", encodeTaskId fields.id )
-                        , ( "label", Encode.string fields.label )
-                        , ( "kind", Encode.string fields.kind )
-                        , ( "slack", Encode.float (scheduleSlack schedule fields.id) )
-                        ]
+                        ([ ( "id", encodeTaskId fields.id )
+                         , ( "label", Encode.string fields.label )
+                         , ( "kind", Encode.string fields.kind )
+                         , ( "slack", Encode.float (scheduleSlack schedule fields.id) )
+                         ]
+                            ++ fields.card
+                        )
                   )
                 ]
     in
