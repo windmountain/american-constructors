@@ -5719,7 +5719,7 @@ var $BrianHicks$elm_csv$Csv$Decode$errorToString = function (error) {
 	}
 };
 var $BrianHicks$elm_csv$Csv$Decode$FieldNamesFromFirstRow = {$: 'FieldNamesFromFirstRow'};
-var $author$project$Data$csvData = 'Id,Section,Name,Deps on (1),Deps on (2),Deps on (3),Deps on (4),Estimate,Low Estimate,High Estimate,Weather-dependent,Can Expedite,Date\n1,terrace,window surrounds,44,,,,8,,,,,\n2,terrace,waterproofing,1,,,,7,,,,,\n3,terrace,insulation,2,,,,3,,,,,\n4,terrace,deck concrete,3,,,,,5,10,yes,,\n5,terrace,stairs concrete,4,,,,10,,,,yes,\n6,terrace,aluminum rails,4,,,,5,,,,,\n7,terrace,masonry,6,5,,,10,,,,,\n8,b/c/k,drywall,44,,,,,21,23,,,\n9,b/c/k,hard tile,8,,,,10,,,,,\n10,b/c/k,stone columns,8,,,,5,,,,,\n11,b/c/k,millwork,8,,,,,15,21,,yes,\n12,b/c/k,casework,11,,,,5,,,,,\n13,b/c/k,flooring,12,,,,10,,,,,\n14,b/c/k,glass installation,10,9,,,3,,,,,\n15,b/c/k,painting,14,,,,10,,,,,\n16,b/c/k,doors and hardware,15,13,,,,5,8,,,\n17,b/c/k,MEP,15,13,,,10,,,,,\n18,sanctuary,drywall,44,,,,16,,,,,\n19,sanctuary,core drill for rails,44,,,,2,,,,,\n20,sanctuary,install rails,19,,,,5,,,,,\n21,sanctuary,install carpeting at seats,19,,,,15,,,,,\n22,sanctuary,carpeting at rails,20,,,,5,,,,,\n23,sanctuary,"wood paneling, trim and stage",21,,,,25,,,,,\n24,sanctuary,painting,27,25,21,,20,,,,,\n25,sanctuary,concrete floor staining,27,,,,5,,,,,\n26,sanctuary,installation of seats,18,23,,,20,,,,,\n27,sanctuary,wood stage steps,19,,,,5,,,,,\n28,sanctuary,"install carpet (steps, flats, aisles)",27,,,,5,,,,,\n29,sanctuary,install doors and hardware,24,23,,,,5,8,,,\n30,lobby,millwork for reception,44,,,,3,,,,,\n31,lobby,millwork for walls and rails,44,,,,10,,,,,\n32,lobby,hard ceiling,44,,,,15,,,,,\n33,lobby,install drywall,44,,,,15,,,,,\n34,lobby,painting,33,32,31,,5,,,,,\n35,lobby,concrete for carpet areas,30,,,,,5,8,,,\n36,lobby,hard tile,33,,,,5,,,,,\n37,lobby,wood flooring install,35,,,,,20,28,,"yes, formalize acclimatization precisely",\n38,lobby,"other floors, carpeting",37,,,,5,,,,,\n39,lobby,public restrooms,32,33,,,9,,,,,\n40,lobby,glass and chandeliers,32,33,,,3,,,,,\n41,lobby,ceiling tiles,34,,,,5,,,,,\n42,lobby,doors and hardware,41,39,,,10,,,,,\n43,lobby,MEP,41,39,,,10,,,,,\n44,overall,Now,,,,,,,,,,09/24/2009\n45,overall,Nominal finish date,59,,,,,,,,,12/14/2009\n46,overall,Architect’s punch list tasks,45,,,,,5,10,,,\n47,overall,Inform architect of close out responsibilities,44,,,,,,,,,\n48,overall,Items completed by architecture firm,47,,,,,14,28,,,\n49,overall,fire marshal’s inspection,46,48,,,,,,,,\n50,overall,sign general guarantee and warranty,46,,,,,0.5,1,,,\n51,overall,sign final release of lien,46,,,,,,,,,\n52,overall,ACL relinquished of responsibilities,50,,,,365,,,,,\n53,overall,cleanup and ACL internal punch list,49,,,,4,,,,,\n54,overall,lobby done,43,42,38,,,,,,,\n55,overall,sanctuary done,28,29,26,22,,,,,,\n56,overall,terrace done,7,,,,,,,,,\n57,overall,sanctuary and terrace done,56,55,,,,,,,,\n58,overall,b/c/k done,16,17,,,,,,,,\n59,overall,all sections done,58,57,54,,,,,,,\n';
+var $author$project$Data$csvData = 'Id,Section,Name,Deps on (1),Deps on (2),Deps on (3),Deps on (4),Estimate,Low Estimate,High Estimate,Weather-dependent,Can Expedite,Date\nT1,terrace,window surrounds,P0,,,,8,,,,,\nT2,terrace,waterproofing,T1,,,,7,,,,,\nT3,terrace,insulation,T2,,,,3,,,,,\nT4,terrace,deck concrete,T3,,,,,5,10,yes,,\nT5,terrace,stairs concrete,T4,,,,10,,,,yes,\nT6,terrace,aluminum rails,T4,,,,5,,,,,\nT7,terrace,masonry,T6,T5,,,10,,,,,\nB1,b/c/k,drywall,P0,,,,,21,23,,,\nB2,b/c/k,hard tile,B1,,,,10,,,,,\nB3,b/c/k,stone columns,B1,,,,5,,,,,\nB4,b/c/k,millwork,B1,,,,,15,21,,yes,\nB5,b/c/k,casework,B4,,,,5,,,,,\nB6,b/c/k,flooring,B5,,,,10,,,,,\nB7,b/c/k,glass installation,B3,B2,,,3,,,,,\nB8,b/c/k,painting,B7,,,,10,,,,,\nB9,b/c/k,doors and hardware,B8,B6,,,,5,8,,,\nB10,b/c/k,MEP,B8,B6,,,10,,,,,\nS1,sanctuary,drywall,P0,,,,16,,,,,\nS2,sanctuary,core drill for rails,P0,,,,2,,,,,\nS3,sanctuary,install rails,S2,,,,5,,,,,\nS4,sanctuary,install carpeting at seats,S2,,,,15,,,,,\nS5,sanctuary,carpeting at rails,S3,,,,5,,,,,\nS6,sanctuary,"wood paneling, trim and stage",S4,,,,25,,,,,\nS7,sanctuary,painting,S10,S8,S4,,20,,,,,\nS8,sanctuary,concrete floor staining,S10,,,,5,,,,,\nS9,sanctuary,installation of seats,S1,S6,,,20,,,,,\nS10,sanctuary,wood stage steps,S2,,,,5,,,,,\nS11,sanctuary,"install carpet (steps, flats, aisles)",S10,,,,5,,,,,\nS12,sanctuary,install doors and hardware,S7,S6,,,,5,8,,,\nL1,lobby,millwork for reception,P0,,,,3,,,,,\nL2,lobby,millwork for walls and rails,P0,,,,10,,,,,\nL3,lobby,hard ceiling,P0,,,,15,,,,,\nL4,lobby,install drywall,P0,,,,15,,,,,\nL5,lobby,painting,L4,L3,L2,,5,,,,,\nL6,lobby,concrete for carpet areas,L1,,,,,5,8,,,\nL7,lobby,hard tile,L4,,,,5,,,,,\nL8,lobby,wood flooring install,L6,,,,,20,28,,"yes, formalize acclimatization precisely",\nL9,lobby,"other floors, carpeting",L8,,,,5,,,,,\nL10,lobby,public restrooms,L3,L4,,,9,,,,,\nL11,lobby,glass and chandeliers,L3,L4,,,3,,,,,\nL12,lobby,ceiling tiles,L5,,,,5,,,,,\nL13,lobby,doors and hardware,L12,L10,,,10,,,,,\nL14,lobby,MEP,L12,L10,,,10,,,,,\nP0,overall,Now,,,,,,,,,,09/24/2009\nP1,overall,Nominal finish date,P15,,,,,,,,,12/14/2009\nP2,overall,Architect’s punch list tasks,P1,,,,,5,10,,,\nP3,overall,Inform architect of close out responsibilities,P0,,,,,,,,,\nP4,overall,Items completed by architecture firm,P3,,,,,14,28,,,\nP5,overall,fire marshal’s inspection,P2,P4,,,,,,,,\nP6,overall,sign general guarantee and warranty,P2,,,,,0.5,1,,,\nP7,overall,sign final release of lien,P2,,,,,,,,,\nP8,overall,ACL relinquished of responsibilities,P6,,,,365,,,,,\nP9,overall,cleanup and ACL internal punch list,P5,,,,4,,,,,\nP10,overall,lobby done,L14,L13,L9,,,,,,,\nP11,overall,sanctuary done,S11,S12,S9,S5,,,,,,\nP12,overall,terrace done,T7,,,,,,,,,\nP13,overall,sanctuary and terrace done,P12,P11,,,,,,,,\nP14,overall,b/c/k done,B9,B10,,,,,,,,\nP15,overall,all sections done,P14,P13,P10,,,,,,,\n';
 var $BrianHicks$elm_csv$Csv$Decode$ParsingError = function (a) {
 	return {$: 'ParsingError', a: a};
 };
@@ -6602,20 +6602,58 @@ var $BrianHicks$elm_csv$Csv$Decode$andThen = F2(
 						A4(first, location, fieldNames, rowNum, row));
 				}));
 	});
-var $BrianHicks$elm_csv$Csv$Decode$Failure = function (a) {
-	return {$: 'Failure', a: a};
+var $BrianHicks$elm_csv$Csv$Decode$Field_ = function (a) {
+	return {$: 'Field_', a: a};
+};
+var $BrianHicks$elm_csv$Csv$Decode$field = F2(
+	function (name, _v0) {
+		var decoder = _v0.a;
+		return $BrianHicks$elm_csv$Csv$Decode$Decoder(
+			F3(
+				function (_v1, fieldNames, row) {
+					return A3(
+						decoder,
+						$BrianHicks$elm_csv$Csv$Decode$Field_(name),
+						fieldNames,
+						row);
+				}));
+	});
+var $BrianHicks$elm_csv$Csv$Decode$ColumnNotFound = function (a) {
+	return {$: 'ColumnNotFound', a: a};
+};
+var $BrianHicks$elm_csv$Csv$Decode$ExpectedOneColumn = function (a) {
+	return {$: 'ExpectedOneColumn', a: a};
 };
 var $BrianHicks$elm_csv$Csv$Decode$FieldDecodingError = function (a) {
 	return {$: 'FieldDecodingError', a: a};
 };
-var $BrianHicks$elm_csv$Csv$Decode$Column = function (a) {
-	return {$: 'Column', a: a};
+var $BrianHicks$elm_csv$Csv$Decode$FieldNotFound = function (a) {
+	return {$: 'FieldNotFound', a: a};
 };
-var $BrianHicks$elm_csv$Csv$Decode$Field = F2(
-	function (a, b) {
-		return {$: 'Field', a: a, b: b};
+var $BrianHicks$elm_csv$Csv$Decode$FieldNotProvided = function (a) {
+	return {$: 'FieldNotProvided', a: a};
+};
+var $elm$core$List$drop = F2(
+	function (n, list) {
+		drop:
+		while (true) {
+			if (n <= 0) {
+				return list;
+			} else {
+				if (!list.b) {
+					return list;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs;
+					n = $temp$n;
+					list = $temp$list;
+					continue drop;
+				}
+			}
+		}
 	});
-var $BrianHicks$elm_csv$Csv$Decode$OnlyColumn = {$: 'OnlyColumn'};
 var $elm$core$Dict$get = F2(
 	function (targetKey, dict) {
 		get:
@@ -6647,6 +6685,14 @@ var $elm$core$Dict$get = F2(
 			}
 		}
 	});
+var $BrianHicks$elm_csv$Csv$Decode$Column = function (a) {
+	return {$: 'Column', a: a};
+};
+var $BrianHicks$elm_csv$Csv$Decode$Field = F2(
+	function (a, b) {
+		return {$: 'Field', a: a, b: b};
+	});
+var $BrianHicks$elm_csv$Csv$Decode$OnlyColumn = {$: 'OnlyColumn'};
 var $BrianHicks$elm_csv$Csv$Decode$locationToColumn = F2(
 	function (fieldNames, location) {
 		switch (location.$) {
@@ -6661,72 +6707,6 @@ var $BrianHicks$elm_csv$Csv$Decode$locationToColumn = F2(
 					A2($elm$core$Dict$get, name, fieldNames));
 			default:
 				return $BrianHicks$elm_csv$Csv$Decode$OnlyColumn;
-		}
-	});
-var $BrianHicks$elm_csv$Csv$Decode$fail = function (message) {
-	return $BrianHicks$elm_csv$Csv$Decode$Decoder(
-		F4(
-			function (location, _v0, rowNum, _v1) {
-				var names = _v0.names;
-				return $elm$core$Result$Err(
-					_List_fromArray(
-						[
-							$BrianHicks$elm_csv$Csv$Decode$FieldDecodingError(
-							{
-								column: A2($BrianHicks$elm_csv$Csv$Decode$locationToColumn, names, location),
-								problem: $BrianHicks$elm_csv$Csv$Decode$Failure(message),
-								row: rowNum
-							})
-						]));
-			}));
-};
-var $BrianHicks$elm_csv$Csv$Decode$Field_ = function (a) {
-	return {$: 'Field_', a: a};
-};
-var $BrianHicks$elm_csv$Csv$Decode$field = F2(
-	function (name, _v0) {
-		var decoder = _v0.a;
-		return $BrianHicks$elm_csv$Csv$Decode$Decoder(
-			F3(
-				function (_v1, fieldNames, row) {
-					return A3(
-						decoder,
-						$BrianHicks$elm_csv$Csv$Decode$Field_(name),
-						fieldNames,
-						row);
-				}));
-	});
-var $BrianHicks$elm_csv$Csv$Decode$ColumnNotFound = function (a) {
-	return {$: 'ColumnNotFound', a: a};
-};
-var $BrianHicks$elm_csv$Csv$Decode$ExpectedOneColumn = function (a) {
-	return {$: 'ExpectedOneColumn', a: a};
-};
-var $BrianHicks$elm_csv$Csv$Decode$FieldNotFound = function (a) {
-	return {$: 'FieldNotFound', a: a};
-};
-var $BrianHicks$elm_csv$Csv$Decode$FieldNotProvided = function (a) {
-	return {$: 'FieldNotProvided', a: a};
-};
-var $elm$core$List$drop = F2(
-	function (n, list) {
-		drop:
-		while (true) {
-			if (n <= 0) {
-				return list;
-			} else {
-				if (!list.b) {
-					return list;
-				} else {
-					var x = list.a;
-					var xs = list.b;
-					var $temp$n = n - 1,
-						$temp$list = xs;
-					n = $temp$n;
-					list = $temp$list;
-					continue drop;
-				}
-			}
 		}
 	});
 var $BrianHicks$elm_csv$Csv$Decode$fromString = function (convert) {
@@ -6818,22 +6798,12 @@ var $BrianHicks$elm_csv$Csv$Decode$fromString = function (convert) {
 			}));
 };
 var $BrianHicks$elm_csv$Csv$Decode$string = $BrianHicks$elm_csv$Csv$Decode$fromString($elm$core$Result$Ok);
-var $author$project$Main$optionalIntField = function (name) {
+var $author$project$Main$optionalStringField = function (name) {
 	return A2(
 		$BrianHicks$elm_csv$Csv$Decode$andThen,
 		function (value) {
-			if (value === '') {
-				return $BrianHicks$elm_csv$Csv$Decode$succeed($elm$core$Maybe$Nothing);
-			} else {
-				var _v0 = $elm$core$String$toInt(value);
-				if (_v0.$ === 'Just') {
-					var n = _v0.a;
-					return $BrianHicks$elm_csv$Csv$Decode$succeed(
-						$elm$core$Maybe$Just(n));
-				} else {
-					return $BrianHicks$elm_csv$Csv$Decode$fail('Could not parse \"' + (value + ('\" as an int in field ' + name)));
-				}
-			}
+			return (value === '') ? $BrianHicks$elm_csv$Csv$Decode$succeed($elm$core$Maybe$Nothing) : $BrianHicks$elm_csv$Csv$Decode$succeed(
+				$elm$core$Maybe$Just(value));
 		},
 		A2(
 			$BrianHicks$elm_csv$Csv$Decode$map,
@@ -6883,16 +6853,16 @@ var $author$project$Main$dependsOnDecoder = A2(
 	$elm$core$List$map($author$project$Main$TaskId),
 	A2(
 		$BrianHicks$elm_csv$Csv$Decode$pipeline,
-		$author$project$Main$optionalIntField('Deps on (4)'),
+		$author$project$Main$optionalStringField('Deps on (4)'),
 		A2(
 			$BrianHicks$elm_csv$Csv$Decode$pipeline,
-			$author$project$Main$optionalIntField('Deps on (3)'),
+			$author$project$Main$optionalStringField('Deps on (3)'),
 			A2(
 				$BrianHicks$elm_csv$Csv$Decode$pipeline,
-				$author$project$Main$optionalIntField('Deps on (2)'),
+				$author$project$Main$optionalStringField('Deps on (2)'),
 				A2(
 					$BrianHicks$elm_csv$Csv$Decode$pipeline,
-					$author$project$Main$optionalIntField('Deps on (1)'),
+					$author$project$Main$optionalStringField('Deps on (1)'),
 					$BrianHicks$elm_csv$Csv$Decode$into(
 						F4(
 							function (a, b, c, d) {
@@ -6909,6 +6879,26 @@ var $author$project$Main$Range = F2(
 	function (a, b) {
 		return {$: 'Range', a: a, b: b};
 	});
+var $BrianHicks$elm_csv$Csv$Decode$Failure = function (a) {
+	return {$: 'Failure', a: a};
+};
+var $BrianHicks$elm_csv$Csv$Decode$fail = function (message) {
+	return $BrianHicks$elm_csv$Csv$Decode$Decoder(
+		F4(
+			function (location, _v0, rowNum, _v1) {
+				var names = _v0.names;
+				return $elm$core$Result$Err(
+					_List_fromArray(
+						[
+							$BrianHicks$elm_csv$Csv$Decode$FieldDecodingError(
+							{
+								column: A2($BrianHicks$elm_csv$Csv$Decode$locationToColumn, names, location),
+								problem: $BrianHicks$elm_csv$Csv$Decode$Failure(message),
+								row: rowNum
+							})
+						]));
+			}));
+};
 var $BrianHicks$elm_csv$Csv$Decode$map3 = F4(
 	function (transform, _v0, _v1, _v2) {
 		var decodeA = _v0.a;
@@ -7051,21 +7041,6 @@ var $author$project$Main$estimateDecoder = A2(
 		$author$project$Main$optionalFloatField('Estimate'),
 		$author$project$Main$optionalFloatField('Low Estimate'),
 		$author$project$Main$optionalFloatField('High Estimate')));
-var $BrianHicks$elm_csv$Csv$Decode$ExpectedInt = function (a) {
-	return {$: 'ExpectedInt', a: a};
-};
-var $BrianHicks$elm_csv$Csv$Decode$int = $BrianHicks$elm_csv$Csv$Decode$fromString(
-	function (value) {
-		var _v0 = $elm$core$String$toInt(
-			$elm$core$String$trim(value));
-		if (_v0.$ === 'Just') {
-			var parsed = _v0.a;
-			return $elm$core$Result$Ok(parsed);
-		} else {
-			return $elm$core$Result$Err(
-				$BrianHicks$elm_csv$Csv$Decode$ExpectedInt(value));
-		}
-	});
 var $justinmimbs$date$Date$RD = function (a) {
 	return {$: 'RD', a: a};
 };
@@ -7305,7 +7280,10 @@ var $author$project$Main$itemDecoder = A2(
 									A2(
 										$BrianHicks$elm_csv$Csv$Decode$field,
 										'Id',
-										A2($BrianHicks$elm_csv$Csv$Decode$map, $author$project$Main$TaskId, $BrianHicks$elm_csv$Csv$Decode$int)),
+										A2(
+											$BrianHicks$elm_csv$Csv$Decode$map,
+											A2($elm$core$Basics$composeR, $elm$core$String$trim, $author$project$Main$TaskId),
+											$BrianHicks$elm_csv$Csv$Decode$string)),
 									$BrianHicks$elm_csv$Csv$Decode$into($author$project$Main$RawFields))))))))));
 var $author$project$Main$itemsResult = A3($BrianHicks$elm_csv$Csv$Decode$decodeCsv, $BrianHicks$elm_csv$Csv$Decode$FieldNamesFromFirstRow, $author$project$Main$itemDecoder, $author$project$Data$csvData);
 var $elm$html$Html$pre = _VirtualDom_node('pre');
@@ -7550,7 +7528,7 @@ var $elm$core$List$minimum = function (list) {
 		return $elm$core$Maybe$Nothing;
 	}
 };
-var $author$project$Main$taskIdToInt = function (_v0) {
+var $author$project$Main$taskIdToString = function (_v0) {
 	var id = _v0.a;
 	return id;
 };
@@ -8064,7 +8042,7 @@ var $author$project$Main$buildSchedule = F2(
 				$elm$core$List$map,
 				function (item) {
 					return _Utils_Tuple2(
-						$author$project$Main$taskIdToInt(
+						$author$project$Main$taskIdToString(
 							$author$project$Main$itemId(item)),
 						item);
 				},
@@ -8111,8 +8089,8 @@ var $author$project$Main$buildSchedule = F2(
 						$elm$core$List$map,
 						function (dep) {
 							return _Utils_Tuple2(
-								$author$project$Main$taskIdToInt(dep),
-								$author$project$Main$taskIdToInt(
+								$author$project$Main$taskIdToString(dep),
+								$author$project$Main$taskIdToString(
 									$author$project$Main$itemId(item)));
 						},
 						$author$project$Main$itemDependsOn(item));
@@ -8137,7 +8115,7 @@ var $author$project$Main$buildSchedule = F2(
 							A2(
 								$elm$core$List$map,
 								function (depId) {
-									var d = $author$project$Main$taskIdToInt(depId);
+									var d = $author$project$Main$taskIdToString(depId);
 									return A2(
 										$elm$core$Maybe$withDefault,
 										0,
@@ -8198,10 +8176,6 @@ var $author$project$Main$buildSchedule = F2(
 			$elm$core$List$reverse(topoOrder));
 		return {es: esDict, ls: lsDict, originDate: originDate};
 	});
-var $author$project$Main$taskIdToString = function (_v0) {
-	var id = _v0.a;
-	return $elm$core$String$fromInt(id);
-};
 var $author$project$Main$encodeTaskId = function (id) {
 	return $elm$json$Json$Encode$string(
 		$author$project$Main$taskIdToString(id));
@@ -9424,7 +9398,7 @@ var $author$project$Main$scheduleEs = F2(
 			0,
 			A2(
 				$elm$core$Dict$get,
-				$author$project$Main$taskIdToInt(taskId),
+				$author$project$Main$taskIdToString(taskId),
 				schedule.es));
 	});
 var $author$project$Main$scheduleEsDate = F2(
@@ -9448,7 +9422,7 @@ var $author$project$Main$scheduleLs = F2(
 			0,
 			A2(
 				$elm$core$Dict$get,
-				$author$project$Main$taskIdToInt(taskId),
+				$author$project$Main$taskIdToString(taskId),
 				schedule.ls));
 	});
 var $author$project$Main$scheduleLsDate = F2(

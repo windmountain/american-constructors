@@ -13,7 +13,7 @@ import Json.Encode as Encode
 
 
 type TaskId
-    = TaskId Int
+    = TaskId String
 
 
 type Tactic
@@ -81,7 +81,7 @@ type alias RawFields =
 itemDecoder : Decoder Item
 itemDecoder =
     Decode.into RawFields
-        |> Decode.pipeline (Decode.field "Id" (Decode.map TaskId Decode.int))
+        |> Decode.pipeline (Decode.field "Id" (Decode.map (String.trim >> TaskId) Decode.string))
         |> Decode.pipeline (Decode.field "Section" Decode.string)
         |> Decode.pipeline (Decode.field "Name" Decode.string)
         |> Decode.pipeline dependsOnDecoder
@@ -128,15 +128,15 @@ toItem fields =
 dependsOnDecoder : Decoder (List TaskId)
 dependsOnDecoder =
     Decode.into (\a b c d -> List.filterMap identity [ a, b, c, d ])
-        |> Decode.pipeline (optionalIntField "Deps on (1)")
-        |> Decode.pipeline (optionalIntField "Deps on (2)")
-        |> Decode.pipeline (optionalIntField "Deps on (3)")
-        |> Decode.pipeline (optionalIntField "Deps on (4)")
+        |> Decode.pipeline (optionalStringField "Deps on (1)")
+        |> Decode.pipeline (optionalStringField "Deps on (2)")
+        |> Decode.pipeline (optionalStringField "Deps on (3)")
+        |> Decode.pipeline (optionalStringField "Deps on (4)")
         |> Decode.map (List.map TaskId)
 
 
-optionalIntField : String -> Decoder (Maybe Int)
-optionalIntField name =
+optionalStringField : String -> Decoder (Maybe String)
+optionalStringField name =
     Decode.field name Decode.string
         |> Decode.map String.trim
         |> Decode.andThen
@@ -145,12 +145,7 @@ optionalIntField name =
                     Decode.succeed Nothing
 
                 else
-                    case String.toInt value of
-                        Just n ->
-                            Decode.succeed (Just n)
-
-                        Nothing ->
-                            Decode.fail ("Could not parse \"" ++ value ++ "\" as an int in field " ++ name)
+                    Decode.succeed (Just value)
             )
 
 
@@ -420,8 +415,8 @@ graph, rather than by re-walking the dependency tree from scratch for every
 lookup.
 -}
 type alias Schedule =
-    { es : Dict Int Float
-    , ls : Dict Int Float
+    { es : Dict String Float
+    , ls : Dict String Float
     , originDate : Maybe Date
     }
 
@@ -429,19 +424,19 @@ type alias Schedule =
 buildSchedule : Tactic -> List Item -> Schedule
 buildSchedule tactic items =
     let
-        itemsById : Dict Int Item
+        itemsById : Dict String Item
         itemsById =
             items
-                |> List.map (\item -> ( taskIdToInt (itemId item), item ))
+                |> List.map (\item -> ( taskIdToString (itemId item), item ))
                 |> Dict.fromList
 
-        dependentsOf : Dict Int (List Int)
+        dependentsOf : Dict String (List String)
         dependentsOf =
             items
                 |> List.concatMap
                     (\item ->
                         itemDependsOn item
-                            |> List.map (\dep -> ( taskIdToInt dep, taskIdToInt (itemId item) ))
+                            |> List.map (\dep -> ( taskIdToString dep, taskIdToString (itemId item) ))
                     )
                 |> List.foldl
                     (\( depId, dependentId ) acc ->
@@ -449,11 +444,11 @@ buildSchedule tactic items =
                     )
                     Dict.empty
 
-        topoOrder : List Int
+        topoOrder : List String
         topoOrder =
             topoSort itemsById dependentsOf
 
-        durationOf : Int -> Float
+        durationOf : String -> Float
         durationOf id =
             case Dict.get id itemsById of
                 Just (TaskItem task) ->
@@ -468,7 +463,7 @@ buildSchedule tactic items =
                 Nothing ->
                     0
 
-        esDict : Dict Int Float
+        esDict : Dict String Float
         esDict =
             List.foldl
                 (\id acc ->
@@ -484,7 +479,7 @@ buildSchedule tactic items =
                                     (\depId ->
                                         let
                                             d =
-                                                taskIdToInt depId
+                                                taskIdToString depId
                                         in
                                         (Dict.get d acc |> Maybe.withDefault 0) + durationOf d
                                     )
@@ -504,7 +499,7 @@ buildSchedule tactic items =
                 |> List.maximum
                 |> Maybe.withDefault 0
 
-        lsDict : Dict Int Float
+        lsDict : Dict String Float
         lsDict =
             List.foldl
                 (\id acc ->
@@ -548,21 +543,21 @@ buildSchedule tactic items =
 {-| Kahn's algorithm: repeatedly peel off items with no unprocessed
 dependencies so each item is visited exactly once.
 -}
-topoSort : Dict Int Item -> Dict Int (List Int) -> List Int
+topoSort : Dict String Item -> Dict String (List String) -> List String
 topoSort itemsById dependentsOf =
     let
-        inDegree0 : Dict Int Int
+        inDegree0 : Dict String Int
         inDegree0 =
             itemsById |> Dict.map (\_ item -> List.length (itemDependsOn item))
 
-        initialQueue : List Int
+        initialQueue : List String
         initialQueue =
             inDegree0 |> Dict.filter (\_ deg -> deg == 0) |> Dict.keys
     in
     topoSortHelp dependentsOf inDegree0 initialQueue []
 
 
-topoSortHelp : Dict Int (List Int) -> Dict Int Int -> List Int -> List Int -> List Int
+topoSortHelp : Dict String (List String) -> Dict String Int -> List String -> List String -> List String
 topoSortHelp dependentsOf inDegree queue order =
     case queue of
         [] ->
@@ -596,12 +591,12 @@ topoSortHelp dependentsOf inDegree queue order =
 
 scheduleEs : Schedule -> TaskId -> Float
 scheduleEs schedule taskId =
-    Dict.get (taskIdToInt taskId) schedule.es |> Maybe.withDefault 0
+    Dict.get (taskIdToString taskId) schedule.es |> Maybe.withDefault 0
 
 
 scheduleLs : Schedule -> TaskId -> Float
 scheduleLs schedule taskId =
-    Dict.get (taskIdToInt taskId) schedule.ls |> Maybe.withDefault 0
+    Dict.get (taskIdToString taskId) schedule.ls |> Maybe.withDefault 0
 
 
 scheduleSlack : Schedule -> TaskId -> Float
@@ -640,11 +635,6 @@ estimateDuration tactic estimate =
 
                 Midpoint ->
                     (low + high) / 2
-
-
-taskIdToInt : TaskId -> Int
-taskIdToInt (TaskId id) =
-    id
 
 
 itemId : Item -> TaskId
@@ -716,7 +706,7 @@ encodeTaskId id =
 
 taskIdToString : TaskId -> String
 taskIdToString (TaskId id) =
-    String.fromInt id
+    id
 
 
 main : Program () Model Msg
