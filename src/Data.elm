@@ -29,7 +29,7 @@ csvData =
 23,sanctuary,"wood paneling, trim and stage",21,,,,25,,,,,
 24,sanctuary,painting,27,25,21,,20,,,,,
 25,sanctuary,concrete floor staining,27,,,,5,,,,,
-26,sanctuary,installation of seats,18,,,,20,,,,,
+26,sanctuary,installation of seats,18,23,,,20,,,,,
 27,sanctuary,wood stage steps,19,,,,5,,,,,
 28,sanctuary,"install carpet (steps, flats, aisles)",27,,,,5,,,,,
 29,sanctuary,install doors and hardware,24,23,,,,5,8,,,
