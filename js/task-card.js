@@ -33,7 +33,7 @@ class TaskCard extends HTMLElement {
         color: #111827;
         border: 1px solid #9ca3af;
       }
-      .card.critical { outline: 10px solid #dc2626; }
+      .card.critical { outline: var(--critical-outline, 10px solid #dc2626); }
       .grid-row {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;

@@ -97,6 +97,10 @@ class CytoscapeGraph extends HTMLElement {
         },
       ],
     });
+    if (this._edgesVisible === false) {
+      this._applyEdgesVisibility(false);
+    }
+
     this._cy.nodeHtmlLabel(
       [
         {
@@ -142,6 +146,23 @@ class CytoscapeGraph extends HTMLElement {
     if (structureChanged) {
       this._cy.layout(dagreLayout).run();
     }
+  }
+
+  set edgesVisible(value) {
+    this._edgesVisible = value;
+    if (!this._cy) {
+      return;
+    }
+    this._applyEdgesVisibility(value);
+  }
+
+  // The critical-path outline is drawn by task-card.js, a separate custom
+  // element with its own shadow root; --critical-outline is how this element
+  // reaches through that shadow boundary to hide it alongside the edges,
+  // since custom properties (unlike plain CSS rules) inherit into shadow trees.
+  _applyEdgesVisibility(value) {
+    this._cy.edges().style("display", value ? "element" : "none");
+    this.style.setProperty("--critical-outline", value ? "10px solid #dc2626" : "none");
   }
 }
 

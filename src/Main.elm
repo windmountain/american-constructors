@@ -233,12 +233,13 @@ type alias Model =
     , showSpreadsheet : Bool
     , viewMode : ViewMode
     , workdayMode : WorkdayMode
+    , edgesVisible : Bool
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { tactic = Midpoint, showSpreadsheet = False, viewMode = NetworkView, workdayMode = Conservative }, Cmd.none )
+    ( { tactic = Midpoint, showSpreadsheet = False, viewMode = NetworkView, workdayMode = Conservative, edgesVisible = True }, Cmd.none )
 
 
 type Msg
@@ -246,6 +247,7 @@ type Msg
     | ToggleShowSpreadsheet
     | SetViewMode ViewMode
     | SetWorkdayMode WorkdayMode
+    | ToggleEdgesVisible
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -262,6 +264,9 @@ update msg model =
 
         SetWorkdayMode workdayMode ->
             ( { model | workdayMode = workdayMode }, Cmd.none )
+
+        ToggleEdgesVisible ->
+            ( { model | edgesVisible = not model.edgesVisible }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -285,7 +290,7 @@ view model =
         [ toolbar model.tactic model.viewMode
         , case itemsResult of
             Ok items ->
-                viewMain model.viewMode model.tactic showSpreadsheet model.workdayMode items
+                viewMain model.viewMode model.tactic showSpreadsheet model.workdayMode model.edgesVisible items
 
             Err error ->
                 pre [] [ text (Decode.errorToString error) ]
@@ -300,15 +305,20 @@ view model =
 
           else
             text ""
+        , if model.viewMode == NetworkView then
+            viewEdgesToggle model.edgesVisible
+
+          else
+            text ""
         ]
     }
 
 
-viewMain : ViewMode -> Tactic -> Bool -> WorkdayMode -> List Item -> Html Msg
-viewMain viewMode tactic showSpreadsheet workdayMode items =
+viewMain : ViewMode -> Tactic -> Bool -> WorkdayMode -> Bool -> List Item -> Html Msg
+viewMain viewMode tactic showSpreadsheet workdayMode edgesVisible items =
     case viewMode of
         NetworkView ->
-            viewGraph tactic showSpreadsheet items
+            viewGraph tactic showSpreadsheet edgesVisible items
 
         CalendarView ->
             viewCalendar workdayMode tactic items
@@ -795,6 +805,27 @@ viewSpreadsheetToggle showSpreadsheet =
         ]
 
 
+viewEdgesToggle : Bool -> Html Msg
+viewEdgesToggle edgesVisible =
+    div
+        [ style "position" "fixed"
+        , style "bottom" "16px"
+        , style "left" "50%"
+        , style "transform" "translateX(-50%)"
+        , style "z-index" "20"
+        ]
+        [ button [ onClick ToggleEdgesVisible ]
+            [ text
+                (if edgesVisible then
+                    "Hide edges"
+
+                 else
+                    "Show edges"
+                )
+            ]
+        ]
+
+
 {-| Left: tactic select. Center: network/calendar view toggle. The trailing
 empty div balances the leading tactic select in the 1fr/auto/1fr grid so the
 center column stays centered regardless of how wide the other two are.
@@ -910,9 +941,13 @@ tacticFromString value_ =
             Nothing
 
 
-viewGraph : Tactic -> Bool -> List Item -> Html Msg
-viewGraph tactic showSpreadsheet items =
-    node "cytoscape-graph" [ property "elements" (encodeElements (buildSchedule tactic items) showSpreadsheet items) ] []
+viewGraph : Tactic -> Bool -> Bool -> List Item -> Html Msg
+viewGraph tactic showSpreadsheet edgesVisible items =
+    node "cytoscape-graph"
+        [ property "elements" (encodeElements (buildSchedule tactic items) showSpreadsheet items)
+        , property "edgesVisible" (Encode.bool edgesVisible)
+        ]
+        []
 
 
 encodeElements : Schedule -> Bool -> List Item -> Encode.Value

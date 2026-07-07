@@ -5174,7 +5174,7 @@ var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
-		{showSpreadsheet: false, tactic: $author$project$Main$Midpoint, viewMode: $author$project$Main$NetworkView, workdayMode: $author$project$Main$Conservative},
+		{edgesVisible: true, showSpreadsheet: false, tactic: $author$project$Main$Midpoint, viewMode: $author$project$Main$NetworkView, workdayMode: $author$project$Main$Conservative},
 		$elm$core$Platform$Cmd$none);
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
@@ -5206,12 +5206,18 @@ var $author$project$Main$update = F2(
 						model,
 						{viewMode: viewMode}),
 					$elm$core$Platform$Cmd$none);
-			default:
+			case 'SetWorkdayMode':
 				var workdayMode = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{workdayMode: workdayMode}),
+					$elm$core$Platform$Cmd$none);
+			default:
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{edgesVisible: !model.edgesVisible}),
 					$elm$core$Platform$Cmd$none);
 		}
 	});
@@ -5577,7 +5583,7 @@ var $BrianHicks$elm_csv$Csv$Decode$errorToString = function (error) {
 	}
 };
 var $BrianHicks$elm_csv$Csv$Decode$FieldNamesFromFirstRow = {$: 'FieldNamesFromFirstRow'};
-var $author$project$Data$csvData = 'Id,Section,Name,Deps on (1),Deps on (2),Deps on (3),Deps on (4),Estimate,Low Estimate,High Estimate,Effective End,Weather-dependent,Can Expedite,Date,Duration,ES,EF,LF,LS,Slack\nT0,terrace,terrace start,P0,,,,,,,,,,,0,0,0,19.5,19.5,19.5\nT1,terrace,window surrounds,T0,,,,8,,,,,,,8,0,8,27.5,19.5,19.5\nT2,terrace,waterproofing,T1,,,,7,,,,,,,7,8,15,34.5,27.5,19.5\nT3,terrace,insulation,T2,,,,3,,,,,,,3,15,18,37.5,34.5,19.5\nT4,terrace,deck concrete,T3,,,,,5,10,,yes,,,7.5,18,25.5,45,37.5,19.5\nT5,terrace,stairs concrete,T4,,,,10,,,,,yes,,10,25.5,35.5,55,45,19.5\nT6,terrace,aluminum rails,T4,,,,5,,,,,,,5,25.5,30.5,55,50,24.5\nT7,terrace,masonry,T6,T5,,,10,,,,,,,10,35.5,45.5,65,55,19.5\nB0,bookstore,bookstore start,P0,,,,,,,,,,,0,0,0,0,0,0\nB1,bookstore,drywall,B0,,,,,21,23,,,,,22,0,22,22,0,0\nB2,bookstore,hard tile,B1,,,,10,,,,,,,10,22,32,42,32,10\nB3,bookstore,stone columns,B1,,,,5,,,,,,,5,22,27,42,37,15\nB4,bookstore,millwork,B1,,,,,15,21,,,yes,,18,22,40,40,22,0\nB5,bookstore,casework,B4,,,,5,,,,,,,5,40,45,45,40,0\nB6,bookstore,flooring,B5,,,,10,,,,,,,10,45,55,55,45,0\nB7,bookstore,glass installation,B3,B2,,,3,,,,,,,3,32,35,45,42,10\nB8,bookstore,painting,B7,,,,10,,,,,,,10,35,45,55,45,10\nB9,bookstore,doors and hardware,B8,B6,,,,5,8,,,,,6.5,55,61.5,65,58.5,3.5\nB10,bookstore,MEP,B8,B6,,,10,,,,,,,10,55,65,65,55,0\nS0,sanctuary,sanctuary start,P0,,,,,,,,,,,0,0,0,3,3,3\nS1,sanctuary,drywall,S0,,,,16,,,,,,,16,0,16,45,29,29\nS2,sanctuary,core drill for rails,S0,,,,2,,,,,,,2,0,2,5,3,3\nS3,sanctuary,install rails,S2,,,,5,,,,,,,5,2,7,60,55,53\nS4,sanctuary,install carpeting at seats,S2,,,,15,,,,,,,15,2,17,20,5,3\nS5,sanctuary,carpeting at rails,S3,,,,5,,,,,,,5,7,12,65,60,53\nS6,sanctuary,"wood paneling, trim and stage",S4,,,,25,,,,,,,25,17,42,45,20,3\nS7,sanctuary,painting,S10,S8,S4,,20,,,,,,,20,17,37,58.5,38.5,21.5\nS8,sanctuary,concrete floor staining,S10,,,,5,,,,,,,5,7,12,38.5,33.5,26.5\nS9,sanctuary,installation of seats,S1,S6,,,20,,,,,,,20,42,62,65,45,3\nS10,sanctuary,wood stage steps,S2,,,,5,,,,,,,5,2,7,33.5,28.5,26.5\nS11,sanctuary,"install carpet (steps, flats, aisles)",S10,,,,5,,,,,,,5,7,12,65,60,53\nS12,sanctuary,install doors and hardware,S7,S6,,,,5,8,,,,,6.5,42,48.5,65,58.5,16.5\nL0,lobby,lobby start,P0,,,,,,,,,,,0,0,0,26.5,26.5,26.5\nL1,lobby,millwork for reception,L0,,,,3,,,,,,,3,0,3,29.5,26.5,26.5\nL2,lobby,millwork for walls and rails,L0,,,,10,,,,,,,10,0,10,45,35,35\nL3,lobby,hard ceiling,L0,,,,15,,,,,,,15,0,15,45,30,30\nL4,lobby,install drywall,L0,,,,15,,,,,,,15,0,15,45,30,30\nL5,lobby,painting,L4,L3,L2,,5,,,,,,,5,15,20,50,45,30\nL6,lobby,concrete for carpet areas,L1,,,,,5,8,,,,,6.5,3,9.5,36,29.5,26.5\nL7,lobby,hard tile,L4,,,,5,,,,,,,5,15,20,82.25,77.25,62.25\nL8,lobby,wood flooring install,L6,,,,,20,28,,,"yes, formalize acclimatization precisely",,24,9.5,33.5,60,36,26.5\nL9,lobby,"other floors, carpeting",L8,,,,5,,,,,,,5,33.5,38.5,65,60,26.5\nL10,lobby,public restrooms,L3,L4,,,9,,,,,,,9,15,24,55,46,31\nL11,lobby,glass and chandeliers,L3,L4,,,3,,,,,,,3,15,18,82.25,79.25,64.25\nL12,lobby,ceiling tiles,L5,,,,5,,,,,,,5,20,25,55,50,30\nL13,lobby,doors and hardware,L12,L10,,,10,,,,,,,10,25,35,65,55,30\nL14,lobby,MEP,L12,L10,,,10,,,,,,,10,25,35,65,55,30\nP0,overall,Now,,,,,,,,,,,09/24/2009,0,0,0,0,0,0\nP2,overall,Architect’s punch list tasks,P5,,,,,5,10,,,,,7.5,74,81.5,81.5,74,0\nP3,overall,Inform architect of close out responsibilities,P0,,,,,,,,,,,0,0,0,48,48,48\nP4,overall,Items completed by architecture firm,P3,,,,,14,28,,,,,21,0,21,69,48,48\nP5,overall,fire marshal’s inspection,P4,P9,,,5,,,,,,,5,69,74,74,69,0\nP6,overall,sign general guarantee and warranty,P2,,,,,0.5,1,,,,,0.75,81.5,82.25,82.25,81.5,0\nP7,overall,sign final release of lien,P2,,,,,,,,,,,0,81.5,81.5,82.25,82.25,0.75\nP9,overall,cleanup and ACI punch list,P15,,,,4,,,,,,,4,65,69,69,65,0\nP10,overall,lobby done,L14,L13,L9,,,,,,,,,0,38.5,38.5,65,65,26.5\nP11,overall,sanctuary done,S11,S12,S9,S5,,,,,,,,0,62,62,65,65,3\nP12,overall,terrace done,T7,,,,,,,,,,,0,45.5,45.5,65,65,19.5\nP14,overall,bookstore done,B9,B10,,,,,,,,,,0,65,65,65,65,0\nP15,overall,all sections done,P14,P11,P10,P12,,,,,,,,0,65,65,65,65,0\nP16,overall,occupancy permitted,P5,,,,,,,yes,,,,0,74,74,82.25,82.25,8.25';
+var $author$project$Data$csvData = 'Id,Section,Name,Deps on (1),Deps on (2),Deps on (3),Deps on (4),Estimate,Low Estimate,High Estimate,Effective End,Weather-dependent,Can Expedite,Date,Duration,ES,EF,LF,LS,Slack\nT0,terrace,terrace start,P0,,,,,,,,,,,0,0,0,19.5,19.5,19.5\nT1,terrace,window surrounds,T0,,,,8,,,,,,,8,0,8,27.5,19.5,19.5\nT2,terrace,waterproofing,T1,,,,7,,,,,,,7,8,15,34.5,27.5,19.5\nT3,terrace,insulation,T2,,,,3,,,,,,,3,15,18,37.5,34.5,19.5\nT4,terrace,deck concrete,T3,,,,,5,10,,yes,,,7.5,18,25.5,45,37.5,19.5\nT5,terrace,stairs concrete,T4,,,,10,,,,,yes,,10,25.5,35.5,55,45,19.5\nT6,terrace,aluminum rails,T4,,,,5,,,,,,,5,25.5,30.5,55,50,24.5\nT7,terrace,masonry,T6,T5,,,10,,,,,,,10,35.5,45.5,65,55,19.5\nB0,bookstore,bookstore start,P0,,,,,,,,,,,0,0,0,0,0,0\nB1,bookstore,drywall,B0,,,,,21,23,,,,,22,0,22,22,0,0\nB2,bookstore,hard tile,B1,,,,10,,,,,,,10,22,32,42,32,10\nB3,bookstore,stone columns,B1,,,,5,,,,,,,5,22,27,42,37,15\nB4,bookstore,millwork,B1,,,,,15,21,,,yes,,18,22,40,40,22,0\nB5,bookstore,casework,B4,,,,5,,,,,,,5,40,45,45,40,0\nB6,bookstore,flooring,B5,,,,10,,,,,,,10,45,55,55,45,0\nB7,bookstore,glass installation,B3,B2,,,3,,,,,,,3,32,35,45,42,10\nB8,bookstore,painting,B7,,,,10,,,,,,,10,35,45,55,45,10\nB9,bookstore,doors and hardware,B8,B6,,,,5,8,,,,,6.5,55,61.5,65,58.5,3.5\nB10,bookstore,MEP,B8,B6,,,10,,,,,,,10,55,65,65,55,0\nS0,sanctuary,sanctuary start,P0,,,,,,,,,,,0,0,0,3,3,3\nS1,sanctuary,drywall,S0,,,,16,,,,,,,16,0,16,45,29,29\nS2,sanctuary,core drill for rails,S0,,,,2,,,,,,,2,0,2,5,3,3\nS3,sanctuary,install rails,S2,,,,5,,,,,,,5,2,7,60,55,53\nS4,sanctuary,install carpeting at seats,S2,,,,15,,,,,,,15,2,17,20,5,3\nS5,sanctuary,carpeting at rails,S3,,,,5,,,,,,,5,7,12,65,60,53\nS6,sanctuary,"wood paneling, trim and stage",S4,,,,25,,,,,,,25,17,42,45,20,3\nS7,sanctuary,painting,S10,S8,S4,,20,,,,,,,20,17,37,58.5,38.5,21.5\nS8,sanctuary,concrete floor staining,S10,,,,5,,,,,,,5,7,12,38.5,33.5,26.5\nS9,sanctuary,installation of seats,S1,S6,,,20,,,,,,,20,42,62,65,45,3\nS10,sanctuary,wood stage steps,S2,,,,5,,,,,,,5,2,7,33.5,28.5,26.5\nS11,sanctuary,"install carpet (steps, flats, aisles)",S10,,,,5,,,,,,,5,7,12,65,60,53\nS12,sanctuary,install doors and hardware,S7,S6,,,,5,8,,,,,6.5,42,48.5,65,58.5,16.5\nL0,lobby,lobby start,P0,,,,,,,,,,,0,0,0,26.5,26.5,26.5\nL1,lobby,millwork for reception,L0,,,,3,,,,,,,3,0,3,29.5,26.5,26.5\nL2,lobby,millwork for walls and rails,L0,,,,10,,,,,,,10,0,10,45,35,35\nL3,lobby,hard ceiling,L0,,,,15,,,,,,,15,0,15,45,30,30\nL4,lobby,install drywall,L0,,,,15,,,,,,,15,0,15,45,30,30\nL5,lobby,painting,L4,L3,L2,,5,,,,,,,5,15,20,50,45,30\nL6,lobby,concrete for carpet areas,L1,,,,,5,8,,,,,6.5,3,9.5,36,29.5,26.5\nL7,lobby,hard tile,L4,,,,5,,,,,,,5,15,20,82.25,77.25,62.25\nL8,lobby,wood flooring install,L6,,,,,20,28,,,"yes, formalize acclimatization precisely",,24,9.5,33.5,60,36,26.5\nL9,lobby,"other floors, carpeting",L8,,,,5,,,,,,,5,33.5,38.5,65,60,26.5\nL10,lobby,public restrooms,L3,L4,,,9,,,,,,,9,15,24,55,46,31\nL11,lobby,glass and chandeliers,L3,L4,,,3,,,,,,,3,15,18,82.25,79.25,64.25\nL12,lobby,ceiling tiles,L5,,,,5,,,,,,,5,20,25,55,50,30\nL13,lobby,doors and hardware,L12,L10,,,10,,,,,,,10,25,35,65,55,30\nL14,lobby,MEP,L12,L10,,,10,,,,,,,10,25,35,65,55,30\nP0,overall,Now,,,,,,,,,,,09/24/2009,0,0,0,0,0,0\nP2,overall,Architect’s punch list tasks,P5,,,,,5,10,,,,,7.5,74,81.5,81.5,74,0\nP3,overall,Inform architect of close out responsibilities,P0,,,,,,,,,,,0,0,0,48,48,48\nP4,overall,Items completed by architecture firm,P3,,,,,14,28,,,,,21,0,21,69,48,48\nP5,overall,fire marshal’s inspection,P9,P4,,,5,,,,,,,5,69,74,74,69,0\nP6,overall,sign general guarantee and warranty,P2,,,,,0.5,1,,,,,0.75,81.5,82.25,82.25,81.5,0\nP7,overall,sign final release of lien,P2,,,,,,,,,,,0,81.5,81.5,82.25,82.25,0.75\nP9,overall,cleanup and ACI punch list,P15,,,,4,,,,,,,4,65,69,69,65,0\nP10,overall,lobby done,L14,L13,L9,,,,,,,,,0,38.5,38.5,65,65,26.5\nP11,overall,sanctuary done,S11,S12,S9,S5,,,,,,,,0,62,62,65,65,3\nP12,overall,terrace done,T7,,,,,,,,,,,0,45.5,45.5,65,65,19.5\nP14,overall,bookstore done,B9,B10,,,,,,,,,,0,65,65,65,65,0\nP15,overall,all sections done,P14,P11,P10,P12,,,,,,,,0,65,65,65,65,0\nP16,overall,occupancy permitted,P5,,,,,,,yes,,,,0,74,74,82.25,82.25,8.25';
 var $BrianHicks$elm_csv$Csv$Decode$ParsingError = function (a) {
 	return {$: 'ParsingError', a: a};
 };
@@ -7290,6 +7296,34 @@ var $author$project$Main$viewDownloads = A2(
 			A2($author$project$Main$downloadLink, 'AC%20Tasks.csv', 'CSV'),
 			A2($author$project$Main$downloadLink, 'AC%20Tasks.ods', 'ODS')
 		]));
+var $author$project$Main$ToggleEdgesVisible = {$: 'ToggleEdgesVisible'};
+var $elm$html$Html$button = _VirtualDom_node('button');
+var $author$project$Main$viewEdgesToggle = function (edgesVisible) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				A2($elm$html$Html$Attributes$style, 'position', 'fixed'),
+				A2($elm$html$Html$Attributes$style, 'bottom', '16px'),
+				A2($elm$html$Html$Attributes$style, 'left', '50%'),
+				A2($elm$html$Html$Attributes$style, 'transform', 'translateX(-50%)'),
+				A2($elm$html$Html$Attributes$style, 'z-index', '20')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$button,
+				_List_fromArray(
+					[
+						$elm$html$Html$Events$onClick($author$project$Main$ToggleEdgesVisible)
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						edgesVisible ? 'Hide edges' : 'Show edges')
+					]))
+			]));
+};
 var $author$project$Main$calendarMonths = _List_fromArray(
 	[
 		{daysInMonth: 30, firstWeekday: 2, name: 'September'},
@@ -8918,8 +8952,8 @@ var $elm$virtual_dom$VirtualDom$property = F2(
 			_VirtualDom_noJavaScriptOrHtmlJson(value));
 	});
 var $elm$html$Html$Attributes$property = $elm$virtual_dom$VirtualDom$property;
-var $author$project$Main$viewGraph = F3(
-	function (tactic, showSpreadsheet, items) {
+var $author$project$Main$viewGraph = F4(
+	function (tactic, showSpreadsheet, edgesVisible, items) {
 		return A3(
 			$elm$html$Html$node,
 			'cytoscape-graph',
@@ -8932,20 +8966,23 @@ var $author$project$Main$viewGraph = F3(
 						$author$project$Main$encodeElements,
 						A2($author$project$Main$buildSchedule, tactic, items),
 						showSpreadsheet,
-						items))
+						items)),
+					A2(
+					$elm$html$Html$Attributes$property,
+					'edgesVisible',
+					$elm$json$Json$Encode$bool(edgesVisible))
 				]),
 			_List_Nil);
 	});
-var $author$project$Main$viewMain = F5(
-	function (viewMode, tactic, showSpreadsheet, workdayMode, items) {
+var $author$project$Main$viewMain = F6(
+	function (viewMode, tactic, showSpreadsheet, workdayMode, edgesVisible, items) {
 		if (viewMode.$ === 'NetworkView') {
-			return A3($author$project$Main$viewGraph, tactic, showSpreadsheet, items);
+			return A4($author$project$Main$viewGraph, tactic, showSpreadsheet, edgesVisible, items);
 		} else {
 			return A3($author$project$Main$viewCalendar, workdayMode, tactic, items);
 		}
 	});
 var $author$project$Main$ToggleShowSpreadsheet = {$: 'ToggleShowSpreadsheet'};
-var $elm$html$Html$button = _VirtualDom_node('button');
 var $author$project$Main$viewSpreadsheetToggle = function (showSpreadsheet) {
 	return A2(
 		$elm$html$Html$div,
@@ -9062,7 +9099,7 @@ var $author$project$Main$view = function (model) {
 				var _v0 = $author$project$Main$itemsResult;
 				if (_v0.$ === 'Ok') {
 					var items = _v0.a;
-					return A5($author$project$Main$viewMain, model.viewMode, model.tactic, showSpreadsheet, model.workdayMode, items);
+					return A6($author$project$Main$viewMain, model.viewMode, model.tactic, showSpreadsheet, model.workdayMode, model.edgesVisible, items);
 				} else {
 					var error = _v0.a;
 					return A2(
@@ -9077,7 +9114,8 @@ var $author$project$Main$view = function (model) {
 			}(),
 				$author$project$Main$viewDownloads,
 				_Utils_eq(model.tactic, $author$project$Main$Midpoint) ? $author$project$Main$viewSpreadsheetToggle(model.showSpreadsheet) : $elm$html$Html$text(''),
-				_Utils_eq(model.viewMode, $author$project$Main$CalendarView) ? $author$project$Main$viewWorkdayModeSelect(model.workdayMode) : $elm$html$Html$text('')
+				_Utils_eq(model.viewMode, $author$project$Main$CalendarView) ? $author$project$Main$viewWorkdayModeSelect(model.workdayMode) : $elm$html$Html$text(''),
+				_Utils_eq(model.viewMode, $author$project$Main$NetworkView) ? $author$project$Main$viewEdgesToggle(model.edgesVisible) : $elm$html$Html$text('')
 			]),
 		title: 'AC Tasks'
 	};
