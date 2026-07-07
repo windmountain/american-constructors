@@ -7413,9 +7413,9 @@ var $author$project$Main$actualWorkDayKeys = F2(
 					A2($author$project$Main$dayIndex, $author$project$Main$projectStart.month, $author$project$Main$projectStart.day)) > -1;
 			});
 		var step = F3(
-			function (month, day, _v0) {
-				var acc = _v0.a;
-				var remaining = _v0.b;
+			function (month, day, _v1) {
+				var acc = _v1.a;
+				var remaining = _v1.b;
 				if ((remaining <= 0) || (!A2(onOrAfterStart, month, day))) {
 					return _Utils_Tuple2(acc, remaining);
 				} else {
@@ -7428,7 +7428,7 @@ var $author$project$Main$actualWorkDayKeys = F2(
 						remaining - 1) : _Utils_Tuple2(acc, remaining);
 				}
 			});
-		return A3(
+		var _v0 = A3(
 			$elm$core$List$foldl,
 			F2(
 				function (month, acc) {
@@ -7439,7 +7439,10 @@ var $author$project$Main$actualWorkDayKeys = F2(
 						A2($elm$core$List$range, 1, month.daysInMonth));
 				}),
 			_Utils_Tuple2($elm$core$Set$empty, neededCount),
-			$author$project$Main$calendarMonths).a;
+			$author$project$Main$calendarMonths);
+		var keys = _v0.a;
+		var leftover = _v0.b;
+		return {keys: keys, overflowed: leftover > 0};
 	});
 var $author$project$Main$itemDependsOn = function (item) {
 	if (item.$ === 'TaskItem') {
@@ -8402,6 +8405,16 @@ var $author$project$Main$dayCell = F5(
 		var isDesiredFinish = _Utils_eq(monthName, $author$project$Main$desiredFinish.month) && _Utils_eq(
 			day,
 			$elm$core$Maybe$Just($author$project$Main$desiredFinish.day));
+		var isAfterDesiredFinish = function () {
+			if (day.$ === 'Nothing') {
+				return false;
+			} else {
+				var d = day.a;
+				return _Utils_cmp(
+					A2($author$project$Main$dayIndex, monthName, d),
+					A2($author$project$Main$dayIndex, $author$project$Main$desiredFinish.month, $author$project$Main$desiredFinish.day)) > 0;
+			}
+		}();
 		var isActualWorkDay = function () {
 			if (day.$ === 'Nothing') {
 				return false;
@@ -8430,7 +8443,7 @@ var $author$project$Main$dayCell = F5(
 					A2(
 					$elm$html$Html$Attributes$style,
 					'background',
-					isActualWorkDay ? '#60a5fa' : (isWorkingDay ? '#dbeafe' : ((isWeekend || isHoliday) ? '#e5e7eb' : 'transparent')))
+					(isActualWorkDay && isAfterDesiredFinish) ? '#fecaca' : (isActualWorkDay ? '#60a5fa' : (isWorkingDay ? '#dbeafe' : ((isWeekend || isHoliday) ? '#e5e7eb' : 'transparent'))))
 				]),
 			_List_fromArray(
 				[
@@ -8477,6 +8490,20 @@ var $author$project$Main$monthCells = function (month) {
 		cells,
 		(!remainder) ? _List_Nil : A2($elm$core$List$repeat, 7 - remainder, $elm$core$Maybe$Nothing));
 };
+var $author$project$Main$overflowCell = A2(
+	$elm$html$Html$div,
+	_List_fromArray(
+		[
+			A2($elm$html$Html$Attributes$style, 'text-align', 'center'),
+			A2($elm$html$Html$Attributes$style, 'padding', '6px'),
+			A2($elm$html$Html$Attributes$style, 'border', '1px solid #d1d5db'),
+			A2($elm$html$Html$Attributes$style, 'color', '#dc2626'),
+			A2($elm$html$Html$Attributes$style, 'font-size', '11px')
+		]),
+	_List_fromArray(
+		[
+			$elm$html$Html$text('(and beyond!)')
+		]));
 var $author$project$Main$weekdayHeaderCell = function (label_) {
 	return A2(
 		$elm$html$Html$div,
@@ -8493,8 +8520,13 @@ var $author$project$Main$weekdayHeaderCell = function (label_) {
 };
 var $author$project$Main$weekdayLabels = _List_fromArray(
 	['S', 'M', 'T', 'W', 'T', 'F', 'S']);
-var $author$project$Main$viewMonth = F3(
-	function (workdayMode, actualWorkDays, month) {
+var $author$project$Main$viewMonth = F4(
+	function (workdayMode, actualWorkDays, overflowed, month) {
+		var overflowIndex = month.firstWeekday + month.daysInMonth;
+		var renderCell = F2(
+			function (index, day) {
+				return (overflowed && ((month.name === 'December') && _Utils_eq(index, overflowIndex))) ? $author$project$Main$overflowCell : A5($author$project$Main$dayCell, month.name, workdayMode, actualWorkDays, index, day);
+			});
 		return A2(
 			$elm$html$Html$div,
 			_List_Nil,
@@ -8523,13 +8555,13 @@ var $author$project$Main$viewMonth = F3(
 						A2($elm$core$List$map, $author$project$Main$weekdayHeaderCell, $author$project$Main$weekdayLabels),
 						A2(
 							$elm$core$List$indexedMap,
-							A3($author$project$Main$dayCell, month.name, workdayMode, actualWorkDays),
+							renderCell,
 							$author$project$Main$monthCells(month))))
 				]));
 	});
 var $author$project$Main$viewCalendar = F3(
 	function (workdayMode, tactic, items) {
-		var actualWorkDays = A2(
+		var actualWork = A2(
 			$author$project$Main$actualWorkDayKeys,
 			workdayMode,
 			$elm$core$Basics$ceiling(
@@ -8554,7 +8586,7 @@ var $author$project$Main$viewCalendar = F3(
 						]),
 					A2(
 						$elm$core$List$map,
-						A2($author$project$Main$viewMonth, workdayMode, actualWorkDays),
+						A3($author$project$Main$viewMonth, workdayMode, actualWork.keys, actualWork.overflowed),
 						$author$project$Main$calendarMonths))
 				]));
 	});

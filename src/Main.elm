@@ -486,12 +486,12 @@ criticalDuration tactic items =
 calendar day by day counting only working days (per the selected workday
 mode), marking each one as an actual work day until `neededCount` of them
 have been marked. Can run past the desired finish date into the calendar's
-remaining days if the critical duration is long enough; if it's long
-enough to run past the last day on the calendar (2009-12-31), the extra
-days are simply not shown, since this calendar never shows any other
-period.
+remaining days; if the critical duration is long enough to run past the
+last day on the calendar (2009-12-31), `overflowed` is set so the caller
+can show a continuation marker instead of the missing days themselves,
+since this calendar never shows any other period.
 -}
-actualWorkDayKeys : WorkdayMode -> Int -> Set String
+actualWorkDayKeys : WorkdayMode -> Int -> { keys : Set String, overflowed : Bool }
 actualWorkDayKeys workdayMode neededCount =
     let
         onOrAfterStart : MonthSpec -> Int -> Bool
@@ -513,19 +513,21 @@ actualWorkDayKeys workdayMode neededCount =
 
                 else
                     ( acc, remaining )
+
+        ( keys, leftover ) =
+            calendarMonths
+                |> List.foldl
+                    (\month acc -> List.foldl (step month) acc (List.range 1 month.daysInMonth))
+                    ( Set.empty, neededCount )
     in
-    calendarMonths
-        |> List.foldl
-            (\month acc -> List.foldl (step month) acc (List.range 1 month.daysInMonth))
-            ( Set.empty, neededCount )
-        |> Tuple.first
+    { keys = keys, overflowed = leftover > 0 }
 
 
 viewCalendar : WorkdayMode -> Tactic -> List Item -> Html msg
 viewCalendar workdayMode tactic items =
     let
-        actualWorkDays : Set String
-        actualWorkDays =
+        actualWork : { keys : Set String, overflowed : Bool }
+        actualWork =
             actualWorkDayKeys workdayMode (ceiling (criticalDuration tactic items))
     in
     div
@@ -537,7 +539,7 @@ viewCalendar workdayMode tactic items =
             , style "gap" "40px"
             , style "padding" "24px 48px"
             ]
-            (List.map (viewMonth workdayMode actualWorkDays) calendarMonths)
+            (List.map (viewMonth workdayMode actualWork.keys actualWork.overflowed) calendarMonths)
         ]
 
 
@@ -554,8 +556,27 @@ viewCalendarHeader workdayMode =
         ]
 
 
-viewMonth : WorkdayMode -> Set String -> MonthSpec -> Html msg
-viewMonth workdayMode actualWorkDays month =
+viewMonth : WorkdayMode -> Set String -> Bool -> MonthSpec -> Html msg
+viewMonth workdayMode actualWorkDays overflowed month =
+    let
+        {- The grid position right after the month's last real day - for
+           December, that's the tile that would otherwise sit at 2010-01-01.
+           Rather than show a date from the next year, that single tile is
+           repurposed as a continuation marker when the actual work days run
+           past the visible calendar.
+        -}
+        overflowIndex : Int
+        overflowIndex =
+            month.firstWeekday + month.daysInMonth
+
+        renderCell : Int -> Maybe Int -> Html msg
+        renderCell index day =
+            if overflowed && month.name == "December" && index == overflowIndex then
+                overflowCell
+
+            else
+                dayCell month.name workdayMode actualWorkDays index day
+    in
     div []
         [ div
             [ style "text-align" "center"
@@ -567,8 +588,20 @@ viewMonth workdayMode actualWorkDays month =
             [ style "display" "grid"
             , style "grid-template-columns" "repeat(7, 1fr)"
             ]
-            (List.map weekdayHeaderCell weekdayLabels ++ List.indexedMap (dayCell month.name workdayMode actualWorkDays) (monthCells month))
+            (List.map weekdayHeaderCell weekdayLabels ++ List.indexedMap renderCell (monthCells month))
         ]
+
+
+overflowCell : Html msg
+overflowCell =
+    div
+        [ style "text-align" "center"
+        , style "padding" "6px"
+        , style "border" "1px solid #d1d5db"
+        , style "color" "#dc2626"
+        , style "font-size" "11px"
+        ]
+        [ text "(and beyond!)" ]
 
 
 weekdayHeaderCell : String -> Html msg
@@ -640,6 +673,15 @@ dayCell monthName workdayMode actualWorkDays index day =
 
                 Just d ->
                     Set.member (dayKey monthName d) actualWorkDays
+
+        isAfterDesiredFinish : Bool
+        isAfterDesiredFinish =
+            case day of
+                Nothing ->
+                    False
+
+                Just d ->
+                    dayIndex monthName d > dayIndex desiredFinish.month desiredFinish.day
     in
     div
         [ style "text-align" "center"
@@ -662,7 +704,10 @@ dayCell monthName workdayMode actualWorkDays index day =
                 "normal"
             )
         , style "background"
-            (if isActualWorkDay then
+            (if isActualWorkDay && isAfterDesiredFinish then
+                "#fecaca"
+
+             else if isActualWorkDay then
                 "#60a5fa"
 
              else if isWorkingDay then
