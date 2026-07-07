@@ -9017,7 +9017,7 @@ var $author$project$Main$viewWorkdayModeSelect = function (current) {
 					]),
 				_List_fromArray(
 					[
-						$elm$html$Html$text('working day comparison: ')
+						$elm$html$Html$text('working day assumption: ')
 					])),
 				A2(
 				$elm$html$Html$select,
