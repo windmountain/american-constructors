@@ -475,14 +475,14 @@ itemFields schedule showSpreadsheet item =
                 [ ( "name", Encode.string task.name )
                 , ( "section", Encode.string task.section )
                 , ( "estimate", Encode.string (estimateText task.estimate) )
-                , ( "es", Encode.string (Format.formatDays (scheduleEs schedule task.id) ++ "d") )
-                , ( "ef", Encode.string (Format.formatDays (scheduleEf schedule task.id) ++ "d") )
-                , ( "lf", Encode.string (Format.formatDays (scheduleLf schedule task.id) ++ "d") )
-                , ( "ls", Encode.string (Format.formatDays (scheduleLs schedule task.id) ++ "d") )
-                , ( "sEs", Encode.string (Format.formatDays task.spreadsheetEs ++ "d") )
-                , ( "sEf", Encode.string (Format.formatDays task.spreadsheetEf ++ "d") )
-                , ( "sLf", Encode.string (Format.formatDays task.spreadsheetLf ++ "d") )
-                , ( "sLs", Encode.string (Format.formatDays task.spreadsheetLs ++ "d") )
+                , ( "es", Encode.string (Format.formatDays (scheduleEs schedule task.id)) )
+                , ( "ef", Encode.string (Format.formatDays (scheduleEf schedule task.id)) )
+                , ( "lf", Encode.string (Format.formatDays (scheduleLf schedule task.id)) )
+                , ( "ls", Encode.string (Format.formatDays (scheduleLs schedule task.id)) )
+                , ( "sEs", Encode.string (Format.formatDays task.spreadsheetEs) )
+                , ( "sEf", Encode.string (Format.formatDays task.spreadsheetEf) )
+                , ( "sLf", Encode.string (Format.formatDays task.spreadsheetLf) )
+                , ( "sLs", Encode.string (Format.formatDays task.spreadsheetLs) )
                 , ( "showSpreadsheet", Encode.bool showSpreadsheet )
                 ]
             }
@@ -492,7 +492,19 @@ itemFields schedule showSpreadsheet item =
             , label = itemLabel schedule milestone.id [ "[" ++ milestone.section ++ "]", milestone.name ]
             , dependsOn = milestone.dependsOn
             , kind = "milestone"
-            , card = []
+            , card =
+                [ ( "name", Encode.string milestone.name )
+                , ( "section", Encode.string milestone.section )
+                , ( "es", Encode.string (Format.formatDays (scheduleEs schedule milestone.id)) )
+                , ( "ef", Encode.string (Format.formatDays (scheduleEf schedule milestone.id)) )
+                , ( "lf", Encode.string (Format.formatDays (scheduleLf schedule milestone.id)) )
+                , ( "ls", Encode.string (Format.formatDays (scheduleLs schedule milestone.id)) )
+                , ( "sEs", Encode.string (Format.formatDays milestone.spreadsheetEs) )
+                , ( "sEf", Encode.string (Format.formatDays milestone.spreadsheetEf) )
+                , ( "sLf", Encode.string (Format.formatDays milestone.spreadsheetLf) )
+                , ( "sLs", Encode.string (Format.formatDays milestone.spreadsheetLs) )
+                , ( "showSpreadsheet", Encode.bool showSpreadsheet )
+                ]
             }
 
 
@@ -505,29 +517,24 @@ scheduleText : Schedule -> TaskId -> String
 scheduleText schedule taskId =
     "ES "
         ++ Format.formatDays (scheduleEs schedule taskId)
-        ++ "d"
         ++ "  EF "
         ++ Format.formatDays (scheduleEf schedule taskId)
-        ++ "d"
         ++ "  LF "
         ++ Format.formatDays (scheduleLf schedule taskId)
-        ++ "d"
         ++ "  LS "
         ++ Format.formatDays (scheduleLs schedule taskId)
-        ++ "d"
         ++ "  Slack "
         ++ Format.formatDays (scheduleSlack schedule taskId)
-        ++ "d"
 
 
 estimateText : Estimate -> String
 estimateText estimate =
     case estimate of
         Point days ->
-            Format.formatDays days ++ "d"
+            Format.formatDays days
 
         Range low high ->
-            Format.formatDays low ++ "-" ++ Format.formatDays high ++ "d"
+            Format.formatDays low ++ "-" ++ Format.formatDays high
 
 
 {-| Earliest/latest start times for every item, computed once per (tactic, items)

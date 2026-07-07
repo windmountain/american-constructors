@@ -18,34 +18,43 @@ class TaskCard extends HTMLElement {
         width: 200px;
         box-sizing: border-box;
         border-radius: 6px;
+        font: 24px/1.35 -apple-system, BlinkMacSystemFont, sans-serif;
+        overflow: hidden;
+      }
+      .card.task {
+        --divider: rgba(255, 255, 255, 0.35);
         background: #3b82f6;
         color: #ffffff;
         border: 1px solid #1d4ed8;
-        font: 12px/1.35 -apple-system, BlinkMacSystemFont, sans-serif;
-        overflow: hidden;
       }
-      .card.critical { border: 4px solid #dc2626; }
+      .card.milestone {
+        --divider: rgba(17, 24, 39, 0.15);
+        background: #e5e7eb;
+        color: #111827;
+        border: 1px solid #9ca3af;
+      }
+      .card.critical { outline: 10px solid #dc2626; }
       .grid-row {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
-        border-top: 1px solid rgba(255, 255, 255, 0.35);
+        border-top: 1px solid var(--divider);
       }
       .grid-row:first-child { border-top: none; }
       .cell {
         padding: 3px 2px;
         text-align: center;
-        border-left: 1px solid rgba(255, 255, 255, 0.35);
+        border-left: 1px solid var(--divider);
       }
       .cell:first-child { border-left: none; }
       .cell .label {
-        font-size: 9px;
+        font-size: 10px;
         text-transform: uppercase;
         letter-spacing: 0.03em;
         opacity: 0.75;
       }
-      .cell .value { font-size: 12px; font-weight: 600; }
+      .cell .value { font-size: 24px; font-weight: 600; }
       .middle-row {
-        border-top: 1px solid rgba(255, 255, 255, 0.35);
+        border-top: 1px solid var(--divider);
         padding: 6px 8px;
         text-align: center;
       }
@@ -55,18 +64,19 @@ class TaskCard extends HTMLElement {
         font-size: 10px;
         opacity: 0.85;
       }
-      .name { font-weight: 600; margin-top: 2px; }
+      .name { font-size: 12px; font-weight: 600; margin-top: 2px; }
       .spreadsheet-schedule {
-        border-top: 1px solid rgba(255, 255, 255, 0.35);
+        border-top: 1px solid var(--divider);
         padding: 4px 6px;
         text-align: center;
-        font-size: 10px;
+        font-size: 20px;
         opacity: 0.9;
       }
     `;
 
+    const kind = d.kind === "milestone" ? "milestone" : "task";
     const card = document.createElement("div");
-    card.className = critical ? "card critical" : "card";
+    card.className = `card ${kind}${critical ? " critical" : ""}`;
 
     const topRow = gridRow([
       ["ES", d.es],

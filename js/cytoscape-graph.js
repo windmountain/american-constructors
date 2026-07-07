@@ -21,6 +21,7 @@ function escapeAttr(value) {
 function taskCardTpl(data) {
   return (
     `<task-card` +
+    ` data-kind="${escapeAttr(data.kind)}"` +
     ` data-name="${escapeAttr(data.name)}"` +
     ` data-section="${escapeAttr(data.section)}"` +
     ` data-estimate="${escapeAttr(data.estimate)}"` +
@@ -41,6 +42,7 @@ function taskCardTpl(data) {
 class CytoscapeGraph extends HTMLElement {
   connectedCallback() {
     this.style.display = "block";
+    this.style.position = "relative";
     this.style.width = "100%";
     this.style.height = "100vh";
     const initialElements = this._pendingElements || [];
@@ -57,6 +59,7 @@ class CytoscapeGraph extends HTMLElement {
           style: {
             label: "data(label)",
             shape: "round-rectangle",
+            "corner-radius": 6,
             "text-wrap": "wrap",
             "text-max-width": "160px",
             "text-valign": "center",
@@ -65,14 +68,15 @@ class CytoscapeGraph extends HTMLElement {
             height: "label",
             padding: "12px",
             "background-color": "#e5e7eb",
-            "border-width": 1,
+            "border-width": 2,
             "border-color": "#9ca3af",
+            "font-family": "-apple-system, BlinkMacSystemFont, sans-serif",
             "font-size": 12,
             color: "#111827",
           },
         },
         {
-          selector: "node[kind = 'task']",
+          selector: "node[kind = 'task'], node[kind = 'milestone']",
           style: {
             label: "",
             width: 200,
@@ -83,16 +87,20 @@ class CytoscapeGraph extends HTMLElement {
           },
         },
         {
-          selector: "node[slack <= 0.001][kind != 'task']",
-          style: { "border-width": 4, "border-color": "#dc2626" },
+          selector: "edge",
+          style: {
+            "target-arrow-shape": "triangle",
+            "curve-style": "bezier",
+            width: 6,
+            "arrow-scale": 1.5,
+          },
         },
-        { selector: "edge", style: { "target-arrow-shape": "triangle", "curve-style": "bezier" } },
       ],
     });
     this._cy.nodeHtmlLabel(
       [
         {
-          query: "node[kind = 'task']",
+          query: "node[kind = 'task'], node[kind = 'milestone']",
           halign: "center",
           valign: "center",
           halignBox: "center",
@@ -102,6 +110,17 @@ class CytoscapeGraph extends HTMLElement {
       ],
       { enablePointerEvents: true },
     );
+
+    const caption = document.createElement("div");
+    caption.textContent = "Numbers are workdays days after today, September 14, 2009";
+    caption.style.position = "absolute";
+    caption.style.top = "12px";
+    caption.style.left = "16px";
+    caption.style.zIndex = "10";
+    caption.style.font = "12px -apple-system, BlinkMacSystemFont, sans-serif";
+    caption.style.color = "#6b7280";
+    caption.style.pointerEvents = "none";
+    this.appendChild(caption);
   }
 
   set elements(value) {
