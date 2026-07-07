@@ -565,7 +565,7 @@ viewOnTimeSummary daysToSpare =
         ]
         [ text
             (if daysToSpare < 0 then
-                "The project will not be done on time."
+                "The project will not be done on time. It will be " ++ String.fromInt (negate daysToSpare) ++ " days late."
 
              else
                 "The project will be done on time with " ++ String.fromInt daysToSpare ++ " days to spare."
@@ -854,7 +854,7 @@ viewWorkdayModeSelect current =
         , style "font-family" "-apple-system, BlinkMacSystemFont, sans-serif"
         , style "font-size" "12px"
         ]
-        [ label [ for "workday-mode-select" ] [ text "working day comparison: " ]
+        [ label [ for "workday-mode-select" ] [ text "working day assumption: " ]
         , select [ id "workday-mode-select", onInput (workdayModeFromString >> Maybe.withDefault current >> SetWorkdayMode) ]
             [ option [ value "conservative", selected (current == Conservative) ] [ text "Conservative" ]
             , option [ value "aggressive", selected (current == Aggressive) ] [ text "Aggressive" ]
