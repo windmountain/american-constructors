@@ -44,8 +44,6 @@ type alias Task =
     , dependsOn : List TaskId
     , estimate : Estimate
     , isEffectiveEnd : Bool
-    , weatherDependent : Bool
-    , canExpedite : Bool
     , spreadsheetEs : Float
     , spreadsheetEf : Float
     , spreadsheetLf : Float
@@ -60,8 +58,6 @@ type alias Milestone =
     , name : String
     , dependsOn : List TaskId
     , isEffectiveEnd : Bool
-    , weatherDependent : Bool
-    , canExpedite : Bool
     , spreadsheetEs : Float
     , spreadsheetEf : Float
     , spreadsheetLf : Float
@@ -82,8 +78,6 @@ type alias RawFields =
     , dependsOn : List TaskId
     , estimate : Maybe Estimate
     , isEffectiveEnd : Bool
-    , weatherDependent : Bool
-    , canExpedite : Bool
     , spreadsheetEs : Float
     , spreadsheetEf : Float
     , spreadsheetLf : Float
@@ -101,8 +95,6 @@ itemDecoder =
         |> Decode.pipeline dependsOnDecoder
         |> Decode.pipeline estimateDecoder
         |> Decode.pipeline (yesNoDecoder "Effective End")
-        |> Decode.pipeline (yesNoDecoder "Weather-dependent")
-        |> Decode.pipeline (yesNoDecoder "Can Expedite")
         |> Decode.pipeline (requiredFloatField "ES")
         |> Decode.pipeline (requiredFloatField "EF")
         |> Decode.pipeline (requiredFloatField "LF")
@@ -122,8 +114,6 @@ toItem fields =
                 , dependsOn = fields.dependsOn
                 , estimate = estimate
                 , isEffectiveEnd = fields.isEffectiveEnd
-                , weatherDependent = fields.weatherDependent
-                , canExpedite = fields.canExpedite
                 , spreadsheetEs = fields.spreadsheetEs
                 , spreadsheetEf = fields.spreadsheetEf
                 , spreadsheetLf = fields.spreadsheetLf
@@ -138,8 +128,6 @@ toItem fields =
                 , name = fields.name
                 , dependsOn = fields.dependsOn
                 , isEffectiveEnd = fields.isEffectiveEnd
-                , weatherDependent = fields.weatherDependent
-                , canExpedite = fields.canExpedite
                 , spreadsheetEs = fields.spreadsheetEs
                 , spreadsheetEf = fields.spreadsheetEf
                 , spreadsheetLf = fields.spreadsheetLf

@@ -55,7 +55,7 @@ P0,overall,Now,,,,,,,,,,,09/24/2009,0,0,0,0,0,0
 P2,overall,Architect’s punch list tasks,P5,,,,,5,10,,,,,7.5,74,81.5,81.5,74,0
 P3,overall,Inform architect of close out responsibilities,P0,,,,,,,,,,,0,0,0,48,48,48
 P4,overall,Items completed by architecture firm,P3,,,,,14,28,,,,,21,0,21,69,48,48
-P5,overall,fire marshal’s inspection,P9,P4,,,5,,,,,,,5,69,74,74,69,0
+P5,overall,fire marshal’s inspection,P4,P9,,,5,,,,,,,5,69,74,74,69,0
 P6,overall,sign general guarantee and warranty,P2,,,,,0.5,1,,,,,0.75,81.5,82.25,82.25,81.5,0
 P7,overall,sign final release of lien,P2,,,,,,,,,,,0,81.5,81.5,82.25,82.25,0.75
 P9,overall,cleanup and ACI punch list,P15,,,,4,,,,,,,4,65,69,69,65,0

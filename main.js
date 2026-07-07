@@ -5577,7 +5577,7 @@ var $BrianHicks$elm_csv$Csv$Decode$errorToString = function (error) {
 	}
 };
 var $BrianHicks$elm_csv$Csv$Decode$FieldNamesFromFirstRow = {$: 'FieldNamesFromFirstRow'};
-var $author$project$Data$csvData = 'Id,Section,Name,Deps on (1),Deps on (2),Deps on (3),Deps on (4),Estimate,Low Estimate,High Estimate,Effective End,Weather-dependent,Can Expedite,Date,Duration,ES,EF,LF,LS,Slack\nT0,terrace,terrace start,P0,,,,,,,,,,,0,0,0,19.5,19.5,19.5\nT1,terrace,window surrounds,T0,,,,8,,,,,,,8,0,8,27.5,19.5,19.5\nT2,terrace,waterproofing,T1,,,,7,,,,,,,7,8,15,34.5,27.5,19.5\nT3,terrace,insulation,T2,,,,3,,,,,,,3,15,18,37.5,34.5,19.5\nT4,terrace,deck concrete,T3,,,,,5,10,,yes,,,7.5,18,25.5,45,37.5,19.5\nT5,terrace,stairs concrete,T4,,,,10,,,,,yes,,10,25.5,35.5,55,45,19.5\nT6,terrace,aluminum rails,T4,,,,5,,,,,,,5,25.5,30.5,55,50,24.5\nT7,terrace,masonry,T6,T5,,,10,,,,,,,10,35.5,45.5,65,55,19.5\nB0,bookstore,bookstore start,P0,,,,,,,,,,,0,0,0,0,0,0\nB1,bookstore,drywall,B0,,,,,21,23,,,,,22,0,22,22,0,0\nB2,bookstore,hard tile,B1,,,,10,,,,,,,10,22,32,42,32,10\nB3,bookstore,stone columns,B1,,,,5,,,,,,,5,22,27,42,37,15\nB4,bookstore,millwork,B1,,,,,15,21,,,yes,,18,22,40,40,22,0\nB5,bookstore,casework,B4,,,,5,,,,,,,5,40,45,45,40,0\nB6,bookstore,flooring,B5,,,,10,,,,,,,10,45,55,55,45,0\nB7,bookstore,glass installation,B3,B2,,,3,,,,,,,3,32,35,45,42,10\nB8,bookstore,painting,B7,,,,10,,,,,,,10,35,45,55,45,10\nB9,bookstore,doors and hardware,B8,B6,,,,5,8,,,,,6.5,55,61.5,65,58.5,3.5\nB10,bookstore,MEP,B8,B6,,,10,,,,,,,10,55,65,65,55,0\nS0,sanctuary,sanctuary start,P0,,,,,,,,,,,0,0,0,3,3,3\nS1,sanctuary,drywall,S0,,,,16,,,,,,,16,0,16,45,29,29\nS2,sanctuary,core drill for rails,S0,,,,2,,,,,,,2,0,2,5,3,3\nS3,sanctuary,install rails,S2,,,,5,,,,,,,5,2,7,60,55,53\nS4,sanctuary,install carpeting at seats,S2,,,,15,,,,,,,15,2,17,20,5,3\nS5,sanctuary,carpeting at rails,S3,,,,5,,,,,,,5,7,12,65,60,53\nS6,sanctuary,"wood paneling, trim and stage",S4,,,,25,,,,,,,25,17,42,45,20,3\nS7,sanctuary,painting,S10,S8,S4,,20,,,,,,,20,17,37,58.5,38.5,21.5\nS8,sanctuary,concrete floor staining,S10,,,,5,,,,,,,5,7,12,38.5,33.5,26.5\nS9,sanctuary,installation of seats,S1,S6,,,20,,,,,,,20,42,62,65,45,3\nS10,sanctuary,wood stage steps,S2,,,,5,,,,,,,5,2,7,33.5,28.5,26.5\nS11,sanctuary,"install carpet (steps, flats, aisles)",S10,,,,5,,,,,,,5,7,12,65,60,53\nS12,sanctuary,install doors and hardware,S7,S6,,,,5,8,,,,,6.5,42,48.5,65,58.5,16.5\nL0,lobby,lobby start,P0,,,,,,,,,,,0,0,0,26.5,26.5,26.5\nL1,lobby,millwork for reception,L0,,,,3,,,,,,,3,0,3,29.5,26.5,26.5\nL2,lobby,millwork for walls and rails,L0,,,,10,,,,,,,10,0,10,45,35,35\nL3,lobby,hard ceiling,L0,,,,15,,,,,,,15,0,15,45,30,30\nL4,lobby,install drywall,L0,,,,15,,,,,,,15,0,15,45,30,30\nL5,lobby,painting,L4,L3,L2,,5,,,,,,,5,15,20,50,45,30\nL6,lobby,concrete for carpet areas,L1,,,,,5,8,,,,,6.5,3,9.5,36,29.5,26.5\nL7,lobby,hard tile,L4,,,,5,,,,,,,5,15,20,82.25,77.25,62.25\nL8,lobby,wood flooring install,L6,,,,,20,28,,,"yes, formalize acclimatization precisely",,24,9.5,33.5,60,36,26.5\nL9,lobby,"other floors, carpeting",L8,,,,5,,,,,,,5,33.5,38.5,65,60,26.5\nL10,lobby,public restrooms,L3,L4,,,9,,,,,,,9,15,24,55,46,31\nL11,lobby,glass and chandeliers,L3,L4,,,3,,,,,,,3,15,18,82.25,79.25,64.25\nL12,lobby,ceiling tiles,L5,,,,5,,,,,,,5,20,25,55,50,30\nL13,lobby,doors and hardware,L12,L10,,,10,,,,,,,10,25,35,65,55,30\nL14,lobby,MEP,L12,L10,,,10,,,,,,,10,25,35,65,55,30\nP0,overall,Now,,,,,,,,,,,09/24/2009,0,0,0,0,0,0\nP2,overall,Architect’s punch list tasks,P5,,,,,5,10,,,,,7.5,74,81.5,81.5,74,0\nP3,overall,Inform architect of close out responsibilities,P0,,,,,,,,,,,0,0,0,48,48,48\nP4,overall,Items completed by architecture firm,P3,,,,,14,28,,,,,21,0,21,69,48,48\nP5,overall,fire marshal’s inspection,P9,P4,,,5,,,,,,,5,69,74,74,69,0\nP6,overall,sign general guarantee and warranty,P2,,,,,0.5,1,,,,,0.75,81.5,82.25,82.25,81.5,0\nP7,overall,sign final release of lien,P2,,,,,,,,,,,0,81.5,81.5,82.25,82.25,0.75\nP9,overall,cleanup and ACI punch list,P15,,,,4,,,,,,,4,65,69,69,65,0\nP10,overall,lobby done,L14,L13,L9,,,,,,,,,0,38.5,38.5,65,65,26.5\nP11,overall,sanctuary done,S11,S12,S9,S5,,,,,,,,0,62,62,65,65,3\nP12,overall,terrace done,T7,,,,,,,,,,,0,45.5,45.5,65,65,19.5\nP14,overall,bookstore done,B9,B10,,,,,,,,,,0,65,65,65,65,0\nP15,overall,all sections done,P14,P11,P10,P12,,,,,,,,0,65,65,65,65,0\nP16,overall,occupancy permitted,P5,,,,,,,yes,,,,0,74,74,82.25,82.25,8.25';
+var $author$project$Data$csvData = 'Id,Section,Name,Deps on (1),Deps on (2),Deps on (3),Deps on (4),Estimate,Low Estimate,High Estimate,Effective End,Weather-dependent,Can Expedite,Date,Duration,ES,EF,LF,LS,Slack\nT0,terrace,terrace start,P0,,,,,,,,,,,0,0,0,19.5,19.5,19.5\nT1,terrace,window surrounds,T0,,,,8,,,,,,,8,0,8,27.5,19.5,19.5\nT2,terrace,waterproofing,T1,,,,7,,,,,,,7,8,15,34.5,27.5,19.5\nT3,terrace,insulation,T2,,,,3,,,,,,,3,15,18,37.5,34.5,19.5\nT4,terrace,deck concrete,T3,,,,,5,10,,yes,,,7.5,18,25.5,45,37.5,19.5\nT5,terrace,stairs concrete,T4,,,,10,,,,,yes,,10,25.5,35.5,55,45,19.5\nT6,terrace,aluminum rails,T4,,,,5,,,,,,,5,25.5,30.5,55,50,24.5\nT7,terrace,masonry,T6,T5,,,10,,,,,,,10,35.5,45.5,65,55,19.5\nB0,bookstore,bookstore start,P0,,,,,,,,,,,0,0,0,0,0,0\nB1,bookstore,drywall,B0,,,,,21,23,,,,,22,0,22,22,0,0\nB2,bookstore,hard tile,B1,,,,10,,,,,,,10,22,32,42,32,10\nB3,bookstore,stone columns,B1,,,,5,,,,,,,5,22,27,42,37,15\nB4,bookstore,millwork,B1,,,,,15,21,,,yes,,18,22,40,40,22,0\nB5,bookstore,casework,B4,,,,5,,,,,,,5,40,45,45,40,0\nB6,bookstore,flooring,B5,,,,10,,,,,,,10,45,55,55,45,0\nB7,bookstore,glass installation,B3,B2,,,3,,,,,,,3,32,35,45,42,10\nB8,bookstore,painting,B7,,,,10,,,,,,,10,35,45,55,45,10\nB9,bookstore,doors and hardware,B8,B6,,,,5,8,,,,,6.5,55,61.5,65,58.5,3.5\nB10,bookstore,MEP,B8,B6,,,10,,,,,,,10,55,65,65,55,0\nS0,sanctuary,sanctuary start,P0,,,,,,,,,,,0,0,0,3,3,3\nS1,sanctuary,drywall,S0,,,,16,,,,,,,16,0,16,45,29,29\nS2,sanctuary,core drill for rails,S0,,,,2,,,,,,,2,0,2,5,3,3\nS3,sanctuary,install rails,S2,,,,5,,,,,,,5,2,7,60,55,53\nS4,sanctuary,install carpeting at seats,S2,,,,15,,,,,,,15,2,17,20,5,3\nS5,sanctuary,carpeting at rails,S3,,,,5,,,,,,,5,7,12,65,60,53\nS6,sanctuary,"wood paneling, trim and stage",S4,,,,25,,,,,,,25,17,42,45,20,3\nS7,sanctuary,painting,S10,S8,S4,,20,,,,,,,20,17,37,58.5,38.5,21.5\nS8,sanctuary,concrete floor staining,S10,,,,5,,,,,,,5,7,12,38.5,33.5,26.5\nS9,sanctuary,installation of seats,S1,S6,,,20,,,,,,,20,42,62,65,45,3\nS10,sanctuary,wood stage steps,S2,,,,5,,,,,,,5,2,7,33.5,28.5,26.5\nS11,sanctuary,"install carpet (steps, flats, aisles)",S10,,,,5,,,,,,,5,7,12,65,60,53\nS12,sanctuary,install doors and hardware,S7,S6,,,,5,8,,,,,6.5,42,48.5,65,58.5,16.5\nL0,lobby,lobby start,P0,,,,,,,,,,,0,0,0,26.5,26.5,26.5\nL1,lobby,millwork for reception,L0,,,,3,,,,,,,3,0,3,29.5,26.5,26.5\nL2,lobby,millwork for walls and rails,L0,,,,10,,,,,,,10,0,10,45,35,35\nL3,lobby,hard ceiling,L0,,,,15,,,,,,,15,0,15,45,30,30\nL4,lobby,install drywall,L0,,,,15,,,,,,,15,0,15,45,30,30\nL5,lobby,painting,L4,L3,L2,,5,,,,,,,5,15,20,50,45,30\nL6,lobby,concrete for carpet areas,L1,,,,,5,8,,,,,6.5,3,9.5,36,29.5,26.5\nL7,lobby,hard tile,L4,,,,5,,,,,,,5,15,20,82.25,77.25,62.25\nL8,lobby,wood flooring install,L6,,,,,20,28,,,"yes, formalize acclimatization precisely",,24,9.5,33.5,60,36,26.5\nL9,lobby,"other floors, carpeting",L8,,,,5,,,,,,,5,33.5,38.5,65,60,26.5\nL10,lobby,public restrooms,L3,L4,,,9,,,,,,,9,15,24,55,46,31\nL11,lobby,glass and chandeliers,L3,L4,,,3,,,,,,,3,15,18,82.25,79.25,64.25\nL12,lobby,ceiling tiles,L5,,,,5,,,,,,,5,20,25,55,50,30\nL13,lobby,doors and hardware,L12,L10,,,10,,,,,,,10,25,35,65,55,30\nL14,lobby,MEP,L12,L10,,,10,,,,,,,10,25,35,65,55,30\nP0,overall,Now,,,,,,,,,,,09/24/2009,0,0,0,0,0,0\nP2,overall,Architect’s punch list tasks,P5,,,,,5,10,,,,,7.5,74,81.5,81.5,74,0\nP3,overall,Inform architect of close out responsibilities,P0,,,,,,,,,,,0,0,0,48,48,48\nP4,overall,Items completed by architecture firm,P3,,,,,14,28,,,,,21,0,21,69,48,48\nP5,overall,fire marshal’s inspection,P4,P9,,,5,,,,,,,5,69,74,74,69,0\nP6,overall,sign general guarantee and warranty,P2,,,,,0.5,1,,,,,0.75,81.5,82.25,82.25,81.5,0\nP7,overall,sign final release of lien,P2,,,,,,,,,,,0,81.5,81.5,82.25,82.25,0.75\nP9,overall,cleanup and ACI punch list,P15,,,,4,,,,,,,4,65,69,69,65,0\nP10,overall,lobby done,L14,L13,L9,,,,,,,,,0,38.5,38.5,65,65,26.5\nP11,overall,sanctuary done,S11,S12,S9,S5,,,,,,,,0,62,62,65,65,3\nP12,overall,terrace done,T7,,,,,,,,,,,0,45.5,45.5,65,65,19.5\nP14,overall,bookstore done,B9,B10,,,,,,,,,,0,65,65,65,65,0\nP15,overall,all sections done,P14,P11,P10,P12,,,,,,,,0,65,65,65,65,0\nP16,overall,occupancy permitted,P5,,,,,,,yes,,,,0,74,74,82.25,82.25,8.25';
 var $BrianHicks$elm_csv$Csv$Decode$ParsingError = function (a) {
 	return {$: 'ParsingError', a: a};
 };
@@ -6402,16 +6402,12 @@ var $author$project$Main$RawFields = function (id) {
 			return function (dependsOn) {
 				return function (estimate) {
 					return function (isEffectiveEnd) {
-						return function (weatherDependent) {
-							return function (canExpedite) {
-								return function (spreadsheetEs) {
-									return function (spreadsheetEf) {
-										return function (spreadsheetLf) {
-											return function (spreadsheetLs) {
-												return function (spreadsheetSlack) {
-													return {canExpedite: canExpedite, dependsOn: dependsOn, estimate: estimate, id: id, isEffectiveEnd: isEffectiveEnd, name: name, section: section, spreadsheetEf: spreadsheetEf, spreadsheetEs: spreadsheetEs, spreadsheetLf: spreadsheetLf, spreadsheetLs: spreadsheetLs, spreadsheetSlack: spreadsheetSlack, weatherDependent: weatherDependent};
-												};
-											};
+						return function (spreadsheetEs) {
+							return function (spreadsheetEf) {
+								return function (spreadsheetLf) {
+									return function (spreadsheetLs) {
+										return function (spreadsheetSlack) {
+											return {dependsOn: dependsOn, estimate: estimate, id: id, isEffectiveEnd: isEffectiveEnd, name: name, section: section, spreadsheetEf: spreadsheetEf, spreadsheetEs: spreadsheetEs, spreadsheetLf: spreadsheetLf, spreadsheetLs: spreadsheetLs, spreadsheetSlack: spreadsheetSlack};
 										};
 									};
 								};
@@ -6950,10 +6946,10 @@ var $author$project$Main$toItem = function (fields) {
 	if (_v0.$ === 'Just') {
 		var estimate = _v0.a;
 		return $author$project$Main$TaskItem(
-			{canExpedite: fields.canExpedite, dependsOn: fields.dependsOn, estimate: estimate, id: fields.id, isEffectiveEnd: fields.isEffectiveEnd, name: fields.name, section: fields.section, spreadsheetEf: fields.spreadsheetEf, spreadsheetEs: fields.spreadsheetEs, spreadsheetLf: fields.spreadsheetLf, spreadsheetLs: fields.spreadsheetLs, spreadsheetSlack: fields.spreadsheetSlack, weatherDependent: fields.weatherDependent});
+			{dependsOn: fields.dependsOn, estimate: estimate, id: fields.id, isEffectiveEnd: fields.isEffectiveEnd, name: fields.name, section: fields.section, spreadsheetEf: fields.spreadsheetEf, spreadsheetEs: fields.spreadsheetEs, spreadsheetLf: fields.spreadsheetLf, spreadsheetLs: fields.spreadsheetLs, spreadsheetSlack: fields.spreadsheetSlack});
 	} else {
 		return $author$project$Main$MilestoneItem(
-			{canExpedite: fields.canExpedite, dependsOn: fields.dependsOn, id: fields.id, isEffectiveEnd: fields.isEffectiveEnd, name: fields.name, section: fields.section, spreadsheetEf: fields.spreadsheetEf, spreadsheetEs: fields.spreadsheetEs, spreadsheetLf: fields.spreadsheetLf, spreadsheetLs: fields.spreadsheetLs, spreadsheetSlack: fields.spreadsheetSlack, weatherDependent: fields.weatherDependent});
+			{dependsOn: fields.dependsOn, id: fields.id, isEffectiveEnd: fields.isEffectiveEnd, name: fields.name, section: fields.section, spreadsheetEf: fields.spreadsheetEf, spreadsheetEs: fields.spreadsheetEs, spreadsheetLf: fields.spreadsheetLf, spreadsheetLs: fields.spreadsheetLs, spreadsheetSlack: fields.spreadsheetSlack});
 	}
 };
 var $author$project$Main$yesNoDecoder = function (name) {
@@ -6984,35 +6980,29 @@ var $author$project$Main$itemDecoder = A2(
 						$author$project$Main$requiredFloatField('ES'),
 						A2(
 							$BrianHicks$elm_csv$Csv$Decode$pipeline,
-							$author$project$Main$yesNoDecoder('Can Expedite'),
+							$author$project$Main$yesNoDecoder('Effective End'),
 							A2(
 								$BrianHicks$elm_csv$Csv$Decode$pipeline,
-								$author$project$Main$yesNoDecoder('Weather-dependent'),
+								$author$project$Main$estimateDecoder,
 								A2(
 									$BrianHicks$elm_csv$Csv$Decode$pipeline,
-									$author$project$Main$yesNoDecoder('Effective End'),
+									$author$project$Main$dependsOnDecoder,
 									A2(
 										$BrianHicks$elm_csv$Csv$Decode$pipeline,
-										$author$project$Main$estimateDecoder,
+										A2($BrianHicks$elm_csv$Csv$Decode$field, 'Name', $BrianHicks$elm_csv$Csv$Decode$string),
 										A2(
 											$BrianHicks$elm_csv$Csv$Decode$pipeline,
-											$author$project$Main$dependsOnDecoder,
+											A2($BrianHicks$elm_csv$Csv$Decode$field, 'Section', $BrianHicks$elm_csv$Csv$Decode$string),
 											A2(
 												$BrianHicks$elm_csv$Csv$Decode$pipeline,
-												A2($BrianHicks$elm_csv$Csv$Decode$field, 'Name', $BrianHicks$elm_csv$Csv$Decode$string),
 												A2(
-													$BrianHicks$elm_csv$Csv$Decode$pipeline,
-													A2($BrianHicks$elm_csv$Csv$Decode$field, 'Section', $BrianHicks$elm_csv$Csv$Decode$string),
+													$BrianHicks$elm_csv$Csv$Decode$field,
+													'Id',
 													A2(
-														$BrianHicks$elm_csv$Csv$Decode$pipeline,
-														A2(
-															$BrianHicks$elm_csv$Csv$Decode$field,
-															'Id',
-															A2(
-																$BrianHicks$elm_csv$Csv$Decode$map,
-																A2($elm$core$Basics$composeR, $elm$core$String$trim, $author$project$Main$TaskId),
-																$BrianHicks$elm_csv$Csv$Decode$string)),
-														$BrianHicks$elm_csv$Csv$Decode$into($author$project$Main$RawFields)))))))))))))));
+														$BrianHicks$elm_csv$Csv$Decode$map,
+														A2($elm$core$Basics$composeR, $elm$core$String$trim, $author$project$Main$TaskId),
+														$BrianHicks$elm_csv$Csv$Decode$string)),
+												$BrianHicks$elm_csv$Csv$Decode$into($author$project$Main$RawFields)))))))))))));
 var $author$project$Main$itemsResult = A3($BrianHicks$elm_csv$Csv$Decode$decodeCsv, $BrianHicks$elm_csv$Csv$Decode$FieldNamesFromFirstRow, $author$project$Main$itemDecoder, $author$project$Data$csvData);
 var $elm$html$Html$pre = _VirtualDom_node('pre');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
