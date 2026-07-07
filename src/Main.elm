@@ -27,6 +27,11 @@ type ViewMode
     | CalendarView
 
 
+type WorkdayMode
+    = Conservative
+    | Aggressive
+
+
 type Estimate
     = Point Float
     | Range Float Float
@@ -239,18 +244,20 @@ type alias Model =
     { tactic : Tactic
     , showSpreadsheet : Bool
     , viewMode : ViewMode
+    , workdayMode : WorkdayMode
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { tactic = Midpoint, showSpreadsheet = False, viewMode = NetworkView }, Cmd.none )
+    ( { tactic = Midpoint, showSpreadsheet = False, viewMode = NetworkView, workdayMode = Conservative }, Cmd.none )
 
 
 type Msg
     = SetTactic Tactic
     | ToggleShowSpreadsheet
     | SetViewMode ViewMode
+    | SetWorkdayMode WorkdayMode
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -264,6 +271,9 @@ update msg model =
 
         SetViewMode viewMode ->
             ( { model | viewMode = viewMode }, Cmd.none )
+
+        SetWorkdayMode workdayMode ->
+            ( { model | workdayMode = workdayMode }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -287,7 +297,7 @@ view model =
         [ toolbar model.tactic model.viewMode
         , case itemsResult of
             Ok items ->
-                viewMain model.viewMode model.tactic showSpreadsheet items
+                viewMain model.viewMode model.tactic showSpreadsheet model.workdayMode items
 
             Err error ->
                 pre [] [ text (Decode.errorToString error) ]
@@ -297,34 +307,375 @@ view model =
 
           else
             text ""
+        , if model.viewMode == CalendarView then
+            viewWorkdayModeSelect model.workdayMode
+
+          else
+            text ""
         ]
     }
 
 
-viewMain : ViewMode -> Tactic -> Bool -> List Item -> Html Msg
-viewMain viewMode tactic showSpreadsheet items =
+viewMain : ViewMode -> Tactic -> Bool -> WorkdayMode -> List Item -> Html Msg
+viewMain viewMode tactic showSpreadsheet workdayMode items =
     case viewMode of
         NetworkView ->
             viewGraph tactic showSpreadsheet items
 
         CalendarView ->
-            viewCalendarPlaceholder
+            viewCalendar workdayMode tactic items
 
 
-{-| Standing in for a future calendar view (FeatureIdeas.md item 7); for now
-this just proves the view toggle switches content.
+{-| The project only spans the last four months of 2009, and always will,
+so the months and their date-to-weekday mapping are hardcoded rather than
+computed.
 -}
-viewCalendarPlaceholder : Html msg
-viewCalendarPlaceholder =
+type alias MonthSpec =
+    { name : String
+    , firstWeekday : Int
+    , daysInMonth : Int
+    }
+
+
+calendarMonths : List MonthSpec
+calendarMonths =
+    [ { name = "September", firstWeekday = 2, daysInMonth = 30 }
+    , { name = "October", firstWeekday = 4, daysInMonth = 31 }
+    , { name = "November", firstWeekday = 0, daysInMonth = 30 }
+    , { name = "December", firstWeekday = 2, daysInMonth = 31 }
+    ]
+
+
+weekdayLabels : List String
+weekdayLabels =
+    [ "S", "M", "T", "W", "T", "F", "S" ]
+
+
+{-| A day's position in the overall Sept-Dec span, for comparing dates
+that may fall in different months (e.g. is this day between the project
+start and the desired finish).
+-}
+dayIndex : String -> Int -> Int
+dayIndex monthName day =
+    let
+        daysBeforeMonth : List ( String, Int )
+        daysBeforeMonth =
+            calendarMonths
+                |> List.foldl (\month ( entries, total ) -> ( entries ++ [ ( month.name, total ) ], total + month.daysInMonth )) ( [], 0 )
+                |> Tuple.first
+    in
+    (daysBeforeMonth |> List.filter (\( name, _ ) -> name == monthName) |> List.head |> Maybe.map Tuple.second |> Maybe.withDefault 0) + day
+
+
+{-| The project's actual first day (2009-09-24), for marking on the
+calendar view.
+-}
+projectStart : { month : String, day : Int }
+projectStart =
+    { month = "September", day = 24 }
+
+
+{-| The desired finish date (2009-12-14), fixed regardless of what the
+schedule estimate says - this is what the estimate will ultimately be
+compared against.
+-}
+desiredFinish : { month : String, day : Int }
+desiredFinish =
+    { month = "December", day = 14 }
+
+
+type alias Holiday =
+    { month : String
+    , day : Int
+    , name : String
+    }
+
+
+holidays : List Holiday
+holidays =
+    [ { month = "November", day = 11, name = "Veterans Day" }
+    , { month = "November", day = 26, name = "Thanksgiving" }
+    ]
+
+
+{-| Whether a day is the right *kind* of day to be worked - not a holiday,
+and (unless aggressive mode allows weekends) not a weekend - independent of
+whether it falls within the project's highlighted date range. Takes
+isWeekend rather than computing it, since callers can derive it either from
+a grid index (dayCell) or from the date itself (workingDaysCount,
+actualWorkDayKeys).
+-}
+isWorkdayEligible : WorkdayMode -> String -> Int -> Bool -> Bool
+isWorkdayEligible workdayMode monthName day isWeekend =
+    let
+        isHoliday =
+            List.any (\holiday -> holiday.month == monthName && holiday.day == day) holidays
+
+        countsAsWorkday =
+            case workdayMode of
+                Conservative ->
+                    not isWeekend
+
+                Aggressive ->
+                    True
+    in
+    countsAsWorkday && not isHoliday
+
+
+{-| A day counts as a working day (for the calendar's light-blue range
+highlight) if it's workday-eligible and falls within the project's date
+range (projectStart..desiredFinish). Actual work days (actualWorkDayKeys)
+are not bound by this range, since the critical duration can run past it.
+-}
+isWorkingDayGiven : WorkdayMode -> String -> Int -> Bool -> Bool
+isWorkingDayGiven workdayMode monthName day isWeekend =
+    let
+        idx =
+            dayIndex monthName day
+
+        inRange =
+            idx >= dayIndex projectStart.month projectStart.day && idx <= dayIndex desiredFinish.month desiredFinish.day
+    in
+    inRange && isWorkdayEligible workdayMode monthName day isWeekend
+
+
+workingDaysCount : WorkdayMode -> Int
+workingDaysCount workdayMode =
+    calendarMonths
+        |> List.concatMap
+            (\month ->
+                List.range 1 month.daysInMonth
+                    |> List.map
+                        (\day ->
+                            let
+                                weekday =
+                                    modBy 7 (month.firstWeekday + day - 1)
+                            in
+                            isWorkingDayGiven workdayMode month.name day (weekday == 0 || weekday == 6)
+                        )
+            )
+        |> List.filter identity
+        |> List.length
+
+
+dayKey : String -> Int -> String
+dayKey monthName day =
+    monthName ++ "-" ++ String.fromInt day
+
+
+{-| The critical path's duration in working days, measured to the
+"occupancy permitted" milestone - the item marked as the effective end
+(see buildSchedule). That item's ES/EF/LS/LF are always equal to each
+other (it's the anchor the whole critical path is measured against), so
+any of the four would do; EF is used here as "days elapsed to reach it".
+-}
+criticalDuration : Tactic -> List Item -> Float
+criticalDuration tactic items =
+    let
+        schedule =
+            buildSchedule tactic items
+    in
+    items
+        |> List.filter itemIsEffectiveEnd
+        |> List.head
+        |> Maybe.map (itemId >> scheduleEf schedule)
+        |> Maybe.withDefault 0
+
+
+{-| The actual work days: starting from the project start, walk the
+calendar day by day counting only working days (per the selected workday
+mode), marking each one as an actual work day until `neededCount` of them
+have been marked. Can run past the desired finish date into the calendar's
+remaining days if the critical duration is long enough; if it's long
+enough to run past the last day on the calendar (2009-12-31), the extra
+days are simply not shown, since this calendar never shows any other
+period.
+-}
+actualWorkDayKeys : WorkdayMode -> Int -> Set String
+actualWorkDayKeys workdayMode neededCount =
+    let
+        onOrAfterStart : MonthSpec -> Int -> Bool
+        onOrAfterStart month day =
+            dayIndex month.name day >= dayIndex projectStart.month projectStart.day
+
+        step : MonthSpec -> Int -> ( Set String, Int ) -> ( Set String, Int )
+        step month day ( acc, remaining ) =
+            if remaining <= 0 || not (onOrAfterStart month day) then
+                ( acc, remaining )
+
+            else
+                let
+                    weekday =
+                        modBy 7 (month.firstWeekday + day - 1)
+                in
+                if isWorkdayEligible workdayMode month.name day (weekday == 0 || weekday == 6) then
+                    ( Set.insert (dayKey month.name day) acc, remaining - 1 )
+
+                else
+                    ( acc, remaining )
+    in
+    calendarMonths
+        |> List.foldl
+            (\month acc -> List.foldl (step month) acc (List.range 1 month.daysInMonth))
+            ( Set.empty, neededCount )
+        |> Tuple.first
+
+
+viewCalendar : WorkdayMode -> Tactic -> List Item -> Html msg
+viewCalendar workdayMode tactic items =
+    let
+        actualWorkDays : Set String
+        actualWorkDays =
+            actualWorkDayKeys workdayMode (ceiling (criticalDuration tactic items))
+    in
     div
-        [ style "display" "flex"
-        , style "align-items" "center"
-        , style "justify-content" "center"
-        , style "height" "80vh"
-        , style "color" "#6b7280"
-        , style "font-family" "-apple-system, BlinkMacSystemFont, sans-serif"
+        [ style "font-family" "-apple-system, BlinkMacSystemFont, sans-serif" ]
+        [ viewCalendarHeader workdayMode
+        , div
+            [ style "display" "grid"
+            , style "grid-template-columns" "1fr 1fr"
+            , style "gap" "40px"
+            , style "padding" "24px 48px"
+            ]
+            (List.map (viewMonth workdayMode actualWorkDays) calendarMonths)
         ]
-        [ text "Calendar view coming soon" ]
+
+
+viewCalendarHeader : WorkdayMode -> Html msg
+viewCalendarHeader workdayMode =
+    div
+        [ style "text-align" "center"
+        , style "padding-top" "24px"
+        ]
+        [ div [ style "font-size" "36px", style "font-weight" "bold" ] [ text "2009" ]
+        , div
+            [ style "font-size" "16px", style "color" "#4b5563" ]
+            [ text (String.fromInt (workingDaysCount workdayMode) ++ " working days left") ]
+        ]
+
+
+viewMonth : WorkdayMode -> Set String -> MonthSpec -> Html msg
+viewMonth workdayMode actualWorkDays month =
+    div []
+        [ div
+            [ style "text-align" "center"
+            , style "font-size" "24px"
+            , style "margin-bottom" "8px"
+            ]
+            [ text month.name ]
+        , div
+            [ style "display" "grid"
+            , style "grid-template-columns" "repeat(7, 1fr)"
+            ]
+            (List.map weekdayHeaderCell weekdayLabels ++ List.indexedMap (dayCell month.name workdayMode actualWorkDays) (monthCells month))
+        ]
+
+
+weekdayHeaderCell : String -> Html msg
+weekdayHeaderCell label_ =
+    div
+        [ style "text-align" "center"
+        , style "padding" "6px"
+        , style "font-weight" "bold"
+        ]
+        [ text label_ ]
+
+
+{-| One cell per grid position, padded with Nothing before day 1 and after
+the last day so every month lines up under the S M T W T F S header.
+-}
+monthCells : MonthSpec -> List (Maybe Int)
+monthCells month =
+    let
+        cells : List (Maybe Int)
+        cells =
+            List.repeat month.firstWeekday Nothing ++ List.map Just (List.range 1 month.daysInMonth)
+
+        remainder : Int
+        remainder =
+            modBy 7 (List.length cells)
+    in
+    cells
+        ++ (if remainder == 0 then
+                []
+
+            else
+                List.repeat (7 - remainder) Nothing
+           )
+
+
+dayCell : String -> WorkdayMode -> Set String -> Int -> Maybe Int -> Html msg
+dayCell monthName workdayMode actualWorkDays index day =
+    let
+        isWeekend : Bool
+        isWeekend =
+            modBy 7 index == 0 || modBy 7 index == 6
+
+        isHoliday : Bool
+        isHoliday =
+            List.any (\holiday -> holiday.month == monthName && Just holiday.day == day) holidays
+
+        isProjectStart : Bool
+        isProjectStart =
+            monthName == projectStart.month && day == Just projectStart.day
+
+        isDesiredFinish : Bool
+        isDesiredFinish =
+            monthName == desiredFinish.month && day == Just desiredFinish.day
+
+        isWorkingDay : Bool
+        isWorkingDay =
+            case day of
+                Nothing ->
+                    False
+
+                Just d ->
+                    isWorkingDayGiven workdayMode monthName d isWeekend
+
+        isActualWorkDay : Bool
+        isActualWorkDay =
+            case day of
+                Nothing ->
+                    False
+
+                Just d ->
+                    Set.member (dayKey monthName d) actualWorkDays
+    in
+    div
+        [ style "text-align" "center"
+        , style "padding" "6px"
+        , style "border"
+            (if isProjectStart then
+                "3px solid #2563eb"
+
+             else if isDesiredFinish then
+                "3px solid #dc2626"
+
+             else
+                "1px solid #d1d5db"
+            )
+        , style "font-weight"
+            (if isProjectStart || isDesiredFinish then
+                "bold"
+
+             else
+                "normal"
+            )
+        , style "background"
+            (if isActualWorkDay then
+                "#60a5fa"
+
+             else if isWorkingDay then
+                "#dbeafe"
+
+             else if isWeekend || isHoliday then
+                "#e5e7eb"
+
+             else
+                "transparent"
+            )
+        ]
+        [ text (Maybe.withDefault "" (Maybe.map String.fromInt day)) ]
 
 
 {-| Links to the underlying spreadsheet in its various forms. These are
@@ -411,6 +762,42 @@ tacticSelect current =
             , option [ value "midpoint", selected (current == Midpoint) ] [ text "Midpoint" ]
             ]
         ]
+
+
+{-| Only shown in calendar view, top right corner: which days count as
+working days when comparing the schedule estimate against the calendar.
+Conservative counts only non-holiday weekdays; aggressive also counts
+weekends, excluding just the holidays.
+-}
+viewWorkdayModeSelect : WorkdayMode -> Html Msg
+viewWorkdayModeSelect current =
+    div
+        [ style "position" "fixed"
+        , style "top" "16px"
+        , style "right" "16px"
+        , style "z-index" "20"
+        , style "font-family" "-apple-system, BlinkMacSystemFont, sans-serif"
+        , style "font-size" "12px"
+        ]
+        [ label [ for "workday-mode-select" ] [ text "working day comparison: " ]
+        , select [ id "workday-mode-select", onInput (workdayModeFromString >> Maybe.withDefault current >> SetWorkdayMode) ]
+            [ option [ value "conservative", selected (current == Conservative) ] [ text "Conservative" ]
+            , option [ value "aggressive", selected (current == Aggressive) ] [ text "Aggressive" ]
+            ]
+        ]
+
+
+workdayModeFromString : String -> Maybe WorkdayMode
+workdayModeFromString value_ =
+    case value_ of
+        "conservative" ->
+            Just Conservative
+
+        "aggressive" ->
+            Just Aggressive
+
+        _ ->
+            Nothing
 
 
 viewModeToggle : ViewMode -> Html Msg

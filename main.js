@@ -5167,13 +5167,14 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$document = _Browser_document;
+var $author$project$Main$Conservative = {$: 'Conservative'};
 var $author$project$Main$Midpoint = {$: 'Midpoint'};
 var $author$project$Main$NetworkView = {$: 'NetworkView'};
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
-		{showSpreadsheet: false, tactic: $author$project$Main$Midpoint, viewMode: $author$project$Main$NetworkView},
+		{showSpreadsheet: false, tactic: $author$project$Main$Midpoint, viewMode: $author$project$Main$NetworkView, workdayMode: $author$project$Main$Conservative},
 		$elm$core$Platform$Cmd$none);
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
@@ -5198,15 +5199,23 @@ var $author$project$Main$update = F2(
 						model,
 						{showSpreadsheet: !model.showSpreadsheet}),
 					$elm$core$Platform$Cmd$none);
-			default:
+			case 'SetViewMode':
 				var viewMode = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{viewMode: viewMode}),
 					$elm$core$Platform$Cmd$none);
+			default:
+				var workdayMode = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{workdayMode: workdayMode}),
+					$elm$core$Platform$Cmd$none);
 		}
 	});
+var $author$project$Main$CalendarView = {$: 'CalendarView'};
 var $elm$core$List$any = F2(
 	function (isOkay, list) {
 		any:
@@ -7156,7 +7165,6 @@ var $author$project$Main$tacticSelect = function (current) {
 					]))
 			]));
 };
-var $author$project$Main$CalendarView = {$: 'CalendarView'};
 var $author$project$Main$SetViewMode = function (a) {
 	return {$: 'SetViewMode', a: a};
 };
@@ -7292,39 +7300,24 @@ var $author$project$Main$viewDownloads = A2(
 			A2($author$project$Main$downloadLink, 'AC%20Tasks.csv', 'CSV'),
 			A2($author$project$Main$downloadLink, 'AC%20Tasks.ods', 'ODS')
 		]));
-var $author$project$Main$viewCalendarPlaceholder = A2(
-	$elm$html$Html$div,
-	_List_fromArray(
-		[
-			A2($elm$html$Html$Attributes$style, 'display', 'flex'),
-			A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
-			A2($elm$html$Html$Attributes$style, 'justify-content', 'center'),
-			A2($elm$html$Html$Attributes$style, 'height', '80vh'),
-			A2($elm$html$Html$Attributes$style, 'color', '#6b7280'),
-			A2($elm$html$Html$Attributes$style, 'font-family', '-apple-system, BlinkMacSystemFont, sans-serif')
-		]),
-	_List_fromArray(
-		[
-			$elm$html$Html$text('Calendar view coming soon')
-		]));
-var $elm$core$Set$Set_elm_builtin = function (a) {
-	return {$: 'Set_elm_builtin', a: a};
-};
-var $elm$core$Set$insert = F2(
-	function (key, _v0) {
-		var dict = _v0.a;
-		return $elm$core$Set$Set_elm_builtin(
-			A3($elm$core$Dict$insert, key, _Utils_Tuple0, dict));
+var $author$project$Main$calendarMonths = _List_fromArray(
+	[
+		{daysInMonth: 30, firstWeekday: 2, name: 'September'},
+		{daysInMonth: 31, firstWeekday: 4, name: 'October'},
+		{daysInMonth: 30, firstWeekday: 0, name: 'November'},
+		{daysInMonth: 31, firstWeekday: 2, name: 'December'}
+	]);
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
 	});
-var $author$project$Main$itemDependsOn = function (item) {
-	if (item.$ === 'TaskItem') {
-		var task = item.a;
-		return task.dependsOn;
-	} else {
-		var milestone = item.a;
-		return milestone.dependsOn;
-	}
-};
 var $elm$core$Maybe$map = F2(
 	function (f, maybe) {
 		if (maybe.$ === 'Just') {
@@ -7335,6 +7328,128 @@ var $elm$core$Maybe$map = F2(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
+var $elm$core$Tuple$second = function (_v0) {
+	var y = _v0.b;
+	return y;
+};
+var $author$project$Main$dayIndex = F2(
+	function (monthName, day) {
+		var daysBeforeMonth = A3(
+			$elm$core$List$foldl,
+			F2(
+				function (month, _v1) {
+					var entries = _v1.a;
+					var total = _v1.b;
+					return _Utils_Tuple2(
+						_Utils_ap(
+							entries,
+							_List_fromArray(
+								[
+									_Utils_Tuple2(month.name, total)
+								])),
+						total + month.daysInMonth);
+				}),
+			_Utils_Tuple2(_List_Nil, 0),
+			$author$project$Main$calendarMonths).a;
+		return A2(
+			$elm$core$Maybe$withDefault,
+			0,
+			A2(
+				$elm$core$Maybe$map,
+				$elm$core$Tuple$second,
+				$elm$core$List$head(
+					A2(
+						$elm$core$List$filter,
+						function (_v0) {
+							var name = _v0.a;
+							return _Utils_eq(name, monthName);
+						},
+						daysBeforeMonth)))) + day;
+	});
+var $author$project$Main$dayKey = F2(
+	function (monthName, day) {
+		return monthName + ('-' + $elm$core$String$fromInt(day));
+	});
+var $elm$core$Set$Set_elm_builtin = function (a) {
+	return {$: 'Set_elm_builtin', a: a};
+};
+var $elm$core$Set$empty = $elm$core$Set$Set_elm_builtin($elm$core$Dict$empty);
+var $elm$core$Set$insert = F2(
+	function (key, _v0) {
+		var dict = _v0.a;
+		return $elm$core$Set$Set_elm_builtin(
+			A3($elm$core$Dict$insert, key, _Utils_Tuple0, dict));
+	});
+var $author$project$Main$holidays = _List_fromArray(
+	[
+		{day: 11, month: 'November', name: 'Veterans Day'},
+		{day: 26, month: 'November', name: 'Thanksgiving'}
+	]);
+var $author$project$Main$isWorkdayEligible = F4(
+	function (workdayMode, monthName, day, isWeekend) {
+		var isHoliday = A2(
+			$elm$core$List$any,
+			function (holiday) {
+				return _Utils_eq(holiday.month, monthName) && _Utils_eq(holiday.day, day);
+			},
+			$author$project$Main$holidays);
+		var countsAsWorkday = function () {
+			if (workdayMode.$ === 'Conservative') {
+				return !isWeekend;
+			} else {
+				return true;
+			}
+		}();
+		return countsAsWorkday && (!isHoliday);
+	});
+var $elm$core$Basics$modBy = _Basics_modBy;
+var $author$project$Main$projectStart = {day: 24, month: 'September'};
+var $author$project$Main$actualWorkDayKeys = F2(
+	function (workdayMode, neededCount) {
+		var onOrAfterStart = F2(
+			function (month, day) {
+				return _Utils_cmp(
+					A2($author$project$Main$dayIndex, month.name, day),
+					A2($author$project$Main$dayIndex, $author$project$Main$projectStart.month, $author$project$Main$projectStart.day)) > -1;
+			});
+		var step = F3(
+			function (month, day, _v0) {
+				var acc = _v0.a;
+				var remaining = _v0.b;
+				if ((remaining <= 0) || (!A2(onOrAfterStart, month, day))) {
+					return _Utils_Tuple2(acc, remaining);
+				} else {
+					var weekday = A2($elm$core$Basics$modBy, 7, (month.firstWeekday + day) - 1);
+					return A4($author$project$Main$isWorkdayEligible, workdayMode, month.name, day, (!weekday) || (weekday === 6)) ? _Utils_Tuple2(
+						A2(
+							$elm$core$Set$insert,
+							A2($author$project$Main$dayKey, month.name, day),
+							acc),
+						remaining - 1) : _Utils_Tuple2(acc, remaining);
+				}
+			});
+		return A3(
+			$elm$core$List$foldl,
+			F2(
+				function (month, acc) {
+					return A3(
+						$elm$core$List$foldl,
+						step(month),
+						acc,
+						A2($elm$core$List$range, 1, month.daysInMonth));
+				}),
+			_Utils_Tuple2($elm$core$Set$empty, neededCount),
+			$author$project$Main$calendarMonths).a;
+	});
+var $author$project$Main$itemDependsOn = function (item) {
+	if (item.$ === 'TaskItem') {
+		var task = item.a;
+		return task.dependsOn;
+	} else {
+		var milestone = item.a;
+		return milestone.dependsOn;
+	}
+};
 var $elm$core$Dict$member = F2(
 	function (key, dict) {
 		var _v0 = A2($elm$core$Dict$get, key, dict);
@@ -7392,7 +7507,6 @@ var $author$project$Main$ancestorsOfHelp = F3(
 			}
 		}
 	});
-var $elm$core$Set$empty = $elm$core$Set$Set_elm_builtin($elm$core$Dict$empty);
 var $author$project$Main$ancestorsOf = F2(
 	function (itemsById, startId) {
 		return A3(
@@ -7460,17 +7574,6 @@ var $elm$core$Dict$filter = F2(
 				}),
 			$elm$core$Dict$empty,
 			dict);
-	});
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
 	});
 var $elm$core$Dict$fromList = function (assocs) {
 	return A3(
@@ -8184,6 +8287,277 @@ var $author$project$Main$buildSchedule = F2(
 			lsDict);
 		return {ef: efDict, es: esDict, lf: lfDict, ls: lsDict};
 	});
+var $author$project$Main$scheduleEf = F2(
+	function (schedule, taskId) {
+		return A2(
+			$elm$core$Maybe$withDefault,
+			0,
+			A2(
+				$elm$core$Dict$get,
+				$author$project$Main$taskIdToString(taskId),
+				schedule.ef));
+	});
+var $author$project$Main$criticalDuration = F2(
+	function (tactic, items) {
+		var schedule = A2($author$project$Main$buildSchedule, tactic, items);
+		return A2(
+			$elm$core$Maybe$withDefault,
+			0,
+			A2(
+				$elm$core$Maybe$map,
+				A2(
+					$elm$core$Basics$composeR,
+					$author$project$Main$itemId,
+					$author$project$Main$scheduleEf(schedule)),
+				$elm$core$List$head(
+					A2($elm$core$List$filter, $author$project$Main$itemIsEffectiveEnd, items))));
+	});
+var $author$project$Main$desiredFinish = {day: 14, month: 'December'};
+var $author$project$Main$isWorkingDayGiven = F4(
+	function (workdayMode, monthName, day, isWeekend) {
+		var idx = A2($author$project$Main$dayIndex, monthName, day);
+		var inRange = (_Utils_cmp(
+			idx,
+			A2($author$project$Main$dayIndex, $author$project$Main$projectStart.month, $author$project$Main$projectStart.day)) > -1) && (_Utils_cmp(
+			idx,
+			A2($author$project$Main$dayIndex, $author$project$Main$desiredFinish.month, $author$project$Main$desiredFinish.day)) < 1);
+		return inRange && A4($author$project$Main$isWorkdayEligible, workdayMode, monthName, day, isWeekend);
+	});
+var $author$project$Main$workingDaysCount = function (workdayMode) {
+	return $elm$core$List$length(
+		A2(
+			$elm$core$List$filter,
+			$elm$core$Basics$identity,
+			A2(
+				$elm$core$List$concatMap,
+				function (month) {
+					return A2(
+						$elm$core$List$map,
+						function (day) {
+							var weekday = A2($elm$core$Basics$modBy, 7, (month.firstWeekday + day) - 1);
+							return A4($author$project$Main$isWorkingDayGiven, workdayMode, month.name, day, (!weekday) || (weekday === 6));
+						},
+						A2($elm$core$List$range, 1, month.daysInMonth));
+				},
+				$author$project$Main$calendarMonths)));
+};
+var $author$project$Main$viewCalendarHeader = function (workdayMode) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				A2($elm$html$Html$Attributes$style, 'text-align', 'center'),
+				A2($elm$html$Html$Attributes$style, 'padding-top', '24px')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'font-size', '36px'),
+						A2($elm$html$Html$Attributes$style, 'font-weight', 'bold')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('2009')
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'font-size', '16px'),
+						A2($elm$html$Html$Attributes$style, 'color', '#4b5563')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						$elm$core$String$fromInt(
+							$author$project$Main$workingDaysCount(workdayMode)) + ' working days left')
+					]))
+			]));
+};
+var $author$project$Main$dayCell = F5(
+	function (monthName, workdayMode, actualWorkDays, index, day) {
+		var isWeekend = (!A2($elm$core$Basics$modBy, 7, index)) || (A2($elm$core$Basics$modBy, 7, index) === 6);
+		var isWorkingDay = function () {
+			if (day.$ === 'Nothing') {
+				return false;
+			} else {
+				var d = day.a;
+				return A4($author$project$Main$isWorkingDayGiven, workdayMode, monthName, d, isWeekend);
+			}
+		}();
+		var isProjectStart = _Utils_eq(monthName, $author$project$Main$projectStart.month) && _Utils_eq(
+			day,
+			$elm$core$Maybe$Just($author$project$Main$projectStart.day));
+		var isHoliday = A2(
+			$elm$core$List$any,
+			function (holiday) {
+				return _Utils_eq(holiday.month, monthName) && _Utils_eq(
+					$elm$core$Maybe$Just(holiday.day),
+					day);
+			},
+			$author$project$Main$holidays);
+		var isDesiredFinish = _Utils_eq(monthName, $author$project$Main$desiredFinish.month) && _Utils_eq(
+			day,
+			$elm$core$Maybe$Just($author$project$Main$desiredFinish.day));
+		var isActualWorkDay = function () {
+			if (day.$ === 'Nothing') {
+				return false;
+			} else {
+				var d = day.a;
+				return A2(
+					$elm$core$Set$member,
+					A2($author$project$Main$dayKey, monthName, d),
+					actualWorkDays);
+			}
+		}();
+		return A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					A2($elm$html$Html$Attributes$style, 'text-align', 'center'),
+					A2($elm$html$Html$Attributes$style, 'padding', '6px'),
+					A2(
+					$elm$html$Html$Attributes$style,
+					'border',
+					isProjectStart ? '3px solid #2563eb' : (isDesiredFinish ? '3px solid #dc2626' : '1px solid #d1d5db')),
+					A2(
+					$elm$html$Html$Attributes$style,
+					'font-weight',
+					(isProjectStart || isDesiredFinish) ? 'bold' : 'normal'),
+					A2(
+					$elm$html$Html$Attributes$style,
+					'background',
+					isActualWorkDay ? '#60a5fa' : (isWorkingDay ? '#dbeafe' : ((isWeekend || isHoliday) ? '#e5e7eb' : 'transparent')))
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text(
+					A2(
+						$elm$core$Maybe$withDefault,
+						'',
+						A2($elm$core$Maybe$map, $elm$core$String$fromInt, day)))
+				]));
+	});
+var $elm$core$List$repeatHelp = F3(
+	function (result, n, value) {
+		repeatHelp:
+		while (true) {
+			if (n <= 0) {
+				return result;
+			} else {
+				var $temp$result = A2($elm$core$List$cons, value, result),
+					$temp$n = n - 1,
+					$temp$value = value;
+				result = $temp$result;
+				n = $temp$n;
+				value = $temp$value;
+				continue repeatHelp;
+			}
+		}
+	});
+var $elm$core$List$repeat = F2(
+	function (n, value) {
+		return A3($elm$core$List$repeatHelp, _List_Nil, n, value);
+	});
+var $author$project$Main$monthCells = function (month) {
+	var cells = _Utils_ap(
+		A2($elm$core$List$repeat, month.firstWeekday, $elm$core$Maybe$Nothing),
+		A2(
+			$elm$core$List$map,
+			$elm$core$Maybe$Just,
+			A2($elm$core$List$range, 1, month.daysInMonth)));
+	var remainder = A2(
+		$elm$core$Basics$modBy,
+		7,
+		$elm$core$List$length(cells));
+	return _Utils_ap(
+		cells,
+		(!remainder) ? _List_Nil : A2($elm$core$List$repeat, 7 - remainder, $elm$core$Maybe$Nothing));
+};
+var $author$project$Main$weekdayHeaderCell = function (label_) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				A2($elm$html$Html$Attributes$style, 'text-align', 'center'),
+				A2($elm$html$Html$Attributes$style, 'padding', '6px'),
+				A2($elm$html$Html$Attributes$style, 'font-weight', 'bold')
+			]),
+		_List_fromArray(
+			[
+				$elm$html$Html$text(label_)
+			]));
+};
+var $author$project$Main$weekdayLabels = _List_fromArray(
+	['S', 'M', 'T', 'W', 'T', 'F', 'S']);
+var $author$project$Main$viewMonth = F3(
+	function (workdayMode, actualWorkDays, month) {
+		return A2(
+			$elm$html$Html$div,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							A2($elm$html$Html$Attributes$style, 'text-align', 'center'),
+							A2($elm$html$Html$Attributes$style, 'font-size', '24px'),
+							A2($elm$html$Html$Attributes$style, 'margin-bottom', '8px')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text(month.name)
+						])),
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							A2($elm$html$Html$Attributes$style, 'display', 'grid'),
+							A2($elm$html$Html$Attributes$style, 'grid-template-columns', 'repeat(7, 1fr)')
+						]),
+					_Utils_ap(
+						A2($elm$core$List$map, $author$project$Main$weekdayHeaderCell, $author$project$Main$weekdayLabels),
+						A2(
+							$elm$core$List$indexedMap,
+							A3($author$project$Main$dayCell, month.name, workdayMode, actualWorkDays),
+							$author$project$Main$monthCells(month))))
+				]));
+	});
+var $author$project$Main$viewCalendar = F3(
+	function (workdayMode, tactic, items) {
+		var actualWorkDays = A2(
+			$author$project$Main$actualWorkDayKeys,
+			workdayMode,
+			$elm$core$Basics$ceiling(
+				A2($author$project$Main$criticalDuration, tactic, items)));
+		return A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					A2($elm$html$Html$Attributes$style, 'font-family', '-apple-system, BlinkMacSystemFont, sans-serif')
+				]),
+			_List_fromArray(
+				[
+					$author$project$Main$viewCalendarHeader(workdayMode),
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							A2($elm$html$Html$Attributes$style, 'display', 'grid'),
+							A2($elm$html$Html$Attributes$style, 'grid-template-columns', '1fr 1fr'),
+							A2($elm$html$Html$Attributes$style, 'gap', '40px'),
+							A2($elm$html$Html$Attributes$style, 'padding', '24px 48px')
+						]),
+					A2(
+						$elm$core$List$map,
+						A2($author$project$Main$viewMonth, workdayMode, actualWorkDays),
+						$author$project$Main$calendarMonths))
+				]));
+	});
 var $author$project$Main$encodeTaskId = function (id) {
 	return $elm$json$Json$Encode$string(
 		$author$project$Main$taskIdToString(id));
@@ -8248,16 +8622,6 @@ var $author$project$Main$estimateText = function (estimate) {
 		return $author$project$Format$formatDays(low) + ('-' + $author$project$Format$formatDays(high));
 	}
 };
-var $author$project$Main$scheduleEf = F2(
-	function (schedule, taskId) {
-		return A2(
-			$elm$core$Maybe$withDefault,
-			0,
-			A2(
-				$elm$core$Dict$get,
-				$author$project$Main$taskIdToString(taskId),
-				schedule.ef));
-	});
 var $author$project$Main$scheduleEs = F2(
 	function (schedule, taskId) {
 		return A2(
@@ -8532,12 +8896,12 @@ var $author$project$Main$viewGraph = F3(
 				]),
 			_List_Nil);
 	});
-var $author$project$Main$viewMain = F4(
-	function (viewMode, tactic, showSpreadsheet, items) {
+var $author$project$Main$viewMain = F5(
+	function (viewMode, tactic, showSpreadsheet, workdayMode, items) {
 		if (viewMode.$ === 'NetworkView') {
 			return A3($author$project$Main$viewGraph, tactic, showSpreadsheet, items);
 		} else {
-			return $author$project$Main$viewCalendarPlaceholder;
+			return A3($author$project$Main$viewCalendar, workdayMode, tactic, items);
 		}
 	});
 var $author$project$Main$ToggleShowSpreadsheet = {$: 'ToggleShowSpreadsheet'};
@@ -8567,6 +8931,87 @@ var $author$project$Main$viewSpreadsheetToggle = function (showSpreadsheet) {
 					]))
 			]));
 };
+var $author$project$Main$Aggressive = {$: 'Aggressive'};
+var $author$project$Main$SetWorkdayMode = function (a) {
+	return {$: 'SetWorkdayMode', a: a};
+};
+var $author$project$Main$workdayModeFromString = function (value_) {
+	switch (value_) {
+		case 'conservative':
+			return $elm$core$Maybe$Just($author$project$Main$Conservative);
+		case 'aggressive':
+			return $elm$core$Maybe$Just($author$project$Main$Aggressive);
+		default:
+			return $elm$core$Maybe$Nothing;
+	}
+};
+var $author$project$Main$viewWorkdayModeSelect = function (current) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				A2($elm$html$Html$Attributes$style, 'position', 'fixed'),
+				A2($elm$html$Html$Attributes$style, 'top', '16px'),
+				A2($elm$html$Html$Attributes$style, 'right', '16px'),
+				A2($elm$html$Html$Attributes$style, 'z-index', '20'),
+				A2($elm$html$Html$Attributes$style, 'font-family', '-apple-system, BlinkMacSystemFont, sans-serif'),
+				A2($elm$html$Html$Attributes$style, 'font-size', '12px')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$label,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$for('workday-mode-select')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('working day comparison: ')
+					])),
+				A2(
+				$elm$html$Html$select,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$id('workday-mode-select'),
+						$elm$html$Html$Events$onInput(
+						A2(
+							$elm$core$Basics$composeR,
+							$author$project$Main$workdayModeFromString,
+							A2(
+								$elm$core$Basics$composeR,
+								$elm$core$Maybe$withDefault(current),
+								$author$project$Main$SetWorkdayMode)))
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$option,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$value('conservative'),
+								$elm$html$Html$Attributes$selected(
+								_Utils_eq(current, $author$project$Main$Conservative))
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Conservative')
+							])),
+						A2(
+						$elm$html$Html$option,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$value('aggressive'),
+								$elm$html$Html$Attributes$selected(
+								_Utils_eq(current, $author$project$Main$Aggressive))
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Aggressive')
+							]))
+					]))
+			]));
+};
 var $author$project$Main$view = function (model) {
 	var showSpreadsheet = model.showSpreadsheet && _Utils_eq(model.tactic, $author$project$Main$Midpoint);
 	return {
@@ -8577,7 +9022,7 @@ var $author$project$Main$view = function (model) {
 				var _v0 = $author$project$Main$itemsResult;
 				if (_v0.$ === 'Ok') {
 					var items = _v0.a;
-					return A4($author$project$Main$viewMain, model.viewMode, model.tactic, showSpreadsheet, items);
+					return A5($author$project$Main$viewMain, model.viewMode, model.tactic, showSpreadsheet, model.workdayMode, items);
 				} else {
 					var error = _v0.a;
 					return A2(
@@ -8591,7 +9036,8 @@ var $author$project$Main$view = function (model) {
 				}
 			}(),
 				$author$project$Main$viewDownloads,
-				_Utils_eq(model.tactic, $author$project$Main$Midpoint) ? $author$project$Main$viewSpreadsheetToggle(model.showSpreadsheet) : $elm$html$Html$text('')
+				_Utils_eq(model.tactic, $author$project$Main$Midpoint) ? $author$project$Main$viewSpreadsheetToggle(model.showSpreadsheet) : $elm$html$Html$text(''),
+				_Utils_eq(model.viewMode, $author$project$Main$CalendarView) ? $author$project$Main$viewWorkdayModeSelect(model.workdayMode) : $elm$html$Html$text('')
 			]),
 		title: 'AC Tasks'
 	};
