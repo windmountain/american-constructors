@@ -112,7 +112,7 @@ class CytoscapeGraph extends HTMLElement {
     );
 
     const caption = document.createElement("div");
-    caption.textContent = "Numbers are workdays days after today, September 14, 2009";
+    caption.textContent = "Numbers are workdays days after today, September 24, 2009";
     caption.style.position = "absolute";
     caption.style.top = "12px";
     caption.style.left = "16px";
