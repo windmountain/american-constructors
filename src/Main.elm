@@ -541,6 +541,15 @@ viewCalendar workdayMode tactic items =
         daysToSpare : Int
         daysToSpare =
             workingDaysCount workdayMode - neededCount
+
+        {- Whether the schedule fits even in the worst case: pessimistic
+           estimates under the strictest (conservative) working day
+           assumptions. Computed independent of the currently selected
+           tactic/workday mode.
+        -}
+        fitsWorstCase : Bool
+        fitsWorstCase =
+            ceiling (criticalDuration Pessimistic items) <= workingDaysCount Conservative
     in
     div
         [ style "font-family" "-apple-system, BlinkMacSystemFont, sans-serif" ]
@@ -552,23 +561,30 @@ viewCalendar workdayMode tactic items =
             , style "padding" "24px 48px"
             ]
             (List.map (viewMonth workdayMode actualWork.keys actualWork.overflowed) calendarMonths)
-        , viewOnTimeSummary daysToSpare
+        , viewOnTimeSummary daysToSpare fitsWorstCase
         ]
 
 
-viewOnTimeSummary : Int -> Html msg
-viewOnTimeSummary daysToSpare =
+viewOnTimeSummary : Int -> Bool -> Html msg
+viewOnTimeSummary daysToSpare fitsWorstCase =
     div
         [ style "text-align" "center"
         , style "font-size" "18px"
         , style "padding" "24px 0 32px 0"
         ]
         [ text
-            (if daysToSpare < 0 then
+            ((if daysToSpare < 0 then
                 "The project will not be done on time. It will be " ++ String.fromInt (negate daysToSpare) ++ " days late."
 
-             else
+              else
                 "The project will be done on time with " ++ String.fromInt daysToSpare ++ " days to spare."
+             )
+                ++ (if fitsWorstCase then
+                        " Hooray!"
+
+                    else
+                        ""
+                   )
             )
         ]
 

@@ -8562,25 +8562,32 @@ var $author$project$Main$viewMonth = F4(
 var $elm$core$Basics$negate = function (n) {
 	return -n;
 };
-var $author$project$Main$viewOnTimeSummary = function (daysToSpare) {
-	return A2(
-		$elm$html$Html$div,
-		_List_fromArray(
-			[
-				A2($elm$html$Html$Attributes$style, 'text-align', 'center'),
-				A2($elm$html$Html$Attributes$style, 'font-size', '18px'),
-				A2($elm$html$Html$Attributes$style, 'padding', '24px 0 32px 0')
-			]),
-		_List_fromArray(
-			[
-				$elm$html$Html$text(
-				(daysToSpare < 0) ? ('The project will not be done on time. It will be ' + ($elm$core$String$fromInt(-daysToSpare) + ' days late.')) : ('The project will be done on time with ' + ($elm$core$String$fromInt(daysToSpare) + ' days to spare.')))
-			]));
-};
+var $author$project$Main$viewOnTimeSummary = F2(
+	function (daysToSpare, fitsWorstCase) {
+		return A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					A2($elm$html$Html$Attributes$style, 'text-align', 'center'),
+					A2($elm$html$Html$Attributes$style, 'font-size', '18px'),
+					A2($elm$html$Html$Attributes$style, 'padding', '24px 0 32px 0')
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text(
+					_Utils_ap(
+						(daysToSpare < 0) ? ('The project will not be done on time. It will be ' + ($elm$core$String$fromInt(-daysToSpare) + ' days late.')) : ('The project will be done on time with ' + ($elm$core$String$fromInt(daysToSpare) + ' days to spare.')),
+						fitsWorstCase ? ' Hooray!' : ''))
+				]));
+	});
 var $author$project$Main$viewCalendar = F3(
 	function (workdayMode, tactic, items) {
 		var neededCount = $elm$core$Basics$ceiling(
 			A2($author$project$Main$criticalDuration, tactic, items));
+		var fitsWorstCase = _Utils_cmp(
+			$elm$core$Basics$ceiling(
+				A2($author$project$Main$criticalDuration, $author$project$Main$Pessimistic, items)),
+			$author$project$Main$workingDaysCount($author$project$Main$Conservative)) < 1;
 		var daysToSpare = $author$project$Main$workingDaysCount(workdayMode) - neededCount;
 		var actualWork = A2($author$project$Main$actualWorkDayKeys, workdayMode, neededCount);
 		return A2(
@@ -8605,7 +8612,7 @@ var $author$project$Main$viewCalendar = F3(
 						$elm$core$List$map,
 						A3($author$project$Main$viewMonth, workdayMode, actualWork.keys, actualWork.overflowed),
 						$author$project$Main$calendarMonths)),
-					$author$project$Main$viewOnTimeSummary(daysToSpare)
+					A2($author$project$Main$viewOnTimeSummary, daysToSpare, fitsWorstCase)
 				]));
 	});
 var $author$project$Main$encodeTaskId = function (id) {
