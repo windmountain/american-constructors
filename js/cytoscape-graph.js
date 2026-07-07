@@ -75,8 +75,8 @@ class CytoscapeGraph extends HTMLElement {
           selector: "node[kind = 'task']",
           style: {
             label: "",
-            width: 180,
-            height: 70,
+            width: 200,
+            height: 100,
             shape: "rectangle",
             "background-opacity": 0,
             "border-width": 0,
