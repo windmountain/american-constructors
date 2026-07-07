@@ -526,9 +526,21 @@ actualWorkDayKeys workdayMode neededCount =
 viewCalendar : WorkdayMode -> Tactic -> List Item -> Html msg
 viewCalendar workdayMode tactic items =
     let
+        neededCount : Int
+        neededCount =
+            ceiling (criticalDuration tactic items)
+
         actualWork : { keys : Set String, overflowed : Bool }
         actualWork =
-            actualWorkDayKeys workdayMode (ceiling (criticalDuration tactic items))
+            actualWorkDayKeys workdayMode neededCount
+
+        {- Positive: the actual work finishes with this many working days of
+           the Sept24-Dec14 window unused. Negative: it overruns the window
+           by this many working days.
+        -}
+        daysToSpare : Int
+        daysToSpare =
+            workingDaysCount workdayMode - neededCount
     in
     div
         [ style "font-family" "-apple-system, BlinkMacSystemFont, sans-serif" ]
@@ -540,6 +552,24 @@ viewCalendar workdayMode tactic items =
             , style "padding" "24px 48px"
             ]
             (List.map (viewMonth workdayMode actualWork.keys actualWork.overflowed) calendarMonths)
+        , viewOnTimeSummary daysToSpare
+        ]
+
+
+viewOnTimeSummary : Int -> Html msg
+viewOnTimeSummary daysToSpare =
+    div
+        [ style "text-align" "center"
+        , style "font-size" "18px"
+        , style "padding" "24px 0 32px 0"
+        ]
+        [ text
+            (if daysToSpare < 0 then
+                "The project will not be done on time."
+
+             else
+                "The project will be done on time with " ++ String.fromInt daysToSpare ++ " days to spare."
+            )
         ]
 
 

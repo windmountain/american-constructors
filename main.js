@@ -8559,13 +8559,27 @@ var $author$project$Main$viewMonth = F4(
 							$author$project$Main$monthCells(month))))
 				]));
 	});
+var $author$project$Main$viewOnTimeSummary = function (daysToSpare) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				A2($elm$html$Html$Attributes$style, 'text-align', 'center'),
+				A2($elm$html$Html$Attributes$style, 'font-size', '18px'),
+				A2($elm$html$Html$Attributes$style, 'padding', '24px 0 32px 0')
+			]),
+		_List_fromArray(
+			[
+				$elm$html$Html$text(
+				(daysToSpare < 0) ? 'The project will not be done on time.' : ('The project will be done on time with ' + ($elm$core$String$fromInt(daysToSpare) + ' days to spare.')))
+			]));
+};
 var $author$project$Main$viewCalendar = F3(
 	function (workdayMode, tactic, items) {
-		var actualWork = A2(
-			$author$project$Main$actualWorkDayKeys,
-			workdayMode,
-			$elm$core$Basics$ceiling(
-				A2($author$project$Main$criticalDuration, tactic, items)));
+		var neededCount = $elm$core$Basics$ceiling(
+			A2($author$project$Main$criticalDuration, tactic, items));
+		var daysToSpare = $author$project$Main$workingDaysCount(workdayMode) - neededCount;
+		var actualWork = A2($author$project$Main$actualWorkDayKeys, workdayMode, neededCount);
 		return A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -8587,7 +8601,8 @@ var $author$project$Main$viewCalendar = F3(
 					A2(
 						$elm$core$List$map,
 						A3($author$project$Main$viewMonth, workdayMode, actualWork.keys, actualWork.overflowed),
-						$author$project$Main$calendarMonths))
+						$author$project$Main$calendarMonths)),
+					$author$project$Main$viewOnTimeSummary(daysToSpare)
 				]));
 	});
 var $author$project$Main$encodeTaskId = function (id) {
