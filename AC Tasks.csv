@@ -20,25 +20,25 @@ B8,bookstore,painting,B7,,,,10,,,,,,,10,16,26,33.5,23.5,7.5
 B11,bookstore,cleanup and ACI punch list,P14,,,,1,,,,,,,1,41,42,44.5,43.5,2.5
 B9,bookstore,doors and hardware,B8,B6,,,,5,8,,,,,6.5,31,37.5,43.5,37,6
 B10,bookstore,MEP,B8,B6,,,10,,,,,,,10,31,41,43.5,33.5,2.5
-S0,sanctuary,sanctuary start,P0,,,,,,,,,,,0,0,0,6,6,6
+S0,sanctuary,sanctuary start,P0,,,,,,,,,,,0,0,0,5,5,5
 S1,sanctuary,drywall,S0,,,,16,,,,,,,16,0,16,33.5,17.5,17.5
-S2.1,sanctuary,core drill for rails (left side),S0,,,,1,,,,,,,1,0,1,9.5,8.5,8.5
-S2.2,sanctuary,core drill for rails (right side),S0,,,,1,,,,,,,1,0,1,7,6,6
+S2.1,sanctuary,core drill for rails (left side),S0,,,,1,,,,,,,1,0,1,6,5,5
+S2.2,sanctuary,core drill for rails (right side),S0,S2.1,,,1,,,,,,,1,1,2,7,6,5
 S3.1,sanctuary,install rails (left side),S2.1,,,,2.5,,,,,,,2.5,1,3.5,38.5,36,35
-S3.2,sanctuary,install rails (right side),S2.2,,,,2.5,,,,,,,2.5,1,3.5,38.5,36,35
+S3.2,sanctuary,install rails (right side),S2.2,,,,2.5,,,,,,,2.5,2,4.5,38.5,36,34
 S4.1,sanctuary,install carpeting at seats (left side),S2.1,,,,7.5,,,,,,,7.5,1,8.5,17,9.5,8.5
-S4.2,sanctuary,install carpeting at seats (right side),S2.2,,,,7.5,,,,,,,7.5,1,8.5,17,9.5,8.5
-S5,sanctuary,carpeting at rails,S3.1,S3.2,,,5,,,,,,,5,3.5,8.5,43.5,38.5,35
+S4.2,sanctuary,install carpeting at seats (right side),S2.2,,,,7.5,,,,,,,7.5,2,9.5,17,9.5,7.5
+S5,sanctuary,carpeting at rails,S3.1,S3.2,,,5,,,,,,,5,4.5,9.5,43.5,38.5,34
 S6.1,sanctuary,"wood paneling, trim and stage (left side)",S4.1,,,,12.5,,,,,,,12.5,8.5,21,51.75,39.25,30.75
-S6.2,sanctuary,"wood paneling, trim and stage (right side)",S4.2,,,,12.5,,,,,,,12.5,8.5,21,33.5,21,12.5
-S7,sanctuary,painting,S10,S8,S4.1,S4.2,20,,,,,,,20,11,31,37,17,6
-S8,sanctuary,concrete floor staining,S10,,,,5,,,,,,,5,6,11,17,12,6
+S6.2,sanctuary,"wood paneling, trim and stage (right side)",S4.2,,,,12.5,,,,,,,12.5,9.5,22,33.5,21,11.5
+S7,sanctuary,painting,S10,S8,S4.1,S4.2,20,,,,,,,20,12,32,37,17,5
+S8,sanctuary,concrete floor staining,S10,,,,5,,,,,,,5,7,12,17,12,5
 S9.1,sanctuary,installation of seats (left side),S1,S6.1,,,10,,,,,,,10,21,31,61.75,51.75,30.75
-S9.2,sanctuary,installation of seats (right side),S1,S6.2,,,10,,,,,,,10,21,31,43.5,33.5,12.5
-S10,sanctuary,wood stage steps,S2.2,,,,5,,,,,,,5,1,6,12,7,6
-S11,sanctuary,"install carpet (steps, flats, aisles)",S10,,,,5,,,,,,,5,6,11,43.5,38.5,32.5
-S12,sanctuary,install doors and hardware,S7,S6.2,,,,5,8,,,,,6.5,31,37.5,43.5,37,6
-S13,sanctuary,cleanup and ACI punch list,P11,,,,1,,,,,,,1,37.5,38.5,44.5,43.5,6
+S9.2,sanctuary,installation of seats (right side),S1,S6.2,,,10,,,,,,,10,22,32,43.5,33.5,11.5
+S10,sanctuary,wood stage steps,S2.2,,,,5,,,,,,,5,2,7,12,7,5
+S11,sanctuary,"install carpet (steps, flats, aisles)",S10,,,,5,,,,,,,5,7,12,43.5,38.5,31.5
+S12,sanctuary,install doors and hardware,S7,S6.2,,,,5,8,,,,,6.5,32,38.5,43.5,37,5
+S13,sanctuary,cleanup and ACI punch list,P11,,,,1,,,,,,,1,38.5,39.5,44.5,43.5,5
 L0,lobby,lobby start,P0,,,,,,,,,,,0,0,0,5,5,5
 L1,lobby,millwork for reception,L0,,,,3,,,,,,,3,0,3,8,5,5
 L2,lobby,millwork for walls and rails,L0,,,,10,,,,,,,10,0,10,23.5,13.5,13.5
@@ -64,7 +64,7 @@ P6,overall,sign general guarantee and warranty,P2,,,,,0.5,1,,,,,0.75,61,61.75,61
 P7,overall,sign final release of lien,P2,,,,,,,,,,,0,61,61,61.75,61.75,0.75
 P9,overall,cleanup and ACI punch list,P15,,,,4,,,,,,,4,44.5,48.5,48.5,44.5,0
 P10,overall,lobby done except cleanup and ACI punch list,L14,L13,L9,,,,,,,,,0,38.5,38.5,43.5,43.5,5
-P11,overall,sanctuary done except cleanup and ACI punch list,S11,S12,S9.2,S5,,,,,,,,0,37.5,37.5,43.5,43.5,6
+P11,overall,sanctuary done except cleanup and ACI punch list,S11,S12,S9.2,S5,,,,,,,,0,38.5,38.5,43.5,43.5,5
 P12,overall,terrace done except cleanup and ACI punch list,T7,,,,,,,,,,,0,43.5,43.5,43.5,43.5,0
 P14,overall,bookstore done except cleanup and ACI punch list,B9,B10,,,,,,,,,,0,41,41,43.5,43.5,2.5
 P15,overall,all sections done,L15,S13,B11,T8,,,,,,,,0,44.5,44.5,44.5,44.5,0
