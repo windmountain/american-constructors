@@ -9,6 +9,7 @@ import Html exposing (Html, a, button, div, input, label, node, option, pre, sel
 import Html.Attributes exposing (checked, download, for, href, id, name, property, selected, style, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Json.Encode as Encode
+import Set exposing (Set)
 
 
 type TaskId
@@ -37,6 +38,7 @@ type alias Task =
     , name : String
     , dependsOn : List TaskId
     , estimate : Estimate
+    , isEffectiveEnd : Bool
     , weatherDependent : Bool
     , canExpedite : Bool
     , spreadsheetEs : Float
@@ -52,6 +54,7 @@ type alias Milestone =
     , section : String
     , name : String
     , dependsOn : List TaskId
+    , isEffectiveEnd : Bool
     , weatherDependent : Bool
     , canExpedite : Bool
     , spreadsheetEs : Float
@@ -73,6 +76,7 @@ type alias RawFields =
     , name : String
     , dependsOn : List TaskId
     , estimate : Maybe Estimate
+    , isEffectiveEnd : Bool
     , weatherDependent : Bool
     , canExpedite : Bool
     , spreadsheetEs : Float
@@ -91,6 +95,7 @@ itemDecoder =
         |> Decode.pipeline (Decode.field "Name" Decode.string)
         |> Decode.pipeline dependsOnDecoder
         |> Decode.pipeline estimateDecoder
+        |> Decode.pipeline (yesNoDecoder "Effective End")
         |> Decode.pipeline (yesNoDecoder "Weather-dependent")
         |> Decode.pipeline (yesNoDecoder "Can Expedite")
         |> Decode.pipeline (requiredFloatField "ES")
@@ -111,6 +116,7 @@ toItem fields =
                 , name = fields.name
                 , dependsOn = fields.dependsOn
                 , estimate = estimate
+                , isEffectiveEnd = fields.isEffectiveEnd
                 , weatherDependent = fields.weatherDependent
                 , canExpedite = fields.canExpedite
                 , spreadsheetEs = fields.spreadsheetEs
@@ -126,6 +132,7 @@ toItem fields =
                 , section = fields.section
                 , name = fields.name
                 , dependsOn = fields.dependsOn
+                , isEffectiveEnd = fields.isEffectiveEnd
                 , weatherDependent = fields.weatherDependent
                 , canExpedite = fields.canExpedite
                 , spreadsheetEs = fields.spreadsheetEs
@@ -477,8 +484,8 @@ itemFields schedule showSpreadsheet item =
                 , ( "estimate", Encode.string (estimateText task.estimate) )
                 , ( "es", Encode.string (Format.formatDays (scheduleEs schedule task.id)) )
                 , ( "ef", Encode.string (Format.formatDays (scheduleEf schedule task.id)) )
-                , ( "lf", Encode.string (Format.formatDays (scheduleLf schedule task.id)) )
-                , ( "ls", Encode.string (Format.formatDays (scheduleLs schedule task.id)) )
+                , ( "lf", Encode.string (Format.formatMaybeDays (scheduleLf schedule task.id)) )
+                , ( "ls", Encode.string (Format.formatMaybeDays (scheduleLs schedule task.id)) )
                 , ( "sEs", Encode.string (Format.formatDays task.spreadsheetEs) )
                 , ( "sEf", Encode.string (Format.formatDays task.spreadsheetEf) )
                 , ( "sLf", Encode.string (Format.formatDays task.spreadsheetLf) )
@@ -497,8 +504,8 @@ itemFields schedule showSpreadsheet item =
                 , ( "section", Encode.string milestone.section )
                 , ( "es", Encode.string (Format.formatDays (scheduleEs schedule milestone.id)) )
                 , ( "ef", Encode.string (Format.formatDays (scheduleEf schedule milestone.id)) )
-                , ( "lf", Encode.string (Format.formatDays (scheduleLf schedule milestone.id)) )
-                , ( "ls", Encode.string (Format.formatDays (scheduleLs schedule milestone.id)) )
+                , ( "lf", Encode.string (Format.formatMaybeDays (scheduleLf schedule milestone.id)) )
+                , ( "ls", Encode.string (Format.formatMaybeDays (scheduleLs schedule milestone.id)) )
                 , ( "sEs", Encode.string (Format.formatDays milestone.spreadsheetEs) )
                 , ( "sEf", Encode.string (Format.formatDays milestone.spreadsheetEf) )
                 , ( "sLf", Encode.string (Format.formatDays milestone.spreadsheetLf) )
@@ -520,11 +527,11 @@ scheduleText schedule taskId =
         ++ "  EF "
         ++ Format.formatDays (scheduleEf schedule taskId)
         ++ "  LF "
-        ++ Format.formatDays (scheduleLf schedule taskId)
+        ++ Format.formatMaybeDays (scheduleLf schedule taskId)
         ++ "  LS "
-        ++ Format.formatDays (scheduleLs schedule taskId)
+        ++ Format.formatMaybeDays (scheduleLs schedule taskId)
         ++ "  Slack "
-        ++ Format.formatDays (scheduleSlack schedule taskId)
+        ++ Format.formatMaybeDays (scheduleSlack schedule taskId)
 
 
 estimateText : Estimate -> String
@@ -621,13 +628,52 @@ buildSchedule tactic items =
         efDict =
             esDict |> Dict.map (\id esValue -> esValue + durationOf id)
 
+        {- The critical path is anchored to a single, explicitly-marked end
+           item (see the "Effective End" column) rather than to every item
+           with no dependents. ES/EF stay defined for every item - they're
+           just how early something can happen, regardless of any end date -
+           but LS/LF (and therefore slack) only make sense for items that
+           actually lead up to that end item. Anything else, including tasks
+           scheduled after it, gets no LS/LF at all rather than a value
+           computed against the wrong finish date.
+        -}
+        endId : Maybe String
+        endId =
+            items
+                |> List.filter itemIsEffectiveEnd
+                |> List.head
+                |> Maybe.map (itemId >> taskIdToString)
+
+        criticalPathIds : Set String
+        criticalPathIds =
+            case endId of
+                Just id ->
+                    ancestorsOf itemsById id
+
+                Nothing ->
+                    itemsById |> Dict.keys |> Set.fromList
+
+        criticalPathTopoOrder : List String
+        criticalPathTopoOrder =
+            topoOrder |> List.filter (\id -> Set.member id criticalPathIds)
+
+        criticalPathDependentsOf : Dict String (List String)
+        criticalPathDependentsOf =
+            dependentsOf
+                |> Dict.filter (\id _ -> Set.member id criticalPathIds)
+                |> Dict.map (\_ deps -> List.filter (\d -> Set.member d criticalPathIds) deps)
+
         finish : Float
         finish =
-            itemsById
-                |> Dict.keys
-                |> List.map (\id -> (Dict.get id esDict |> Maybe.withDefault 0) + durationOf id)
-                |> List.maximum
-                |> Maybe.withDefault 0
+            case endId of
+                Just id ->
+                    Dict.get id efDict |> Maybe.withDefault 0
+
+                Nothing ->
+                    topoOrder
+                        |> List.map (\id -> Dict.get id efDict |> Maybe.withDefault 0)
+                        |> List.maximum
+                        |> Maybe.withDefault 0
 
         lsDict : Dict String Float
         lsDict =
@@ -635,7 +681,7 @@ buildSchedule tactic items =
                 (\id acc ->
                     let
                         dependents =
-                            Dict.get id dependentsOf |> Maybe.withDefault []
+                            Dict.get id criticalPathDependentsOf |> Maybe.withDefault []
 
                         latestFinish =
                             case dependents of
@@ -651,7 +697,7 @@ buildSchedule tactic items =
                     Dict.insert id (latestFinish - durationOf id) acc
                 )
                 Dict.empty
-                (List.reverse topoOrder)
+                (List.reverse criticalPathTopoOrder)
 
         lfDict : Dict String Float
         lfDict =
@@ -709,6 +755,35 @@ topoSortHelp dependentsOf inDegree queue order =
             topoSortHelp dependentsOf newInDegree (rest ++ newlyReady) (id :: order)
 
 
+{-| Every item an item transitively depends on, plus the item itself -
+its "ancestors" in schedule order. Used to scope critical path
+calculations to just the items that lead up to the effective end item.
+-}
+ancestorsOf : Dict String Item -> String -> Set String
+ancestorsOf itemsById startId =
+    ancestorsOfHelp itemsById [ startId ] Set.empty
+
+
+ancestorsOfHelp : Dict String Item -> List String -> Set String -> Set String
+ancestorsOfHelp itemsById queue visited =
+    case queue of
+        [] ->
+            visited
+
+        id :: rest ->
+            if Set.member id visited then
+                ancestorsOfHelp itemsById rest visited
+
+            else
+                let
+                    deps =
+                        Dict.get id itemsById
+                            |> Maybe.map (itemDependsOn >> List.map taskIdToString)
+                            |> Maybe.withDefault []
+                in
+                ancestorsOfHelp itemsById (deps ++ rest) (Set.insert id visited)
+
+
 scheduleEs : Schedule -> TaskId -> Float
 scheduleEs schedule taskId =
     Dict.get (taskIdToString taskId) schedule.es |> Maybe.withDefault 0
@@ -719,19 +794,22 @@ scheduleEf schedule taskId =
     Dict.get (taskIdToString taskId) schedule.ef |> Maybe.withDefault 0
 
 
-scheduleLs : Schedule -> TaskId -> Float
+{-| Nothing means this item isn't an ancestor of the effective end item, so
+it has no meaningful late-start/late-finish (and therefore no slack).
+-}
+scheduleLs : Schedule -> TaskId -> Maybe Float
 scheduleLs schedule taskId =
-    Dict.get (taskIdToString taskId) schedule.ls |> Maybe.withDefault 0
+    Dict.get (taskIdToString taskId) schedule.ls
 
 
-scheduleLf : Schedule -> TaskId -> Float
+scheduleLf : Schedule -> TaskId -> Maybe Float
 scheduleLf schedule taskId =
-    Dict.get (taskIdToString taskId) schedule.lf |> Maybe.withDefault 0
+    Dict.get (taskIdToString taskId) schedule.lf
 
 
-scheduleSlack : Schedule -> TaskId -> Float
+scheduleSlack : Schedule -> TaskId -> Maybe Float
 scheduleSlack schedule taskId =
-    scheduleLs schedule taskId - scheduleEs schedule taskId
+    scheduleLs schedule taskId |> Maybe.map (\lsValue -> lsValue - scheduleEs schedule taskId)
 
 
 es : Tactic -> List Item -> TaskId -> Float
@@ -744,17 +822,17 @@ ef tactic items taskId =
     scheduleEf (buildSchedule tactic items) taskId
 
 
-ls : Tactic -> List Item -> TaskId -> Float
+ls : Tactic -> List Item -> TaskId -> Maybe Float
 ls tactic items taskId =
     scheduleLs (buildSchedule tactic items) taskId
 
 
-lf : Tactic -> List Item -> TaskId -> Float
+lf : Tactic -> List Item -> TaskId -> Maybe Float
 lf tactic items taskId =
     scheduleLf (buildSchedule tactic items) taskId
 
 
-slack : Tactic -> List Item -> TaskId -> Float
+slack : Tactic -> List Item -> TaskId -> Maybe Float
 slack tactic items taskId =
     scheduleSlack (buildSchedule tactic items) taskId
 
@@ -797,6 +875,16 @@ itemDependsOn item =
             milestone.dependsOn
 
 
+itemIsEffectiveEnd : Item -> Bool
+itemIsEffectiveEnd item =
+    case item of
+        TaskItem task ->
+            task.isEffectiveEnd
+
+        MilestoneItem milestone ->
+            milestone.isEffectiveEnd
+
+
 itemToElements : Schedule -> Bool -> Item -> List Encode.Value
 itemToElements schedule showSpreadsheet item =
     let
@@ -810,7 +898,7 @@ itemToElements schedule showSpreadsheet item =
                         ([ ( "id", encodeTaskId fields.id )
                          , ( "label", Encode.string fields.label )
                          , ( "kind", Encode.string fields.kind )
-                         , ( "slack", Encode.float (scheduleSlack schedule fields.id) )
+                         , ( "slack", Encode.string (Format.formatMaybeDays (scheduleSlack schedule fields.id)) )
                          ]
                             ++ fields.card
                         )

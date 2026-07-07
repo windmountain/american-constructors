@@ -96,7 +96,7 @@ class TaskCard extends HTMLElement {
 
     const bottomRow = gridRow([
       ["LS", d.ls],
-      ["Float", ""],
+      ["Slack", d.slack],
       ["LF", d.lf],
     ]);
 

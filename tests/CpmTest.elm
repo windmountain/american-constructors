@@ -17,6 +17,7 @@ items =
         , section = "test"
         , name = "start"
         , dependsOn = []
+        , isEffectiveEnd = False
         , weatherDependent = False
         , canExpedite = False
         , spreadsheetEs = 0
@@ -31,6 +32,7 @@ items =
         , name = "short branch"
         , dependsOn = [ TaskId "1" ]
         , estimate = Point 5
+        , isEffectiveEnd = False
         , weatherDependent = False
         , canExpedite = False
         , spreadsheetEs = 0
@@ -45,6 +47,7 @@ items =
         , name = "long branch"
         , dependsOn = [ TaskId "1" ]
         , estimate = Point 8
+        , isEffectiveEnd = False
         , weatherDependent = False
         , canExpedite = False
         , spreadsheetEs = 0
@@ -59,6 +62,7 @@ items =
         , name = "join"
         , dependsOn = [ TaskId "2", TaskId "3" ]
         , estimate = Point 2
+        , isEffectiveEnd = True
         , weatherDependent = False
         , canExpedite = False
         , spreadsheetEs = 0
@@ -73,6 +77,7 @@ items =
         , name = "range branch"
         , dependsOn = [ TaskId "1" ]
         , estimate = Range 4 10
+        , isEffectiveEnd = False
         , weatherDependent = False
         , canExpedite = False
         , spreadsheetEs = 0
@@ -108,20 +113,32 @@ suite =
                 \_ -> ef Pessimistic items (TaskId "4") |> Expect.equal 10
             ]
         , describe "lf"
-            [ test "a task with no dependents finishes as late as the project finish" <|
-                \_ -> lf Pessimistic items (TaskId "4") |> Expect.equal 10
+            [ test "the effective end item finishes as late as the project finish" <|
+                \_ -> lf Pessimistic items (TaskId "4") |> Expect.equal (Just 10)
             , test "a task's LF is the earliest LS among its dependents" <|
-                \_ -> lf Pessimistic items (TaskId "2") |> Expect.equal 8
+                \_ -> lf Pessimistic items (TaskId "2") |> Expect.equal (Just 8)
+            , test "a task scheduled after the effective end item has no LF" <|
+                \_ -> lf Pessimistic (items ++ [ dependentOnEnd ]) (TaskId "7") |> Expect.equal Nothing
             ]
         , describe "ls"
             [ test "a task's LS is its LF minus its own duration" <|
-                \_ -> ls Pessimistic items (TaskId "2") |> Expect.equal 3
+                \_ -> ls Pessimistic items (TaskId "2") |> Expect.equal (Just 3)
+            , test "a task scheduled after the effective end item has no LS" <|
+                \_ -> ls Pessimistic (items ++ [ dependentOnEnd ]) (TaskId "7") |> Expect.equal Nothing
             ]
         , describe "slack"
             [ test "a critical path task has zero slack" <|
-                \_ -> slack Pessimistic items (TaskId "3") |> Expect.equal 0
+                \_ -> slack Pessimistic items (TaskId "3") |> Expect.equal (Just 0)
             , test "a task off the critical path has positive slack" <|
-                \_ -> slack Pessimistic items (TaskId "2") |> Expect.equal 3
+                \_ -> slack Pessimistic items (TaskId "2") |> Expect.equal (Just 3)
+            , test "a task scheduled after the effective end item has no slack" <|
+                \_ -> slack Pessimistic (items ++ [ dependentOnEnd ]) (TaskId "7") |> Expect.equal Nothing
+            , test "a task scheduled after the effective end item still has an ES/EF" <|
+                \_ ->
+                    ( es Pessimistic (items ++ [ dependentOnEnd ]) (TaskId "7")
+                    , ef Pessimistic (items ++ [ dependentOnEnd ]) (TaskId "7")
+                    )
+                        |> Expect.equal ( 10, 13 )
             ]
         ]
 
@@ -134,6 +151,29 @@ dependentOn5 =
         , name = "depends on range branch"
         , dependsOn = [ TaskId "5" ]
         , estimate = Point 0
+        , isEffectiveEnd = False
+        , weatherDependent = False
+        , canExpedite = False
+        , spreadsheetEs = 0
+        , spreadsheetEf = 0
+        , spreadsheetLf = 0
+        , spreadsheetLs = 0
+        , spreadsheetSlack = 0
+        }
+
+
+{-| Scheduled after the effective end item (4), so it's not one of its
+ancestors - it should keep its ES/EF but have no LS/LF/slack.
+-}
+dependentOnEnd : Item
+dependentOnEnd =
+    TaskItem
+        { id = TaskId "7"
+        , section = "test"
+        , name = "depends on join"
+        , dependsOn = [ TaskId "4" ]
+        , estimate = Point 3
+        , isEffectiveEnd = False
         , weatherDependent = False
         , canExpedite = False
         , spreadsheetEs = 0
